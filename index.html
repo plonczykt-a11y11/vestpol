@@ -1083,7 +1083,7 @@ let instalacja = null;
 function pokazInstal(v){ document.querySelectorAll('[data-install]').forEach(b=>b.classList.toggle('hidden', !v)); }
 window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); instalacja=e; if(!zainstalowana) pokazInstal(true); });
 window.addEventListener('appinstalled', ()=>{ instalacja=null; pokazInstal(false); toast('Aplikacja zainstalowana — znajdziesz ją na ekranie głównym'); });
-if(naIOS && !zainstalowana) pokazInstal(true);
+if(!zainstalowana) pokazInstal(true);          // przycisk zawsze widoczny; bez systemowego okna pokazuje instrukcję
 function instrukcja(tytul, kroki){
   $('drawerRoot').innerHTML = `<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true" style="height:auto;bottom:auto;top:50%;left:50%;right:auto;transform:translate(-50%,-50%);width:min(420px,calc(100vw - 32px));border-radius:18px;animation:none">
     <div class="drawer-h"><div style="flex:1"><h3>${tytul}</h3></div><button class="btn ghost" id="iClose" aria-label="Zamknij">✕</button></div>
@@ -1094,7 +1094,9 @@ function instrukcja(tytul, kroki){
 document.querySelectorAll('[data-install]').forEach(b=>b.onclick = async ()=>{
   if(instalacja){ instalacja.prompt(); const w = await instalacja.userChoice; instalacja = null; pokazInstal(w.outcome!=='accepted'); return; }
   if(naIOS) return instrukcja('Zainstaluj na iPhonie / iPadzie', ['Otwórz tę stronę w <b>Safari</b>.', 'Stuknij przycisk <b>Udostępnij</b> (kwadrat ze strzałką w górę).', 'Wybierz <b>Do ekranu początkowego</b>.', 'Stuknij <b>Dodaj</b> — ikona VEST-POL pojawi się na ekranie.']);
-  instrukcja('Zainstaluj aplikację', ['W Chrome lub Edge kliknij ikonę <b>Zainstaluj</b> na końcu paska adresu albo w menu <b>⋮</b> wybierz <b>Zainstaluj aplikację</b> / <b>Dodaj do ekranu głównego</b>.', 'Potwierdź — aplikacja otworzy się w osobnym oknie i pojawi się w menu Start lub na ekranie głównym.']);
+  const android=/android/i.test(navigator.userAgent);
+  if(android) return instrukcja('Zainstaluj na telefonie z Androidem', ['Otwórz tę stronę w <b>Chrome</b>.', 'Stuknij menu <b>⋮</b> (prawy górny róg).', 'Wybierz <b>Zainstaluj aplikację</b> albo <b>Dodaj do ekranu głównego</b>.', 'Potwierdź — ikona VEST-POL pojawi się na ekranie głównym.']);
+  instrukcja('Zainstaluj na komputerze', ['Otwórz tę stronę w <b>Chrome</b> albo <b>Edge</b>.', 'Kliknij ikonę instalacji na końcu paska adresu (monitor ze strzałką) albo menu <b>⋮</b> / <b>…</b> → <b>Zainstaluj VEST-POL</b> (w Edge: <b>Aplikacje → Zainstaluj tę witrynę jako aplikację</b>).', 'Aplikacja otworzy się w osobnym oknie i pojawi się w menu Start oraz na pasku zadań.']);
 });
 // kolor paska systemowego zgodny z motywem
 function kolorPaska(){
