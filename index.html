@@ -628,7 +628,7 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
         <div class="panel">
           <div class="panel-h"><h3>Archiwum Excel</h3><span id="arKiedy"></span></div>
           <div class="setb">
-            <p class="hint" style="font-size:13.5px;color:var(--ink-2)">Plik <b>VEST-POL – baza zamówień.xlsx</b> na Dysku Google (obok starego Excela): podsumowania miesięcy, produktów i pracowników, arkusz „Wszystkie” z filtrami i osobny arkusz na każdy miesiąc. Zapisuje się sam co noc.</p>
+            <p class="hint" style="font-size:13.5px;color:var(--ink-2)">Osobny plik na każdy rok, np. <b>VEST-POL – baza zamówień 2026.xlsx</b>, na Dysku Google obok starego Excela. W środku: podsumowania miesięcy, produktów i pracowników, arkusz „Wszystkie” z filtrami i osobny arkusz na każdy miesiąc. Co noc zapisują się same te lata, w których coś się zmieniło.</p>
             <div id="arLinks" class="hint">Archiwum nie było jeszcze zapisane.</div>
             <div class="stline err hidden" id="arErr"><span class="d"></span><span></span></div>
             <div class="row2"><button class="btn primary" id="arSave">Zapisz archiwum teraz</button><button class="btn" id="xlPull" title="Dopisuje do bazy wiersze dodane w starym Excelu po imporcie">Dociągnij ze starego Excela</button></div>
@@ -1211,7 +1211,8 @@ function renderSettings(){
   const wyb=new Set(b.wybrane||[]);
   $('blStatusy').innerHTML=(b.statusy||[]).map(s=>`<label><input type="checkbox" value="${esc(s.id)}" ${wyb.has(String(s.id))?'checked':''}><span class="sw" style="background:${/^#[0-9a-f]{3,8}$/i.test(s.color)?s.color:'var(--muted)'}"></span>${esc(s.name)}</label>`).join('') || '<span class="hint">Brak listy statusów — zapisz token.</span>';
   $('arKiedy').textContent = a.kiedy ? 'zapisano '+godz(a.kiedy) : '';
-  $('arLinks').innerHTML = a.xlsx ? `<a class="lnk" href="${esc(a.xlsx)}" target="_blank" rel="noopener">Otwórz plik VEST-POL – baza zamówień.xlsx</a><br><a class="lnk" href="${esc(a.arkusz)}" target="_blank" rel="noopener">Wersja w Arkuszach Google</a>` : 'Archiwum nie było jeszcze zapisane — kliknij „Zapisz archiwum teraz”.';
+  const lata=a.lata||[];
+  $('arLinks').innerHTML = lata.length ? lata.map(x=>`<div style="margin-bottom:6px"><b style="color:var(--ink)">${esc(x.rok)}</b> · <a class="lnk" href="${esc(x.xlsx)}" target="_blank" rel="noopener">${esc(x.nazwa)}</a>${x.arkusz?` · <a class="lnk" href="${esc(x.arkusz)}" target="_blank" rel="noopener">wersja Google</a>`:''}${x.kiedy?` <span class="lp">(zapisano ${godz(x.kiedy)})</span>`:''}</div>`).join('') : 'Archiwum nie było jeszcze zapisane — kliknij „Zapisz archiwum teraz”.';
   $('arErr').classList.toggle('hidden', !a.blad); $('arErr').lastElementChild.textContent = a.blad ? 'Ostatni zapis nie udał się: '+a.blad : '';
 }
 async function akcjaUst(btn, fn, ...args){
@@ -1235,7 +1236,7 @@ $('blSyncNow').onclick=()=>synchronizujTeraz($('blSyncNow'));
 $('arSave').onclick=async()=>{
   sync('busy','Zapisywanie archiwum…');
   const r=await akcjaUst($('arSave'),'zapiszArchiwum'); sync('', 'Aktualne');
-  if(r){ toast('Archiwum zapisane na Dysku'); loadSettings(); }
+  if(r){ toast('Zapisano archiwa: '+(r.zapisane||[]).join(', ')); loadSettings(); }
 };
 $('xlPull').onclick=async()=>{
   const r=await akcjaUst($('xlPull'),'dociagnijZExcela');
