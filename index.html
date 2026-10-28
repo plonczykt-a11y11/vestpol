@@ -374,6 +374,31 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
 .lnk{color:var(--brand);font-weight:500;text-decoration:none;word-break:break-word}
 .lnk:hover{text-decoration:underline}
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.ptable td{white-space:normal;vertical-align:middle}
+.ptable td.nw{white-space:nowrap}
+.ptable .pd{color:var(--muted);font-size:12.5px;line-height:1.45;max-width:420px}
+.ptable tr.off td{opacity:.55}
+.ptable .old{text-decoration:line-through;color:var(--muted);font-size:12px;margin-right:4px}
+.tag.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok-line)}
+.tag.re{background:var(--amber-soft);color:var(--amber);border-color:var(--amber-line)}
+.opts{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.opts button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:2px 9px;font-size:12px;cursor:pointer}
+.opts button:hover{border-color:var(--brand)}
+.opts .lbl2{font-size:11px;color:var(--muted);align-self:center;margin-right:2px}
+.sectH{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sectH .btn{padding:4px 10px;font-size:12.5px;text-transform:none;letter-spacing:0;color:var(--ink)}
+.pricehist{font-size:12.5px;color:var(--muted);margin:4px 0 0}
+@media (max-width:860px){
+  .ptable thead{display:none}
+  .ptable,.ptable tbody{display:block}
+  .ptable tr{display:grid;grid-template-columns:1fr auto;gap:3px 12px;padding:12px 14px;border-bottom:1px solid var(--line-2)}
+  .ptable td{border:none;padding:0}
+  .ptable td:nth-child(1){grid-column:1;grid-row:1}
+  .ptable td:nth-child(3){grid-column:2;grid-row:1}
+  .ptable td:nth-child(2),.ptable td:nth-child(4){grid-column:1/-1}
+  .ptable td:nth-child(5){grid-column:1}
+  .ptable td:nth-child(6){grid-column:2}
+}
 .fgrid .full{grid-column:1/-1}
 @media (max-width:520px){ .fgrid{grid-template-columns:1fr} }
 .srcTag{display:inline-flex;align-items:center;border-radius:6px;font-size:10.5px;font-weight:650;padding:1px 6px;margin-left:5px;background:var(--grey-soft);color:var(--ink-2);vertical-align:1px;letter-spacing:.02em}
@@ -563,6 +588,21 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
       </div>
     </section>
 
+    <!-- KIEROWNIK: PRODUKTY -->
+    <section id="vProducts" class="hidden">
+      <div class="pageHead"><div><h2>Produkty</h2><p>Cennik z pliku dziewczyn + zmiany cen, dane produktów i nowe produkty dodane w aplikacji</p></div>
+        <button class="btn primary" id="addProdBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span>Dodaj produkt</span></button></div>
+      <div class="filters">
+        <label class="field grow"><span>Szukaj</span><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input" type="search" id="pSearch" placeholder="Nazwa produktu, rozmiar, kolor…"></div></label>
+        <label class="field"><span>Pokaż</span><select class="input" id="pZrodlo"><option value="all">Wszystkie</option><option value="cennik">Z cennika (bez zmian)</option><option value="zmieniony">Zmienione w aplikacji</option><option value="nowy">Dodane w aplikacji</option><option value="ukryte">Ukryte w formularzu</option></select></label>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h3>Lista produktów</h3><span id="pCount"></span></div>
+        <div style="overflow-x:auto"><table class="ptable"><thead><tr><th>Produkt</th><th>Wariant / specyfikacja</th><th class="r">Cena</th><th>Dane produktu</th><th>Źródło</th><th></th></tr></thead><tbody id="pTable"></tbody></table></div>
+        <div class="more hidden" id="pMoreBox"><button class="btn" id="pMore">Pokaż więcej</button></div>
+      </div>
+    </section>
+
     <!-- KIEROWNIK: KONTA -->
     <section id="vAccounts" class="hidden">
       <div class="pageHead"><div><h2>Konta i ustawienia</h2><p>BaseLinker, archiwum Excel i konta osób (każda loguje się własnym PIN-em)</p></div></div>
@@ -738,7 +778,7 @@ function start(profil){
   $('appName').textContent = 'Plan produkcji'; $('appName').classList.toggle('hidden', me.rola==='kierownik');
   const nav=$('nav'); nav.innerHTML='';
   if(me.rola==='kierownik'){
-    [['orders','Zamówienia'],['accounts','Konta i ustawienia']].forEach(([v,t])=>{ const b=document.createElement('button'); b.textContent=t; b.dataset.v=v; b.onclick=()=>setView(v); nav.appendChild(b); });
+    [['orders','Zamówienia'],['products','Produkty'],['accounts','Konta i ustawienia']].forEach(([v,t])=>{ const b=document.createElement('button'); b.textContent=t; b.dataset.v=v; b.onclick=()=>setView(v); nav.appendChild(b); });
     setView('orders');
   } else {
     $('wHello').textContent='Plan produkcji — '+me.imie;
@@ -751,15 +791,17 @@ function setView(v){
   view=v;
   $('vOrders').classList.toggle('hidden', v!=='orders');
   $('vAccounts').classList.toggle('hidden', v!=='accounts');
+  $('vProducts').classList.toggle('hidden', v!=='products');
   $('vWorker').classList.toggle('hidden', v!=='worker');
   [...$('nav').children].forEach(b=>b.classList.toggle('on', b.dataset.v===v));
   if(v==='accounts'){ loadAccounts(); loadSettings(); }
+  if(v==='products') loadProducts();
 }
 function logout(silent){
   if(token && !silent) api('wyloguj', token).catch(()=>{});
   token=null; me=null; rows=[]; podsum=[]; ss.set('token', null);
   clearInterval(timer); closeMenu(); closeDrawer();
-  ['vOrders','vAccounts','vWorker','banner'].forEach(id=>$(id).classList.add('hidden'));
+  ['vOrders','vAccounts','vProducts','vWorker','banner'].forEach(id=>$(id).classList.add('hidden'));
   $('orders').innerHTML=''; $('workers').innerHTML=''; $('tasks').innerHTML=''; $('months').innerHTML='';
   $('app').classList.add('hidden'); $('loginScreen').classList.remove('hidden');
   pinBuf=''; drawDots(); otwMies.clear(); otwMiesInit=false;
@@ -958,7 +1000,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeMenu(); clo
 function openDrawer(o){
   drawerOpen=o; const d=o.det||{};
   const row=(k,v)=>`<dt>${k}</dt><dd>${v?esc(v):'<span class="lp">—</span>'}</dd>`;
-  const rowC=(k,v,pole)=>`<dt>${k}</dt><dd>${v?esc(v)+((d.zCennika||[]).includes(pole)?' <span class="tag" title="Tej informacji nie było w opisie — uzupełniona z cennika (dane tego produktu)">z cennika</span>':''):'<span class="lp">—</span>'}</dd>`;
+  const rowC=(k,v,pole)=>`<dt>${k}</dt><dd>${v?esc(v)+((d.recznie||[]).includes(pole)?' <span class="tag re" title="Wpisane ręcznie w aplikacji">ręcznie</span>':(d.zProduktu||[]).includes(pole)?' <span class="tag ok" title="Z zakładki Produkty (dane tego produktu)">z produktów</span>':(d.zCennika||[]).includes(pole)?' <span class="tag" title="Tej informacji nie było w opisie — uzupełniona z cennika (dane tego produktu)">z cennika</span>':''):'<span class="lp">—</span>'}</dd>`;
   const dod=(o.dodatki||[]).map(x=>`<div class="row"><span>+ ${esc(x.nazwa)}</span><span class="num">${zl.format(x.cena)}</span></div>`).join('');
   const zrodlo = (o.cenaAuto ? zrodloCeny(o)+(o.pewnosc==='pewne'?'.':' — sprawdź.') : o.zrodlo==='excel' ? 'Cena z arkusza Excel.' : 'Brak ceny w cenniku dla tego opisu.')
     + (o.cenaExcel && o.cenaAuto && Math.abs(o.cenaExcel-o.cenaSzt)>=0.01 ? ' W Excelu: '+zl.format(o.cenaExcel)+' / szt.' : '')
@@ -975,8 +1017,8 @@ function openDrawer(o){
       </div>
       ${o.trudne?`<div class="hardbox"><b>Trudne do szycia</b> — ${esc(o.trudne.join(', '))}</div>`:''}
       ${o.problem?`<div class="probbox"><b>Zgłoszony problem</b> <small>${o.problemKiedy?godz(o.problemKiedy):''}</small><p>${esc(o.problem)}</p></div>`:''}
-      <div class="sect">Specyfikacja</div>
-      <dl class="dl">
+      <div class="sect sectH"><span>Specyfikacja</span>${me.rola==='kierownik'?'<button class="btn" id="dEdit">Uzupełnij / popraw</button>':''}</div>
+      <dl class="dl" id="dSpec">
         ${o.nazwaProd?row('Produkt (cennik)', o.nazwaProd+' · ID '+o.pid):''}${o.sku?row('Kod SKU', o.sku):''}
         ${row('Kategoria', o.kat)}${rowC('Wariant / rozmiar', o.wariant||o.specE||d.rozmiar, (o.wariant||o.specE)?'':'rozmiar')}${rowC('Tkanina', d.tkanina,'tkanina')}${rowC('Kolor', d.kolor,'kolor')}
         ${rowC('Wypełnienie', d.wypelnienie,'wypelnienie')}${rowC('Waga', d.waga,'waga')}${row('Ilość', o.qty?num.format(o.qty)+' szt.':'')}      </dl>
@@ -1009,6 +1051,7 @@ function openDrawer(o){
   $('dClose').onclick=closeDrawer;
   $('dW').onclick=e=>{ e.stopPropagation(); workerMenu(e.currentTarget,o); };
   $('dS').onclick=e=>{ e.stopPropagation(); statusMenu(e.currentTarget,o); };
+  if($('dEdit')) $('dEdit').onclick=()=>edytujSzczegoly(o);
   if($('dDel')) $('dDel').onclick=async()=>{
     if(!confirm('Usunąć zamówienie LP '+o.lp+'? Tej operacji nie można cofnąć.')) return;
     try{ await api('usunZamowienie', token, o.lp); closeDrawer(); toast('Zamówienie usunięte'); refresh(false); }catch(e){ toast(e.message); }
@@ -1028,7 +1071,7 @@ $('addOrderBtn').onclick=async()=>{
     <div class="drawer-b"><div class="fgrid">
       <label class="field"><span>Data zamówienia</span><input class="input" type="date" id="nZam" value="${todayStr()}"></label>
       <label class="field"><span>Nr zamówienia / klient</span><input class="input" type="text" id="nNr" maxlength="80" placeholder="np. magazyn, Huggy 3352"></label>
-      <label class="field full"><span>Produkt z cennika</span><select class="input" id="nKat"><option value="">— wybierz (albo opisz niżej) —</option>${kat.map(([k])=>`<option>${esc(k)}</option>`).join('')}</select></label>
+      <label class="field full"><span>Produkt (z zakładki Produkty)</span><select class="input" id="nKat"><option value="">— wybierz (albo opisz niżej) —</option>${kat.map(([k])=>`<option>${esc(k)}</option>`).join('')}</select></label>
       <label class="field full hidden" id="nSpecL"><span>Specyfikacja / rozmiar</span><select class="input" id="nSpec"></select></label>
       <label class="field full"><span>Opis</span><textarea class="input" id="nOpis" maxlength="2000" placeholder="kolor, tkanina, wypełnienie, waga, uwagi…"></textarea></label>
       <label class="field"><span>Ilość (szt.)</span><input class="input" type="number" id="nQty" min="1" value="1"></label>
@@ -1044,9 +1087,9 @@ $('addOrderBtn').onclick=async()=>{
   const zamknij=()=>closeDrawer();
   $('drawerRoot').querySelector('.scrim').onclick=zamknij; $('nClose').onclick=zamknij; $('nCancel').onclick=zamknij;
   $('nKat').onchange=()=>{
-    const w=(kat.find(([k])=>k===$('nKat').value)||[,[]])[1];
+    const e=kat.find(([k])=>k===$('nKat').value)||[,[],{}], w=e[1], ceny=e[2]||{};
     $('nSpecL').classList.toggle('hidden', !w.length);
-    $('nSpec').innerHTML=w.map(v=>`<option>${esc(v)}</option>`).join('');
+    $('nSpec').innerHTML=w.map(v=>`<option value="${esc(v)}">${esc(v)}${ceny[v]!=null?' — '+zl.format(ceny[v]):''}</option>`).join('');
   };
   $('nSave').onclick=async()=>{
     const z={ zam:$('nZam').value, nr:$('nNr').value, kat:$('nKat').value, spec:$('nSpecL').classList.contains('hidden')?'':$('nSpec').value,
@@ -1056,6 +1099,100 @@ $('addOrderBtn').onclick=async()=>{
     catch(e){ $('nMsg').textContent=e.message; $('nSave').disabled=false; }
   };
 };
+
+
+/* ---------- ręczne uzupełnianie szczegółów zamówienia ---------- */
+const POLA = [['rozmiar','Rozmiar'],['tkanina','Tkanina'],['kolor','Kolor'],['wypelnienie','Wypełnienie'],['waga','Waga']];
+async function edytujSzczegoly(o){
+  const b=$('dEdit'); b.disabled=true;
+  let op; try{ op=await api('opcjeSzczegolow', token, o.lp); }catch(e){ b.disabled=false; return toast(e.message); }
+  const d=o.det||{};
+  const pole=([k,l])=>{
+    const x=op[k]||{produkt:[],inne:[]}, lista=x.produkt.concat(x.inne);
+    return `<label class="field full"><span>${l}</span>
+      <input class="input" data-p="${k}" list="dl_${k}" value="${esc(d[k]||'')}" placeholder="wybierz z listy albo wpisz" maxlength="120" autocomplete="off">
+      <datalist id="dl_${k}">${lista.map(v=>`<option value="${esc(v)}">`).join('')}</datalist>
+      ${x.produkt.length?`<div class="opts"><span class="lbl2">Ten produkt:</span>${x.produkt.slice(0,24).map(v=>`<button type="button" data-v="${esc(v)}" data-k="${k}">${esc(v)}</button>`).join('')}</div>`:''}</label>`;
+  };
+  $('dSpec').outerHTML=`<div id="dSpec"><div class="fgrid">${POLA.map(pole).join('')}</div>
+    <p class="hint" style="margin-top:10px">Kliknij podpowiedź albo wpisz własną wartość. Puste pole = wartość odczytana automatycznie z opisu / cennika.</p>
+    <div class="formMsg" id="sMsg" style="padding:8px 0 0"></div>
+    <div class="row2" style="margin:10px 0 20px"><button class="btn primary" id="sSave">Zapisz</button><button class="btn" id="sCancel">Anuluj</button></div></div>`;
+  b.classList.add('hidden');
+  $('dSpec').querySelectorAll('.opts button').forEach(x=>x.onclick=()=>{ $('dSpec').querySelector(`input[data-p="${x.dataset.k}"]`).value=x.dataset.v; });
+  $('sCancel').onclick=()=>openDrawer(o);
+  $('sSave').onclick=async()=>{
+    const det={}; $('dSpec').querySelectorAll('input[data-p]').forEach(i=>{
+      const k=i.dataset.p, v=i.value.trim(), auto=(d.recznie||[]).includes(k)?'':(d[k]||'');
+      det[k] = v===auto ? ((d.recznie||[]).includes(k)?v:'') : v;     // bez zmian = zostaje automatycznie
+    });
+    $('sSave').disabled=true;
+    try{ const r=await api('zapiszSzczegoly', token, o.lp, det); if(r && r.det) o.det=r.det; toast('Zapisano szczegóły'); openDrawer(o); refresh(false); }
+    catch(e){ $('sMsg').textContent=e.message; $('sSave').disabled=false; }
+  };
+}
+
+/* ---------- PRODUKTY ---------- */
+let prod={lista:[],podpowiedzi:{}}, pShown=200;
+async function loadProducts(){
+  $('pTable').innerHTML='<tr><td colspan="6" class="empty">Wczytywanie…</td></tr>';
+  try{ prod=await api('produkty', token); renderProducts(); }catch(e){ toast(e.message); }
+}
+['pSearch','pZrodlo'].forEach(id=>$(id)[id==='pSearch'?'oninput':'onchange']=()=>{ pShown=200; renderProducts(); });
+$('pMore').onclick=()=>{ pShown+=200; renderProducts(); };
+const zrodloProd = p => p.zrodlo==='nowy' ? '<span class="tag ok">dodany w aplikacji</span>' : p.zrodlo==='zmieniony' ? '<span class="tag re">zmieniony</span>' : '<span class="lp">cennik</span>';
+function renderProducts(){
+  const q=$('pSearch').value.trim().toLowerCase(), z=$('pZrodlo').value;
+  const l=prod.lista.filter(p=>(z==='all'||(z==='ukryte'?!p.aktywny:p.zrodlo===z)) && (!q || [p.kat,p.war,p.rozmiar,p.tkanina,p.kolor,p.wypelnienie,p.waga,p.uwagi].join(' ').toLowerCase().includes(q)));
+  $('pCount').textContent=num.format(l.length)+' poz.';
+  const tb=$('pTable'); tb.innerHTML='';
+  if(!l.length) tb.innerHTML='<tr><td colspan="6" class="empty">Brak produktów dla tych filtrów</td></tr>';
+  l.slice(0,pShown).forEach(p=>{
+    const tr=document.createElement('tr'); tr.className='clickable'+(p.aktywny?'':' off');
+    const dane=[p.rozmiar,p.tkanina,p.kolor,p.wypelnienie,p.waga].filter(Boolean).join(' · ') + (p.dni?(p.rozmiar||p.tkanina||p.kolor||p.wypelnienie||p.waga?' · ':'')+p.dni+' dni realizacji':'');
+    tr.innerHTML=`<td><b style="font-weight:500">${esc(p.kat)}</b>${p.aktywny?'':' <span class="tag arch">ukryty</span>'}</td><td>${esc(p.war)||'<span class="lp">—</span>'}</td>
+      <td class="r nw num">${p.cenaCennik!=null&&p.cena!==p.cenaCennik?'<span class="old">'+zl.format(p.cenaCennik)+'</span>':''}${p.cena!=null?zl.format(p.cena):'—'}${p.przyszla&&p.przyszla.length?'<br><small class="lp">od '+fmtD(p.przyszla[0].od)+': '+zl.format(p.przyszla[0].cena)+'</small>':''}</td>
+      <td><div class="pd">${esc(dane)||'<span class="lp">—</span>'}</div></td><td class="nw">${zrodloProd(p)}</td><td class="r"><button class="btn ghost sm">Edytuj</button></td>`;
+    tr.onclick=()=>formProduktu(p);
+    tb.appendChild(tr);
+  });
+  $('pMoreBox').classList.toggle('hidden', l.length<=pShown);
+}
+$('addProdBtn').onclick=()=>formProduktu(null);
+function formProduktu(p){
+  const nowy=!p, edytNazwe=nowy||p.zrodlo==='nowy', pod=prod.podpowiedzi||{};
+  const kategorie=[...new Set(prod.lista.map(x=>x.kat))];
+  const dl=(k)=>`<datalist id="pl_${k}">${(pod[k]||[]).map(v=>`<option value="${esc(v)}">`).join('')}</datalist>`;
+  const pole=(k,l)=>`<label class="field"><span>${l}</span><input class="input" id="f_${k}" list="pl_${k}" value="${esc(p?p[k]:'')}" maxlength="120" placeholder="wybierz albo wpisz" autocomplete="off">${dl(k)}</label>`;
+  drawerOpen={form:true};
+  $('drawerRoot').innerHTML=`<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true">
+    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${nowy?'Nowy produkt':esc(p.kat)}</h3><p>${nowy?'Pojawi się do wyboru przy dodawaniu zamówienia':esc(p.war||'bez wariantu')+' · '+(p.zrodlo==='cennik'?'z cennika':p.zrodlo==='nowy'?'dodany w aplikacji':'zmieniony w aplikacji')}</p></div><button class="btn ghost" id="fClose" aria-label="Zamknij">✕</button></div>
+    <div class="drawer-b"><div class="fgrid">
+      <label class="field full"><span>Produkt</span><input class="input" id="f_kat" list="pl_kat" value="${esc(p?p.kat:'')}" maxlength="120" ${edytNazwe?'':'readonly'} placeholder="np. Mata sensoryczna — wybierz istniejący albo wpisz nowy" autocomplete="off"><datalist id="pl_kat">${kategorie.map(v=>`<option value="${esc(v)}">`).join('')}</datalist></label>
+      <label class="field full"><span>Wariant / specyfikacja</span><input class="input" id="f_war" value="${esc(p?p.war:'')}" maxlength="120" ${edytNazwe?'':'readonly'} placeholder="np. 100 x 150, rozmiar M — może zostać puste"></label>
+      ${edytNazwe?'':'<p class="hint full">Nazwy produktu z cennika nie można zmieniać (tak jest zapisany w zamówieniach). Możesz zmienić cenę i dane.</p>'}
+      <label class="field"><span>Cena za szt. (zł)</span><input class="input" type="number" id="f_cena" min="0" step="0.01" value="${p&&p.cena!=null?p.cena:''}"></label>
+      <label class="field"><span>Cena obowiązuje od</span><input class="input" type="date" id="f_od" value="${prod.dzis||todayStr()}"></label>
+      <p class="pricehist full">${p&&p.cenaCennik!=null?'Cena w pliku cennika: '+zl.format(p.cenaCennik)+'. ':''}${p&&p.od?'Obecna cena obowiązuje od '+fmtD(p.od)+'. ':''}${(p&&p.przyszla||[]).map(x=>'Od '+fmtD(x.od)+': '+zl.format(x.cena)+'. ').join('')}Nowa cena liczy się dla zamówień złożonych od wybranego dnia — wcześniejsze zostają w starej cenie.</p>
+      ${pole('rozmiar','Rozmiar')}${pole('tkanina','Tkanina')}${pole('kolor','Kolor')}${pole('wypelnienie','Wypełnienie')}${pole('waga','Waga')}
+      <label class="field"><span>Dni realizacji</span><input class="input" type="number" id="f_dni" min="0" max="365" value="${p&&p.dni?p.dni:''}" placeholder="wg cennika"></label>
+      <label class="field full"><span>Uwagi</span><textarea class="input" id="f_uwagi" maxlength="500">${esc(p?p.uwagi:'')}</textarea></label>
+      <label class="field full" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="f_akt" ${!p||p.aktywny?'checked':''}> <span>Pokazuj w formularzu „Dodaj zamówienie”</span></label>
+    </div>
+    <p class="hint" style="margin-top:10px">Dane produktu (rozmiar, tkanina, kolor…) uzupełniają puste pola w zamówieniach tego produktu.</p>
+    <div class="formMsg" id="fMsg" style="padding:10px 0 0"></div>
+    <div class="row2" style="margin-top:12px"><button class="btn primary" id="fSave">${nowy?'Dodaj produkt':'Zapisz zmiany'}</button><button class="btn" id="fCancel">Anuluj</button></div>
+    </div></aside>`;
+  const zamknij=()=>closeDrawer();
+  $('drawerRoot').querySelector('.scrim').onclick=zamknij; $('fClose').onclick=zamknij; $('fCancel').onclick=zamknij;
+  $('fSave').onclick=async()=>{
+    const v=id=>$('f_'+id).value;
+    const dane={ klucz:p?p.klucz:'', kat:v('kat'), war:v('war'), cena:v('cena'), od:v('od'), rozmiar:v('rozmiar'), tkanina:v('tkanina'), kolor:v('kolor'), wypelnienie:v('wypelnienie'), waga:v('waga'), dni:v('dni'), uwagi:v('uwagi'), aktywny:$('f_akt').checked };
+    $('fMsg').textContent=''; $('fSave').disabled=true;
+    try{ prod=await api('zapiszProdukt', token, dane); slownikCache=null; closeDrawer(); renderProducts(); toast(nowy?'Dodano produkt':'Zapisano zmiany produktu'); }
+    catch(e){ $('fMsg').textContent=e.message; $('fSave').disabled=false; }
+  };
+}
 
 /* ---------- ustawienia: BaseLinker i archiwum ---------- */
 let ust=null;
