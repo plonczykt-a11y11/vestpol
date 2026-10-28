@@ -285,6 +285,9 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
 
 /* ========== PLAN PRODUKCJI (pracownik) ========== */
 .seg{display:inline-flex;background:var(--grey-soft);border-radius:11px;padding:3px;max-width:100%;overflow-x:auto}
+.wbar{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.wbar .field{min-width:230px}
+@media (max-width:860px){ .wbar .field{width:100%} }
 .seg button{border:none;background:transparent;padding:7px 14px;border-radius:9px;font-weight:500;color:var(--muted);white-space:nowrap}
 .seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
 .seg .cnt{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:99px;background:var(--line);font-size:11.5px;color:var(--ink-2)}
@@ -661,11 +664,15 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
         <div><h2 id="wHello">Plan produkcji</h2><p id="wSub">—</p></div>
         <div class="monthChip" id="wMonthChip" title="Podsumowanie miesiąca"><div><small>Ten miesiąc</small><br><b class="num" id="wMonthVal">–</b></div><small id="wMonthSzt"></small></div>
       </div>
-      <div style="margin-bottom:16px"><div class="seg">
+      <div class="wbar"><div class="seg">
         <button id="tabTodo" class="on">Plan produkcji<span class="cnt" id="cTodo">0</span></button>
         <button id="tabDone">Ukończone<span class="cnt" id="cDone">0</span></button>
         <button id="tabSum">Podsumowanie</button>
-      </div></div>
+      </div>
+      <label class="field hidden" id="wSortL"><span>Sortuj ukończone</span><select class="input" id="wSort">
+        <option value="nowe">Data ukończenia — najnowsze</option><option value="stare">Data ukończenia — najstarsze</option>
+        <option value="termin">Termin</option><option value="art">Artykuł A–Z</option><option value="cena">Wartość — najwyższa</option><option value="lp">Numer LP</option>
+      </select></label></div>
       <div id="wTasksBox">
         <div class="tasks"><div class="tgrid" id="tasks"></div></div>
         <div class="hint" id="wHint">Przyciskami − / + zaznaczasz, ile sztuk jest już gotowych. „Zgłoś problem” jest nieobowiązkowe.</div>
@@ -858,10 +865,21 @@ async function change(o, patch, fn, ...args){
 
 /* =================== MENU =================== */
 let menuEl=null;
-function closeMenu(){ if(menuEl){ menuEl.remove(); menuEl=null; } }
-document.addEventListener('click', e=>{ if(menuEl && !menuEl.contains(e.target)) closeMenu(); }, true);
-window.addEventListener('scroll', closeMenu, true);
-window.addEventListener('resize', closeMenu);
+let menuAnchor=null, menuSzer=0;
+function closeMenu(){ if(menuEl){ menuEl.remove(); menuEl=null; menuAnchor=null; } }
+document.addEventListener('click', e=>{ if(menuEl && !menuEl.contains(e.target) && !(menuAnchor && menuAnchor.contains(e.target))) closeMenu(); }, true);
+// przewijanie listy w menu nie zamyka go; przewinięcie strony przesuwa menu razem z przyciskiem
+window.addEventListener('scroll', e=>{ if(!menuEl || menuEl.contains(e.target)) return; ustawMenu(); }, true);
+// na telefonie pasek adresu zmienia wysokość okna przy przewijaniu — zamykamy tylko przy zmianie szerokości (np. obrót)
+window.addEventListener('resize', ()=>{ if(!menuEl) return; if(Math.abs(innerWidth-menuSzer)>40) closeMenu(); else ustawMenu(); });
+function ustawMenu(){
+  if(!menuEl || !menuAnchor) return;
+  const r=menuAnchor.getBoundingClientRect();
+  if(!menuAnchor.isConnected || r.bottom<0 || r.top>innerHeight){ closeMenu(); return; }
+  const mh=menuEl.offsetHeight, mw=menuEl.offsetWidth;
+  menuEl.style.left=Math.max(8, Math.min(r.left, innerWidth-mw-8))+'px';
+  menuEl.style.top=(r.bottom+mh+8>innerHeight ? Math.max(8, r.top-mh-4) : r.bottom+4)+'px';
+}
 function openMenu(anchor, title, items){
   closeMenu();
   const m=document.createElement('div'); m.className='menu';
@@ -873,10 +891,8 @@ function openMenu(anchor, title, items){
     b.onclick=ev=>{ ev.stopPropagation(); closeMenu(); it.act(); };
     m.appendChild(b);
   });
-  document.body.appendChild(m); menuEl=m;
-  const r=anchor.getBoundingClientRect(), mh=m.offsetHeight, mw=m.offsetWidth;
-  m.style.left=Math.max(8, Math.min(r.left, innerWidth-mw-8))+'px';
-  m.style.top=(r.bottom+mh+8>innerHeight ? Math.max(8, r.top-mh-4) : r.bottom+4)+'px';
+  document.body.appendChild(m); menuEl=m; menuAnchor=anchor; menuSzer=innerWidth;
+  ustawMenu();
 }
 function postepHtml(o){
   const qty=Math.max(1,o.qty||1), w=Math.min(o.wykonano||0,qty), proc=Math.round(100*w/qty);
@@ -1307,6 +1323,8 @@ $('aSave').onclick=async()=>{
 /* =================== PLAN PRODUKCJI (pracownik) =================== */
 $('tabTodo').onclick=()=>{ wTab='todo'; render(); };
 $('tabDone').onclick=()=>{ wTab='done'; render(); };
+try{ const z=localStorage.getItem('vp-sort-ukonczone'); if(z) $('wSort').value=z; }catch(e){}
+$('wSort').onchange=()=>{ try{ localStorage.setItem('vp-sort-ukonczone', $('wSort').value); }catch(e){} render(); };
 $('tabSum').onclick=()=>{ wTab='sum'; render(); };
 $('wMonthChip').onclick=()=>{ wTab='sum'; render(); };
 const otwarte=new Map();   // lp -> 'opis' | 'problem'
@@ -1329,6 +1347,7 @@ function renderWorker(){
   const todo=rows.filter(o=>o.status!=='ukończono'), done=rows.filter(o=>o.status==='ukończono');
   $('cTodo').textContent=todo.length; $('cDone').textContent=done.length;
   ['tabTodo','tabDone','tabSum'].forEach(id=>$(id).classList.toggle('on', ({tabTodo:'todo',tabDone:'done',tabSum:'sum'})[id]===wTab));
+  $('wSortL').classList.toggle('hidden', wTab!=='done');
   const t0=todayStr(), cm=t0.slice(0,7);
   const late=todo.filter(o=>o.termin && o.termin<t0).length, today=todo.filter(o=>o.termin===t0).length;
   $('wSub').textContent = todo.length ? `${todo.length} do wykonania`+(late?` · ${late} po terminie`:'')+(today?` · ${today} na dziś`:'') : 'Wszystko zrobione — brak zadań w planie';
@@ -1337,8 +1356,12 @@ function renderWorker(){
   $('wTasksBox').classList.toggle('hidden', wTab==='sum'); $('wSumBox').classList.toggle('hidden', wTab!=='sum');
   if(wTab==='sum') return renderMonths();
 
-  const list=(wTab==='todo'?todo:done).slice().sort((a,b)=> wTab==='todo'
-    ? ((a.termin||'9999').localeCompare(b.termin||'9999')) || (a.lp-b.lp) : (b.lp-a.lp));
+  const srt=$('wSort').value, nazwa=o=>(o.kat||o.uwagi||'');
+  const SORT={ nowe:(a,b)=>(b.ukonczono||'').localeCompare(a.ukonczono||'')||b.lp-a.lp, stare:(a,b)=>(a.ukonczono||'9999').localeCompare(b.ukonczono||'9999')||a.lp-b.lp,
+    termin:(a,b)=>(a.termin||'9999').localeCompare(b.termin||'9999')||a.lp-b.lp, art:(a,b)=>nazwa(a).localeCompare(nazwa(b),'pl')||a.lp-b.lp,
+    cena:(a,b)=>(b.cenaRazem||0)-(a.cenaRazem||0)||b.lp-a.lp, lp:(a,b)=>b.lp-a.lp };
+  const list=(wTab==='todo'?todo:done).slice().sort(wTab==='todo'
+    ? (a,b)=>((a.termin||'9999').localeCompare(b.termin||'9999')) || (a.lp-b.lp) : (SORT[srt]||SORT.nowe));
   const g=$('tasks');
   g.innerHTML=`<div class="thead">${['Termin','Artykuł','Rozmiar','Tkanina','Kolor','Wykonano','Wypełnienie','Waga','Cena','Status'].map(h=>`<div>${h}</div>`).join('')}</div>`;
   if(!list.length){ g.insertAdjacentHTML('beforeend', `<div class="empty" style="grid-column:1/-1">${wTab==='todo'?'Nie masz zadań w planie produkcji.':'Brak ukończonych zadań.'}</div>`); return; }
@@ -1354,7 +1377,7 @@ function renderWorker(){
     const tryb=otwarte.get(o.lp);
     const r=document.createElement('div'); r.className='trow '+(cls?'r-'+cls:'')+(o.status==='ukończono'?' done':'');
     r.innerHTML=`
-      <div class="c-due">${k('Termin')}<span class="due ${cls}">${o.termin?fmtD(o.termin):'—'}</span><span class="sub">${dueSub||'LP '+esc(o.lp)}</span></div>
+      <div class="c-due">${k('Termin')}<span class="due ${cls}">${o.termin?fmtD(o.termin):'—'}</span><span class="sub">${o.status==='ukończono'&&o.ukonczono?'ukończono '+fmtD(o.ukonczono):(dueSub||'LP '+esc(o.lp))}</span></div>
       <div class="art c-art">${k('Artykuł')}<span class="v">${esc(o.kat||o.uwagi.slice(0,60)||'Zadanie')}${o.trudne?'<span class="tag hard" title="'+esc(o.trudne.join(', '))+'">trudne</span>':''}</span><span class="sub">LP ${esc(o.lp)}${o.nr?' · nr '+esc(o.nr):''}</span>
         <div class="links">${o.uwagi?`<button class="link" data-x="opis">${tryb==='opis'?'Ukryj opis':'Pełny opis'}</button>`:''}<button class="link p" data-x="problem">${o.problem?'⚠ Problem zgłoszony':'Zgłoś problem'}</button></div></div>
       <div>${k('Rozmiar')}${v(d.rozmiar||o.specE)}</div><div>${k('Tkanina')}${v(d.tkanina)}</div><div>${k('Kolor')}${v(d.kolor)}</div>
