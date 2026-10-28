@@ -958,6 +958,7 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeMenu(); clo
 function openDrawer(o){
   drawerOpen=o; const d=o.det||{};
   const row=(k,v)=>`<dt>${k}</dt><dd>${v?esc(v):'<span class="lp">—</span>'}</dd>`;
+  const rowC=(k,v,pole)=>`<dt>${k}</dt><dd>${v?esc(v)+((d.zCennika||[]).includes(pole)?' <span class="tag" title="Tej informacji nie było w opisie — uzupełniona z cennika (dane tego produktu)">z cennika</span>':''):'<span class="lp">—</span>'}</dd>`;
   const dod=(o.dodatki||[]).map(x=>`<div class="row"><span>+ ${esc(x.nazwa)}</span><span class="num">${zl.format(x.cena)}</span></div>`).join('');
   const zrodlo = (o.cenaAuto ? zrodloCeny(o)+(o.pewnosc==='pewne'?'.':' — sprawdź.') : o.zrodlo==='excel' ? 'Cena z arkusza Excel.' : 'Brak ceny w cenniku dla tego opisu.')
     + (o.cenaExcel && o.cenaAuto && Math.abs(o.cenaExcel-o.cenaSzt)>=0.01 ? ' W Excelu: '+zl.format(o.cenaExcel)+' / szt.' : '')
@@ -977,8 +978,8 @@ function openDrawer(o){
       <div class="sect">Specyfikacja</div>
       <dl class="dl">
         ${o.nazwaProd?row('Produkt (cennik)', o.nazwaProd+' · ID '+o.pid):''}${o.sku?row('Kod SKU', o.sku):''}
-        ${row('Kategoria', o.kat)}${row('Wariant / rozmiar', o.wariant||o.specE)}${row('Tkanina', d.tkanina)}${row('Kolor', d.kolor)}
-        ${row('Wypełnienie', d.wypelnienie)}${row('Waga', d.waga)}${row('Ilość', o.qty?num.format(o.qty)+' szt.':'')}      </dl>
+        ${row('Kategoria', o.kat)}${rowC('Wariant / rozmiar', o.wariant||o.specE||d.rozmiar, (o.wariant||o.specE)?'':'rozmiar')}${rowC('Tkanina', d.tkanina,'tkanina')}${rowC('Kolor', d.kolor,'kolor')}
+        ${rowC('Wypełnienie', d.wypelnienie,'wypelnienie')}${rowC('Waga', d.waga,'waga')}${row('Ilość', o.qty?num.format(o.qty)+' szt.':'')}      </dl>
       <div class="sect">Źródło zamówienia</div>
       <dl class="dl">
         ${row('Źródło', o.zrodloZam==='BaseLinker' ? 'BaseLinker'+(o.kanalZ?' · '+o.kanalZ:'') : o.zrodloZam==='Ręcznie' ? 'Dodane ręcznie'+(o.dodal?' ('+o.dodal+')':'') : 'Stary Excel'+(o.ark?' · '+o.ark:''))}
