@@ -391,6 +391,14 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
 .sectH{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .sectH .btn{padding:4px 10px;font-size:12.5px;text-transform:none;letter-spacing:0;color:var(--ink)}
 .pricehist{font-size:12.5px;color:var(--muted);margin:4px 0 0}
+.trow{cursor:pointer}
+.trow button,.trow textarea{cursor:auto}
+.trow .stepper button,.trow .stb,.trow .link{cursor:pointer}
+.zchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.zchips .chip{cursor:default}
+.duzy{font-size:15px}
+.duzy dd{font-weight:600}
+.dodl{margin:0;padding-left:18px;line-height:1.7}
 @media (max-width:860px){
   .ptable thead{display:none}
   .ptable,.ptable tbody{display:block}
@@ -820,7 +828,7 @@ async function synchronizujTeraz(btn){
   btn.disabled=true; sync('busy','Synchronizacja z BaseLinkerem…');
   try{
     const r=await api('synchronizuj', token);
-    toast(r.pominieto ? 'BaseLinker nie jest podłączony — wpisz token w „Konta i ustawienia”.' : 'BaseLinker: '+r.wynik+(r.duplikaty?' · pominięto '+r.duplikaty+' już wpisanych':''));
+    toast(r.zajete ? 'Trwa inna operacja — spróbuj synchronizacji za chwilę.' : r.pominieto ? 'BaseLinker nie jest podłączony — wpisz token w „Konta i ustawienia”.' : 'BaseLinker: '+r.wynik+(r.duplikaty?' · pominięto '+r.duplikaty+' już wpisanych':''));
     await refresh(false); if(view==='accounts') loadSettings();
   }catch(e){ toast(e.message); sync('err','Błąd synchronizacji'); }
   finally{ btn.disabled=false; }
@@ -1323,6 +1331,38 @@ $('aSave').onclick=async()=>{
 /* =================== PLAN PRODUKCJI (pracownik) =================== */
 $('tabTodo').onclick=()=>{ wTab='todo'; render(); };
 $('tabDone').onclick=()=>{ wTab='done'; render(); };
+/* szczegóły zadania dla pracownika — tylko to, co potrzebne do uszycia (bez cen klienta, adresów, numerów BaseLinkera) */
+function szczegolyZadania(o){
+  const d=o.det||{}, t0=todayStr(), qty=Math.max(1,o.qty||1), wyk=o.wykonano||0;
+  const row=(k,v)=>v?`<dt>${k}</dt><dd>${esc(v)}</dd>`:'';
+  const kolory=String(d.kolor||'').split(/;\s*/).filter(Boolean);
+  const kolorHtml=kolory.length>1?`<dt>Kolor</dt><dd>${kolory.map(esc).join('<br>')}</dd>`:row('Kolor', d.kolor);
+  const dodatki=(o.dodatki||[]).map(x=>String(x.nazwa||'')).filter(n=>n && !/z excela/i.test(n));
+  const late=o.termin && o.termin<t0 && o.status!=='ukończono';
+  drawerOpen={zadanie:o};
+  $('drawerRoot').innerHTML=`<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true">
+    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${esc(o.kat||o.nazwaProd||'Zadanie')}</h3><p>LP ${esc(o.lp)}${o.nr?' · nr '+esc(o.nr):''}</p></div><button class="btn ghost" id="zClose" aria-label="Zamknij">✕</button></div>
+    <div class="drawer-b">
+      <div class="zchips">
+        ${o.termin?`<span class="chip" style="${late?'color:var(--red);border-color:var(--red)':''}">Termin: ${fmtD(o.termin)}</span>`:''}
+        <span class="chip">Ilość: ${num.format(qty)} szt.</span>
+        <span class="chip ${statusCls(o.status)}"><span class="d"></span>${statusLabel(o.status)} · ${num.format(Math.min(wyk,qty))}/${num.format(qty)}</span>
+      </div>
+      ${o.trudne?`<div class="hardbox"><b>Trudne do szycia</b> — ${esc(o.trudne.join(', '))}</div>`:''}
+      <div class="sect">Co uszyć</div>
+      <dl class="dl duzy">
+        ${row('Produkt', o.nazwaProd||o.kat)}${o.nazwaProd&&o.kat&&o.kat!==o.nazwaProd?row('Kategoria', o.kat):''}
+        ${row('Wariant', o.wariant||o.specE)}${row('Rozmiar', d.rozmiar)}${row('Tkanina', d.tkanina)}${kolorHtml}
+        ${row('Wypełnienie', d.wypelnienie)}${row('Waga', d.waga)}
+      </dl>
+      ${dodatki.length?`<div class="sect">Dodatki do wykonania</div><ul class="dodl">${dodatki.map(n=>'<li>'+esc(n)+'</li>').join('')}</ul><div style="height:16px"></div>`:''}
+      ${o.komentarz?`<div class="sect">Uwagi klienta</div><p class="raw">${esc(o.komentarz)}</p>`:''}
+      ${o.problem?`<div class="probbox"><b>Twoje zgłoszenie problemu</b><p>${esc(o.problem)}</p></div>`:''}
+      ${o.uwagi?`<div class="sect">Pełny opis zamówienia</div><p class="raw">${esc(o.uwagi)}</p>`:''}
+      <p class="hint" style="margin-top:14px">Postęp i problem zaznaczasz w planie produkcji (przyciski − / + i „Zgłoś problem”).</p>
+    </div></aside>`;
+  $('drawerRoot').querySelector('.scrim').onclick=closeDrawer; $('zClose').onclick=closeDrawer;
+}
 try{ const z=localStorage.getItem('vp-sort-ukonczone'); if(z) $('wSort').value=z; }catch(e){}
 $('wSort').onchange=()=>{ try{ localStorage.setItem('vp-sort-ukonczone', $('wSort').value); }catch(e){} render(); };
 $('tabSum').onclick=()=>{ wTab='sum'; render(); };
@@ -1379,7 +1419,7 @@ function renderWorker(){
     r.innerHTML=`
       <div class="c-due">${k('Termin')}<span class="due ${cls}">${o.termin?fmtD(o.termin):'—'}</span><span class="sub">${o.status==='ukończono'&&o.ukonczono?'ukończono '+fmtD(o.ukonczono):(dueSub||'LP '+esc(o.lp))}</span></div>
       <div class="art c-art">${k('Artykuł')}<span class="v">${esc(o.kat||o.uwagi.slice(0,60)||'Zadanie')}${o.trudne?'<span class="tag hard" title="'+esc(o.trudne.join(', '))+'">trudne</span>':''}</span><span class="sub">LP ${esc(o.lp)}${o.nr?' · nr '+esc(o.nr):''}</span>
-        <div class="links">${o.uwagi?`<button class="link" data-x="opis">${tryb==='opis'?'Ukryj opis':'Pełny opis'}</button>`:''}<button class="link p" data-x="problem">${o.problem?'⚠ Problem zgłoszony':'Zgłoś problem'}</button></div></div>
+        <div class="links"><button class="link" data-det>Szczegóły</button>${o.uwagi?`<button class="link" data-x="opis">${tryb==='opis'?'Ukryj opis':'Pełny opis'}</button>`:''}<button class="link p" data-x="problem">${o.problem?'⚠ Problem zgłoszony':'Zgłoś problem'}</button></div></div>
       <div>${k('Rozmiar')}${v(d.rozmiar||o.specE)}</div><div>${k('Tkanina')}${v(d.tkanina)}</div><div>${k('Kolor')}${v(d.kolor)}</div>
       <div class="c-qty">${k('Wykonano')}
         <div class="stepper"><button data-q="-1" ${wyk<=0?'disabled':''} aria-label="Mniej">−</button><span class="val num">${num.format(wyk)} <small>/ ${num.format(qty)}</small></span><button data-q="1" ${wyk>=qty?'disabled':''} aria-label="Więcej">+</button></div>
@@ -1398,6 +1438,9 @@ function renderWorker(){
         </div></div>`:''}`;
     r.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ const t=b.dataset.x; otwarte.get(o.lp)===t ? otwarte.delete(o.lp) : otwarte.set(o.lp,t); editing = [...otwarte.values()].includes('problem'); render(); if(t==='problem'){ const ta=$('tasks').querySelector('textarea'); if(ta) ta.focus(); } });
     r.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>ustawSztuki(o, (o.wykonano||0)+Number(b.dataset.q)));
+    // kliknięcie w zadanie (poza przyciskami i polami) — szczegóły potrzebne do wykonania
+    r.querySelector('[data-det]').onclick=e=>{ e.stopPropagation(); szczegolyZadania(o); };
+    r.onclick=e=>{ if(e.target.closest('button,textarea,input,select,a,label,.full')) return; szczegolyZadania(o); };
     r.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{
       const val=b.dataset.s; if(val===o.status || o._busy) return;
       change(o,{status:val, wykonano: val==='ukończono'?qty:(wyk>=qty?Math.max(0,qty-1):wyk)},'ustawStatus',o.lp,val).then(ok=>{ if(ok && val==='ukończono') toast('Zadanie ukończone ✓'); });
