@@ -479,6 +479,7 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
   .otable tr{display:grid;grid-template-columns:1fr auto;gap:6px 10px;padding:12px 14px;border-bottom:1px solid var(--line-2)}
   .otable td{border:none;padding:0;white-space:normal}
   .otable td.c-lp{display:none}
+  .otable .nrIn{display:inline}
   .otable td.c-real{order:1} .otable td.c-prod{order:2} .otable td.c-qty{order:3} .otable td.c-val{order:4} .otable td.c-who{order:5} .otable td.c-st{order:6}
   .otable td.c-prod{grid-column:1/-1}
   .otable td.c-real::before{content:"Termin: ";color:var(--muted);font-weight:400}
@@ -506,7 +507,7 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
   .month td.m-a{grid-column:1;grid-row:1}
   .month td.m-k{grid-column:2;grid-row:1}
   .month td.m-d{grid-column:1;grid-row:2;font-size:12.5px;color:var(--muted)}
-  .month td.m-d::after{content:" · LP " attr(data-lp)}
+  .month td.m-d::after{content:attr(data-nr)}
   .month td.m-lp{display:none}
   .month td.m-s{grid-column:2;grid-row:2;font-size:12.5px;color:var(--muted)}
   .month td.m-s::after{content:" szt."}
@@ -525,6 +526,16 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
   .brand .app{display:none}
 }
 
+/* kanał sprzedaży, nr zamówienia */
+.nrIn{display:none}
+.otable td.c-lp{font-weight:500;white-space:normal;overflow-wrap:anywhere;max-width:110px;min-width:64px;padding-right:6px}
+.otable tr.poz td.c-lp{font-weight:400;color:var(--muted)}
+.otable td.c-real .tag{display:table;margin:3px 0 0}
+@media (max-width:1499px) and (min-width:861px){ .otable th,.otable td{padding-left:9px;padding-right:9px} }
+.srcTag.k-allegro{background:var(--coral-soft);color:var(--coral)}
+.srcTag.k-ebay{background:var(--blue-soft);color:var(--blue)}
+.srcTag.k-amazon{background:var(--amber-soft);color:var(--amber)}
+.srcTag.k-shop{background:var(--ok-soft);color:var(--ok)}
 /* ========== v11: statusy, grupy zamówień, przydziały, czas pracy, magazyn ========== */
 .chip.s-as{background:var(--blue-soft);border-color:var(--blue-line);color:var(--blue)} .chip.s-as .d{background:var(--blue)}
 .chip.s-ps{background:var(--grey-soft);border-color:var(--line);color:var(--ink-2)} .chip.s-ps .d{background:var(--muted)}
@@ -541,7 +552,8 @@ tr.grp-h.open .gchev{transform:rotate(90deg)}
 .gcnt{display:inline-flex;align-items:center;border-radius:99px;font-size:11px;font-weight:650;padding:1px 8px;margin-left:6px;background:var(--brand-soft);color:var(--brand);vertical-align:1px;white-space:nowrap}
 .otable tr.poz td:first-child{box-shadow:inset 3px 0 0 var(--brand-line)}
 .otable tr.poz .c-prod b{font-weight:500}
-.otable td.c-prod{white-space:normal;min-width:230px;max-width:400px}
+.otable td.c-prod{white-space:normal;min-width:220px;max-width:340px}
+.otable td.c-prod b{max-width:300px}
 .otable td.c-prod small{line-height:1.5}
 .otable td.c-prod b{white-space:nowrap}
 .otable tr.grp-h td.c-prod b{white-space:normal}
@@ -650,9 +662,10 @@ tr.grp-h.open .gchev{transform:rotate(90deg)}
         <label class="field"><span>Liczony wg</span><select class="input" id="fBy"><option value="zam">daty zamówienia</option><option value="real">daty realizacji</option></select></label>
         <label class="field"><span>Pracownik</span><select class="input" id="fWorker"></select></label>
         <label class="field"><span>Status</span><select class="input" id="fStatus"><option value="all">Wszystkie</option><option value="">Nowe (bez przypisania)</option><option value="przypisano">Przypisano</option><option value="w trakcie">W trakcie</option><option value="wstrzymano">Wstrzymano</option><option value="__otw">Wszystkie nieukończone</option><option value="ukończono">Ukończone</option><option value="__prob">Z problemem</option></select></label>
+        <label class="field"><span>Kanał sprzedaży</span><select class="input" id="fKanal"><option value="all">Wszystkie</option></select></label>
         <label class="field"><span>Status w BaseLinkerze</span><select class="input" id="fBl"><option value="all">Wszystkie</option></select></label>
         <label class="field"><span>Produkt</span><select class="input" id="fProduct"></select></label>
-        <label class="field grow"><span>Szukaj</span><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input" type="search" id="fSearch" placeholder="Nr zamówienia, LP, opis…"></div></label>
+        <label class="field grow"><span>Szukaj</span><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input" type="search" id="fSearch" placeholder="Nr zamówienia, opis, kanał…"></div></label>
       </div>
       <div class="kpis">
         <div class="kpi"><div class="l">Pozycje</div><div class="v num" id="kPos">–</div><div class="s" id="kPosS">&nbsp;</div></div>
@@ -670,7 +683,7 @@ tr.grp-h.open .gchev{transform:rotate(90deg)}
         <div class="panel">
           <div class="panel-h"><h3>Lista zamówień</h3><span style="display:flex;align-items:center;gap:10px"><span id="oCount"></span><button class="btn ghost sm" id="grpAll">Rozwiń wszystkie</button></span></div>
           <div class="scroll"><table class="otable">
-            <thead><tr><th class="r">LP</th><th>Termin</th><th>Produkt</th><th class="col-desc">Opis</th><th class="r">Ilość</th><th>Wykonuje</th><th>Status i postęp</th><th class="col-zam">Data zam.</th><th class="r">Wartość</th></tr></thead>
+            <thead><tr><th>Nr zam.</th><th>Termin</th><th>Produkt</th><th class="col-desc">Opis</th><th class="r">Ilość</th><th>Wykonuje</th><th>Status i postęp</th><th class="col-zam">Data zam.</th><th class="r">Wartość</th></tr></thead>
             <tbody id="orders"></tbody></table>
             <div class="more hidden" id="moreBox"><button class="btn" id="moreBtn">Pokaż więcej</button></div></div>
         </div>
@@ -1060,7 +1073,7 @@ function przydzialDialog(o){
   function rysuj(){
     const suma=L.reduce((s,x)=>s+(Number(x.ilosc)||0),0), wolne=qty-suma;
     root.innerHTML=`<div class="scrim2"></div><div class="modal" role="dialog" aria-modal="true">
-      <div class="drawer-h"><div style="flex:1;min-width:0"><h3>Przydział pracowników</h3><p>LP ${esc(o.lp)} · ${esc(o.kat||'zamówienie')}${o.specE?' · '+esc(o.specE):''} · ${num.format(qty)} szt.</p></div><button class="btn ghost" id="mClose" aria-label="Zamknij">✕</button></div>
+      <div class="drawer-h"><div style="flex:1;min-width:0"><h3>Przydział pracowników</h3><p>${o.nr?'Nr '+esc(o.nr)+' · ':''}${esc(o.kat||'zamówienie')}${o.specE?' · '+esc(o.specE):''} · ${num.format(qty)} szt.</p></div><button class="btn ghost" id="mClose" aria-label="Zamknij">✕</button></div>
       <div class="drawer-b">
         <div class="przHead"><span>Pracownik</span><span>Ilość (szt.)</span><span></span></div>
         ${L.map((x,i)=>`<div class="przRow"><select class="input" data-i="${i}" data-f="prac">${opcje(x.prac)}</select>
@@ -1129,6 +1142,42 @@ function setOptions(sel, values, def){
   values.forEach(([v,t])=>{ const o=document.createElement('option'); o.value=v; o.textContent=t; sel.appendChild(o); });
   if([...sel.options].some(o=>o.value===cur)) sel.value=cur;
 }
+
+/* kanał sprzedaży z BaseLinkera (Allegro, eBay, sklep…) */
+const KANALY={ allegro:'Allegro', ebay:'eBay', amazon:'Amazon', shop:'Sklep', personal:'Osobiste', emag:'eMAG', kaufland:'Kaufland', erli:'Erli', empik:'Empik', etsy:'Etsy', olx:'OLX', temu:'Temu', morele:'Morele', ceneo:'Ceneo', facebook:'Facebook', allegrolokalnie:'Allegro Lokalnie', zalando:'Zalando', vinted:'Vinted', otto:'OTTO', cdiscount:'Cdiscount', mirakl:'Mirakl' };
+function kanalNazwa(o){
+  const k=String(o.kanalZ||'').trim();
+  if(!k) return o.zrodloZam==='BaseLinker' ? 'BaseLinker' : '';
+  return KANALY[k.toLowerCase().replace(/[\s_-]/g,'')] || (k[0].toUpperCase()+k.slice(1));
+}
+function zrodloTag(o){
+  if(o.zrodloZam==='BaseLinker'){ const k=String(o.kanalZ||'').toLowerCase().replace(/[^a-z]/g,''); return '<span class="srcTag bl'+(k?' k-'+k:'')+'" title="Zamówienie z BaseLinkera — kanał sprzedaży">'+esc(kanalNazwa(o))+'</span>'; }
+  if(o.zrodloZam==='Ręcznie') return '<span class="srcTag re" title="Dodane ręcznie w aplikacji">ręczne</span>';
+  return '';
+}
+/* całe zamówienie (wszystkie pozycje) do jednej osoby */
+function grupaMenu(anchor, P){
+  const wsz=[...new Set(P.flatMap(pracOf))];
+  const ok = w => P.every(o=>moze(o,w));
+  const poz = w => ({ html:nazwaZId(w), icon:'<span class="mini-av">'+esc(inicjaly(w))+'</span>', cur: wsz.length===1 && wsz[0]===w && P.every(o=>(o.przydzialy||[]).length===1 && o.przydzialy[0].ilosc>=(o.qty||1)), act:()=>przypiszGrupe(P, w) });
+  const kr=P.some(o=>o.kr), tak=workerList.filter(ok), nie=workerList.filter(w=>!ok(w));
+  const items = kr ? [{head:'Szyją wszystkie produkty (wg cennika)'}, ...tak.map(poz), ...(nie.length?[{head:'Pozostałe osoby'}, ...nie.map(poz)]:[])] : workerList.map(poz);
+  if(wsz.length) items.push('-', { label:'Usuń przypisanie wszystkich pozycji', act:()=>przypiszGrupe(P, '') });
+  openMenu(anchor, 'Całe zamówienie ('+P.length+' poz.) do', items);
+}
+async function przypiszGrupe(P, w){
+  const zPostepem=P.filter(o=>(o.przydzialy||[]).some(p=>p.prac!==w && (p.wykonano>0 || p.status==='w trakcie' || p.status==='wstrzymano' || p.status==='ukończono')));
+  if(zPostepem.length && !confirm((w?'Przypisać całe zamówienie do: '+bezNr(w)+'?':'Usunąć przypisanie wszystkich pozycji?')+' Inne osoby mają już postęp w '+zPostepem.length+' poz. — ich przepracowany czas zostanie zapisany.')) return;
+  const stare=P.map(o=>({ o, k:{ prac:o.prac, pracList:o.pracList, przydzialy:o.przydzialy, status:o.status } }));
+  P.forEach(o=>{ Object.assign(o, w ? { prac:w, pracList:[w], przydzialy:[{prac:w, ilosc:o.qty||1, wykonano:0, status:'przypisano'}], status:o.status==='ukończono'?o.status:'przypisano' } : { prac:'', pracList:[], przydzialy:[] }); o._busy=true; });
+  busy++; render(); if(drawerOpen && P.includes(drawerOpen)) openDrawer(drawerOpen);
+  try{
+    const r=await api('przypiszZamowienie', token, P.map(o=>o.lp), w);
+    P.forEach(o=>{ if(r && r[o.lp]) Object.assign(o, r[o.lp]); });
+    toast(w ? 'Całe zamówienie przypisane: '+bezNr(w) : 'Usunięto przypisanie zamówienia');
+  }catch(e){ stare.forEach(x=>Object.assign(x.o, x.k)); toast(e.message); }
+  finally{ P.forEach(o=>o._busy=false); busy--; render(); if(drawerOpen && P.includes(drawerOpen)) openDrawer(drawerOpen); if(!busy) refresh(false); }
+}
 function fillFilters(months, month){
   setOptions($('fMonth'), [['all','Wszystkie'], ...months.map(m=>[m,mlabel(m)])], month);
   const ws=[...new Set([...workerList, ...rows.flatMap(pracOf)])].sort((a,b)=>bezNr(a).localeCompare(bezNr(b),'pl'));
@@ -1137,11 +1186,13 @@ function fillFilters(months, month){
   setOptions($('fProduct'), [['all','Wszystkie'], ...prods.map(p=>[p,p])]);
   const st=[...new Set(rows.map(o=>o.blStatus).filter(Boolean).map(String))];
   const nazwaSt = id => (blInfo(id)||{}).name || blStatusy[id] || ('status '+id);
+  const kan=[...new Set(rows.map(kanalNazwa).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pl'));
+  setOptions($('fKanal'), [['all','Wszystkie'], ...kan.map(k=>[k,k]), ...(rows.some(o=>!kanalNazwa(o))?[['__brak','— ręczne / Excel —']]:[])]);
   setOptions($('fBl'), [['all','Wszystkie'], ...st.sort((a,b)=>nazwaSt(a).localeCompare(nazwaSt(b),'pl')).map(id=>[id,nazwaSt(id)]), ['__brak','— spoza BaseLinkera —']]);
 }
 $('fMonth').onchange=()=>{ shown=PAGE; refresh(false); };
 $('fBy').onchange=()=>{ shown=PAGE; refresh(false); };
-['fWorker','fProduct','fStatus','fBl'].forEach(id=>$(id).onchange=()=>{ shown=PAGE; render(); });
+['fWorker','fProduct','fStatus','fBl','fKanal'].forEach(id=>$(id).onchange=()=>{ shown=PAGE; render(); });
 $('fSearch').oninput=()=>{ shown=PAGE; render(); };
 $('moreBtn').onclick=()=>{ shown+=PAGE; render(); };
 $('kProbBox').onclick=()=>{ $('fStatus').value='__prob'; $('fMonth').value='all'; shown=PAGE; refresh(false); };
@@ -1173,8 +1224,8 @@ function wierszPozycji(o, cls, t0){
   const prodName=o.kat || (o.uwagi ? o.uwagi.slice(0,50) : '—');
   const nok=pracOf(o).some(w=>!moze(o,w));
   const L=o.przydzialy||[], nieprz=L.length && !L.some(p=>p.excel) && (o.przydzielono||0)<(o.qty||1);
-  tr.innerHTML=`<td class="r lp num c-lp">${esc(o.lp)}</td><td class="num c-real${late?' late':''}" title="${esc(terminOpis(o))}">${fmtD(o.termin)||'<span class="lp">—</span>'}${o.terminR?' <span class="tag re" title="Termin ustawiony ręcznie">ręczny</span>':''}</td>
-    <td class="prod c-prod"><b title="${esc(o.nazwaProd||prodName)}">${esc(prodName)}${o.katAuto?'<span class="tag" title="Rozpoznane z opisu">auto</span>':''}${o.godzinowe?'<span class="tag hr">godzinowe</span>':''}${o.trudne?'<span class="tag hard" title="Trudne do szycia: '+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.ark?'<span class="tag arch">archiwum</span>':''}${o.problem&&o.status!=='ukończono'?'<span class="warnIco" title="'+esc(o.problem)+'">'+ICO_WARN+'</span>':''}</b><small>${esc(o.specE||'')}${o.nr?' · nr '+esc(o.nr):''}${o.zrodloZam==='BaseLinker'?'<span class="srcTag bl" title="Z BaseLinkera'+(o.kanal?' · '+esc(o.kanal):'')+'">BL</span>':o.zrodloZam==='Ręcznie'?'<span class="srcTag re" title="Dodane ręcznie w aplikacji">ręczne</span>':''}${blBadge(o)}${o.komentarz?' <span class="tag" title="Uwagi klienta: '+esc(o.komentarz)+'">uwagi</span>':''}</small>${o.uwagi?'<div class="desc d-in">'+esc(o.uwagi)+'</div>':''}</td>
+  tr.innerHTML=`<td class="num c-lp" title="LP ${esc(o.lp)}">${o.nr?esc(o.nr):'<span class="lp">—</span>'}</td><td class="num c-real${late?' late':''}" title="${esc(terminOpis(o))}">${fmtD(o.termin)||'<span class="lp">—</span>'}${o.terminR?' <span class="tag re" title="Termin ustawiony ręcznie">ręczny</span>':''}</td>
+    <td class="prod c-prod"><b title="${esc(o.nazwaProd||prodName)}">${esc(prodName)}${o.katAuto?'<span class="tag" title="Rozpoznane z opisu">auto</span>':''}${o.godzinowe?'<span class="tag hr">godzinowe</span>':''}${o.trudne?'<span class="tag hard" title="Trudne do szycia: '+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.ark?'<span class="tag arch">archiwum</span>':''}${o.problem&&o.status!=='ukończono'?'<span class="warnIco" title="'+esc(o.problem)+'">'+ICO_WARN+'</span>':''}</b><small>${esc(o.specE||'')}${o.nr?'<span class="nrIn">'+(o.specE?' · ':'')+'nr '+esc(o.nr)+'</span>':''}${zrodloTag(o)}${blBadge(o)}${o.komentarz?' <span class="tag" title="Uwagi klienta: '+esc(o.komentarz)+'">uwagi</span>':''}</small>${o.uwagi?'<div class="desc d-in">'+esc(o.uwagi)+'</div>':''}</td>
     <td class="col-desc"><div class="desc" title="${esc(o.uwagi)}">${esc(o.uwagi)}</div></td>
     <td class="r num c-qty">${num.format(o.qty)}</td>
     <td class="c-who"><span class="chip ${L.length?'':'none'} ${L.length>1?'multi':''} ${o._busy?'busy':''}" data-a="w" title="${esc(nok?'Nie każda z tych osób szyje ten produkt wg cennika\n':'')}${esc(ktoTytul(o))}">${ktoHtml(o)}${nok?'<span class="nok">!</span>':''}</span>${nieprz?'<div class="lp" style="font-size:11.5px;margin-top:3px">nieprzydzielone: '+num.format((o.qty||1)-(o.przydzielono||0))+' szt.</div>':''}</td>
@@ -1194,26 +1245,28 @@ function wierszGrupy(g, otw, cls, t0){
   const prac=[...new Set(P.flatMap(pracOf))], bez=P.filter(o=>!pracOf(o).length).length;
   const kat=[...new Set(P.map(o=>o.kat||'').filter(Boolean))];
   const prob=P.some(o=>o.problem&&o.status!=='ukończono');
-  tr.innerHTML=`<td class="r lp num c-lp">${esc(P.map(o=>o.lp)[0])}–${esc(P[P.length-1].lp)}</td>
+  tr.innerHTML=`<td class="num c-lp"><b>${o0.nr?esc(o0.nr):'<span class="lp">—</span>'}</b></td>
     <td class="num c-real${late?' late':''}">${fmtD(termin)||'<span class="lp">—</span>'}${terminy.length>1&&terminy[0]!==terminy[terminy.length-1]?'<br><small class="lp">do '+fmtD(terminy[terminy.length-1])+'</small>':''}</td>
-    <td class="prod c-prod"><b><span class="gchev">${ICO_CHEV}</span>Zamówienie ${o0.nr?'nr '+esc(o0.nr):'LP '+esc(o0.lp)}<span class="gcnt">${num.format(P.length)} poz.</span>${prob?'<span class="warnIco" title="Zgłoszony problem w pozycji zamówienia">'+ICO_WARN+'</span>':''}</b>
-      <small>${esc(kat.slice(0,2).join(', '))}${kat.length>2?' i '+(kat.length-2)+' inne':''}${o0.zrodloZam==='BaseLinker'?'<span class="srcTag bl">BL</span>':o0.zrodloZam==='Ręcznie'?'<span class="srcTag re">ręczne</span>':''}${blBadge(o0)}${o0.kanalZ?' · '+esc(o0.kanalZ):''}</small></td>
+    <td class="prod c-prod"><b><span class="gchev">${ICO_CHEV}</span>Zamówienie${o0.nr?' nr '+esc(o0.nr):''}<span class="gcnt">${num.format(P.length)} poz.</span>${prob?'<span class="warnIco" title="Zgłoszony problem w pozycji zamówienia">'+ICO_WARN+'</span>':''}</b>
+      <small>${esc(kat.slice(0,2).join(', '))}${kat.length>2?' i '+(kat.length-2)+' inne':''}${zrodloTag(o0)}${blBadge(o0)}</small></td>
     <td class="col-desc"><div class="desc">${esc(P.map(o=>(o.kat||o.uwagi.slice(0,40))+(o.specE?' '+o.specE:'')+' ×'+o.qty).join(' · '))}</div></td>
     <td class="r num c-qty">${num.format(qty)}</td>
-    <td class="c-who">${prac.length?`<span class="chip multi" style="cursor:default" title="${esc(prac.map(bezNr).join(', '))}"><span class="avs">${prac.slice(0,3).map(w=>'<span class="mini-av">'+esc(inicjaly(w))+'</span>').join('')}</span><span class="cn">${esc(prac.length===1?bezNr(prac[0]):prac.length+' osoby')}</span></span>`:''}${bez?`<div class="lp" style="font-size:11.5px;margin-top:3px">${bez===P.length?'bez przypisania':'bez przypisania: '+bez+' poz.'}</div>`:''}</td>
+    <td class="c-who">${prac.length?`<span class="chip multi" data-a="gw" title="${esc(prac.map(bezNr).join(', '))} — kliknij, aby przypisać całe zamówienie"><span class="avs">${prac.slice(0,3).map(w=>'<span class="mini-av">'+esc(inicjaly(w))+'</span>').join('')}</span><span class="cn">${esc(prac.length===1?bezNr(prac[0]):prac.length+' osoby')}</span></span>`:`<span class="chip none" data-a="gw">+ Przypisz całe</span>`}${bez&&prac.length?`<div class="lp" style="font-size:11.5px;margin-top:3px">${bez===P.length?'bez przypisania':'bez przypisania: '+bez+' poz.'}</div>`:''}</td>
     <td class="c-st"><span class="chip ${statusCls(st)}" style="cursor:default"><span class="d"></span>${statusLabel(st)}</span><div class="pgc"><div class="pgt"><span>${num.format(wyk)} / ${num.format(qty)} szt.</span><b>${proc}%</b></div><div class="pbar2"><i class="${wyk>=qty?'full':wyk>0?'':'zero'}" style="width:${proc}%"></i></div></div></td>
     <td class="num lp col-zam">${fmtD(o0.zam)}</td>
     <td class="r num c-val">${wart?zl.format(wart):'<span class="lp">—</span>'}</td>`;
+  tr.querySelector('[data-a="gw"]').onclick=e=>{ e.stopPropagation(); grupaMenu(e.currentTarget, P); };
   tr.onclick=()=>{ if(rozwWszystkie){ rozwWszystkie=false; grupyWidoczne.forEach(x=>{ if(x.poz.length>1) rozw.add(x.k); }); } rozw.has(g.k)?rozw.delete(g.k):rozw.add(g.k); render(); };
   return tr;
 }
 let grupyWidoczne=[];
 function renderOrders(){
-  const w=$('fWorker').value, p=$('fProduct').value, st=$('fStatus').value, bl=$('fBl').value, q=$('fSearch').value.trim().toLowerCase();
+  const w=$('fWorker').value, p=$('fProduct').value, st=$('fStatus').value, bl=$('fBl').value, kn=$('fKanal').value, q=$('fSearch').value.trim().toLowerCase();
   const base=rows.filter(o=>(p==='all'||o.kat===p)
     && (st==='all' || (st==='__prob' ? (o.problem && o.status!=='ukończono') : st==='__otw' ? o.status!=='ukończono' : (o.status||'')===st))
     && (bl==='all' || (bl==='__brak' ? !o.blStatus : String(o.blStatus)===bl))
-    && (!q || [o.nr,o.uwagi,o.specE,o.kat,pracOf(o).join(' '),String(o.lp),o.problem,o.komentarz,o.blStatusNazwa].join(' ').toLowerCase().includes(q)));
+    && (kn==='all' || (kn==='__brak' ? !kanalNazwa(o) : kanalNazwa(o)===kn))
+    && (!q || [o.nr,o.uwagi,o.specE,o.kat,pracOf(o).join(' '),String(o.lp),o.problem,o.komentarz,o.blStatusNazwa,kanalNazwa(o)].join(' ').toLowerCase().includes(q)));
   const list=base.filter(o=>w==='all' || (w==='__none' ? !pracOf(o).length : pracOf(o).includes(w)));
   const done=list.filter(o=>o.status==='ukończono').length, wt=list.filter(o=>o.status==='w trakcie').length;
   const auto=list.filter(o=>o.cenaAuto).length;
@@ -1296,7 +1349,7 @@ function openDrawer(o){
   const t0=todayStr(), grupa=o.grupa ? rows.filter(x=>x.grupa===o.grupa).sort((a,b)=>a.lp-b.lp) : [o];
   const s=blInfo(o.blStatus);
   $('drawerRoot').innerHTML=`<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true">
-    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${esc(o.kat||'Zamówienie')}</h3><p>LP ${esc(o.lp)}${o.nr?' · nr '+esc(o.nr):''} · zamówiono ${fmtD(o.zam)||'—'}${o.ark?' · '+esc(o.ark):''}</p></div><button class="btn" id="dEditZ" title="Edytuj zamówienie i termin">Edytuj</button><button class="btn ghost" id="dClose" aria-label="Zamknij">✕</button></div>
+    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${esc(o.kat||'Zamówienie')}</h3><p>${o.nr?'Zamówienie nr '+esc(o.nr)+' · ':''}${kanalNazwa(o)?esc(kanalNazwa(o))+' · ':''}zamówiono ${fmtD(o.zam)||'—'}${o.ark?' · '+esc(o.ark):''}</p></div><button class="btn" id="dEditZ" title="Edytuj zamówienie i termin">Edytuj</button><button class="btn ghost" id="dClose" aria-label="Zamknij">✕</button></div>
     <div class="drawer-b" id="dBody">
       <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
         <span class="chip ${pracOf(o).length?'':'none'}" id="dW" title="${esc(ktoTytul(o))}">${ktoHtml(o)}</span>
@@ -1305,7 +1358,7 @@ function openDrawer(o){
       </div>
       ${o.trudne?`<div class="hardbox"><b>Trudne do szycia</b> — ${esc(o.trudne.join(', '))}</div>`:''}
       ${(o.problemy||[]).length?(o.problemy.map(x=>`<div class="probbox"><b>Zgłoszony problem${(o.przydzialy||[]).length>1?' — '+esc(bezNr(x.prac)):''}</b> <small>${x.kiedy?godz(x.kiedy):''}</small><p>${esc(x.tekst)}</p></div>`).join('')):o.problem?`<div class="probbox"><b>Zgłoszony problem</b> <small>${o.problemKiedy?godz(o.problemKiedy):''}</small><p>${esc(o.problem)}</p></div>`:''}
-      ${grupa.length>1?`<div class="sect">Pozycje tego zamówienia (${grupa.length})</div><div class="grpl">${grupa.map(x=>`<button data-lp="${esc(x.lp)}" class="${x===o?'cur':''}"><span><b style="font-weight:600">${esc(x.kat||x.uwagi.slice(0,40))}</b>${x.specE?' · '+esc(x.specE):''} <small>· ${num.format(x.qty)} szt. · LP ${esc(x.lp)}</small></span><span class="chip ${statusCls(x.status)}" style="cursor:inherit"><span class="d"></span>${statusLabel(x.status)}</span></button>`).join('')}</div>`:''}
+      ${grupa.length>1?`<div class="sect sectH"><span>Pozycje tego zamówienia (${grupa.length})</span><button class="btn" id="dGrW">Przypisz całe zamówienie</button></div><div class="grpl">${grupa.map(x=>`<button data-lp="${esc(x.lp)}" class="${x===o?'cur':''}"><span><b style="font-weight:600">${esc(x.kat||x.uwagi.slice(0,40))}</b>${x.specE?' · '+esc(x.specE):''} <small>· ${num.format(x.qty)} szt.${pracOf(x).length?' · '+esc(pracOf(x).map(bezNr).join(', ')):''}</small></span><span class="chip ${statusCls(x.status)}" style="cursor:inherit"><span class="d"></span>${statusLabel(x.status)}</span></button>`).join('')}</div>`:''}
       <div class="sect sectH"><span>Przydział i postęp</span><button class="btn" id="dPrz">${(o.przydzialy||[]).length>1||(o.qty||1)>1?'Przydziel / podziel':'Przypisz'}</button></div>
       ${przydzialyHtml(o)}
       <div style="margin:-8px 0 20px">${postepHtml(o)}</div>
@@ -1318,8 +1371,8 @@ function openDrawer(o){
       ${o.adm?`<div class="sect">Uwagi wewnętrzne (BaseLinker)</div><p class="raw">${esc(o.adm)}</p>`:''}
       <div class="sect">Źródło zamówienia</div>
       <dl class="dl">
-        ${row('Źródło', o.zrodloZam==='BaseLinker' ? 'BaseLinker'+(o.kanalZ?' · '+o.kanalZ:'') : o.zrodloZam==='Ręcznie' ? 'Dodane ręcznie'+(o.dodal?' ('+o.dodal+')':'') : 'Stary Excel'+(o.ark?' · '+o.ark:''))}
-        ${o.blId?row('ID w BaseLinkerze', o.blId):''}
+        ${o.nr?row('Nr zamówienia', o.nr):''}${row('Źródło', o.zrodloZam==='BaseLinker' ? 'BaseLinker'+(kanalNazwa(o)&&kanalNazwa(o)!=='BaseLinker'?' · '+kanalNazwa(o):'') : o.zrodloZam==='Ręcznie' ? 'Dodane ręcznie'+(o.dodal?' ('+o.dodal+')':'') : 'Stary Excel'+(o.ark?' · '+o.ark:''))}
+        ${o.blId?row('ID w BaseLinkerze', o.blId):''}${row('LP w bazie', String(o.lp))}
         ${o.blStatus?`<dt>Status w BaseLinkerze</dt><dd>${blBadge(o).replace('margin-left:6px','')}${o.zBL?' <span class="lp">— w aplikacji liczone jako ukończone</span>':''}</dd>`:''}
       </dl>
       <div class="sect">Realizacja</div>
@@ -1348,12 +1401,13 @@ function openDrawer(o){
   $('dW').onclick=e=>{ e.stopPropagation(); workerMenu(e.currentTarget,o); };
   $('dPrz').onclick=e=>{ e.stopPropagation(); (o.qty||1)>1 || (o.przydzialy||[]).length>1 ? przydzialDialog(o) : workerMenu(e.currentTarget,o); };
   $('dS').onclick=e=>{ e.stopPropagation(); statusMenu(e.currentTarget,o); };
+  if($('dGrW')) $('dGrW').onclick=e=>{ e.stopPropagation(); grupaMenu(e.currentTarget, grupa); };
   $('dT').onclick=()=>edytujZamowienie(o, 'termin');
   $('dEditZ').onclick=()=>edytujZamowienie(o);
   $('dEdit').onclick=()=>edytujSzczegoly(o);
   $('drawerRoot').querySelectorAll('.grpl [data-lp]').forEach(b=>b.onclick=()=>{ const x=rows.find(r=>String(r.lp)===b.dataset.lp); if(x) openDrawer(x); });
   if($('dDel')) $('dDel').onclick=async()=>{
-    if(!confirm('Usunąć zamówienie LP '+o.lp+'? Tej operacji nie można cofnąć.')) return;
+    if(!confirm('Usunąć zamówienie'+(o.nr?' nr '+o.nr:'')+' ('+(o.kat||'pozycja')+')? Tej operacji nie można cofnąć.')) return;
     try{ await api('usunZamowienie', token, o.lp); closeDrawer(); toast('Zamówienie usunięte'); refresh(false); }catch(e){ toast(e.message); }
   };
 }
@@ -1365,7 +1419,7 @@ async function edytujZamowienie(o, fokus){
   const katy=(slownikCache.kategorie||[]).map(k=>k[0]);
   const cenaPocz = o.cenaR ? o.cenaR : (o.zrodloZam==='Ręcznie' && o.cenaX ? o.cenaX : '');
   const pocz={ termin:o.terminR||'', qty:String(o.qty||1), cena:String(cenaPocz||''), stawka:o.stawka?String(o.stawka):'', kat:o.prod||'', spec:o.spec||'', opis:o.uwagi||'', nr:o.nr||'' };
-  $('dBody').innerHTML=`<div class="sect">Edycja zamówienia LP ${esc(o.lp)}</div>
+  $('dBody').innerHTML=`<div class="sect">Edycja zamówienia${o.nr?' nr '+esc(o.nr):''} · ${esc(o.kat||'pozycja')}</div>
     <div class="fgrid">
       <label class="field"><span>Termin</span><input class="input" type="date" id="eTermin" value="${esc(pocz.termin)}"></label>
       <label class="field"><span>Ilość (szt.)</span><input class="input" type="number" min="1" id="eQty" value="${esc(pocz.qty)}"></label>
@@ -1445,7 +1499,7 @@ $('addOrderBtn').onclick=async()=>{
     $('nMsg').textContent='';
     if(p && !(Number(String(z.stawka).replace(',','.'))>0)){ $('nMsg').textContent='Wpisz stawkę za godzinę (zł/h).'; return; }
     $('nSave').disabled=true;
-    try{ const r=await api('dodajZamowienie', token, z); closeDrawer(); toast('Dodano zamówienie LP '+r.lp); refresh(false); }
+    try{ const r=await api('dodajZamowienie', token, z); closeDrawer(); toast('Dodano zamówienie'+(z.nr?' nr '+z.nr:'')); refresh(false); }
     catch(e){ $('nMsg').textContent=e.message; $('nSave').disabled=false; }
   };
 };
@@ -1574,9 +1628,12 @@ function renderStock(){
   setOptions($('sKat'), [['all','Wszystkie'], ...(mag.katalogi||[]).map(k=>[k.id,k.nazwa])]);
   const M=mag.magazyny||[], q=$('sSearch').value.trim().toLowerCase(), kat=$('sKat').value, st=$('sStan').value, srt=$('sSort').value;
   const nazwy=new Map((mag.produkty||[]).map(p=>[p.id,p.nazwa]));
+  // wariant: pełna nazwa = nazwa produktu głównego + nazwa wariantu (np. „POSZWA MINKY … 100 x 135 cm”)
+  const pelna = p => { const r=p.rodzic && nazwy.get(p.rodzic); if(!r) return p.nazwa; return p.nazwa.toLowerCase().startsWith(r.toLowerCase()) ? p.nazwa : r+' '+p.nazwa; };
+  (mag.produkty||[]).forEach(p=>{ p._pelna=pelna(p); });
   let l=(mag.produkty||[]).filter(p=>(kat==='all'||p.katalog===kat) && (st==='all'||(st==='jest'?p.razem>0:p.razem<=0))
-    && (!q || [p.nazwa,p.sku,p.ean,p.rodzic?nazwy.get(p.rodzic):''].join(' ').toLowerCase().includes(q)));
-  const S={ nazwa:(a,b)=>a.nazwa.localeCompare(b.nazwa,'pl'), stan:(a,b)=>b.razem-a.razem||a.nazwa.localeCompare(b.nazwa,'pl'), stan0:(a,b)=>a.razem-b.razem||a.nazwa.localeCompare(b.nazwa,'pl'), sku:(a,b)=>(a.sku||'~').localeCompare(b.sku||'~','pl',{numeric:true}) };
+    && (!q || [p._pelna,p.sku,p.ean].join(' ').toLowerCase().includes(q)));
+  const S={ nazwa:(a,b)=>a._pelna.localeCompare(b._pelna,'pl',{numeric:true}), stan:(a,b)=>b.razem-a.razem||a._pelna.localeCompare(b._pelna,'pl',{numeric:true}), stan0:(a,b)=>a.razem-b.razem||a._pelna.localeCompare(b._pelna,'pl',{numeric:true}), sku:(a,b)=>(a.sku||'~').localeCompare(b.sku||'~','pl',{numeric:true}) };
   l=l.slice().sort(S[srt]||S.nazwa);
   const suma=l.reduce((s,p)=>s+(p.razem||0),0);
   $('sCount').textContent=num.format(l.length)+' produktów · '+num.format(suma)+' szt. na stanie';
@@ -1586,8 +1643,8 @@ function renderStock(){
   const ile=v=>`<span class="${v<=0?'zero':v<3?'low':''}">${num.format(v||0)}</span>`;
   const frag=document.createDocumentFragment();
   l.slice(0,sShown).forEach(p=>{
-    const tr=document.createElement('tr'); if(p.rodzic) tr.className='var';
-    tr.innerHTML=`<td class="nm"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.rodzic?'<br><small class="lp">wariant: '+esc(nazwy.get(p.rodzic)||'')+'</small>':''}</td><td class="sku num">${esc(p.sku)||'<span class="lp">—</span>'}</td><td class="ean num lp">${esc(p.ean)}</td>
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="nm"><b style="font-weight:500">${esc(p._pelna)}</b></td><td class="sku num">${esc(p.sku)||'<span class="lp">—</span>'}</td><td class="ean num lp">${esc(p.ean)}</td>
       <td class="r num cn">${p.cena!=null?zl.format(p.cena):'<span class="lp">—</span>'}</td>${M.map(m=>`<td class="r num mag">${ile((p.stan||{})[m.id]||0)}</td>`).join('')}<td class="r num tot">${ile(p.razem)}</td>`;
     frag.appendChild(tr);
   });
@@ -1749,7 +1806,7 @@ function szczegolyZadania(o){
   const wsp=o.wspolnie||[];
   drawerOpen={zadanie:o};
   $('drawerRoot').innerHTML=`<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true">
-    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${esc(o.kat||o.nazwaProd||'Zadanie')}</h3><p>LP ${esc(o.lp)}${o.nr?' · nr '+esc(o.nr):''}</p></div><button class="btn ghost" id="zClose" aria-label="Zamknij">✕</button></div>
+    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${esc(o.kat||o.nazwaProd||'Zadanie')}</h3><p>${o.nr?'Zamówienie nr '+esc(o.nr):'Zamówienie bez numeru'}</p></div><button class="btn ghost" id="zClose" aria-label="Zamknij">✕</button></div>
     <div class="drawer-b">
       <div class="zchips">
         ${o.termin?`<span class="chip" style="${late?'color:var(--red);border-color:var(--red)':''}">Termin: ${fmtD(o.termin)}</span>`:''}
@@ -1840,8 +1897,8 @@ function renderWorker(){
       ? `<span class="v num">${zl.format(o.stawka)}/h</span><span class="sub">naliczono ${o.start?tmr(o,o.stawka,'kw'):zl.format(kwotaGodz(o,o.stawka))}</span>`
       : o.cenaSzt ? `<span class="v num">${zl.format(o.cenaSzt)}</span><span class="sub">za szt. · razem ${zl.format(o.cenaRazem)}</span>` : '<span class="v lp">—</span>';
     r.innerHTML=`
-      <div class="c-due">${k('Termin')}<span class="due ${cls}">${o.termin?fmtD(o.termin):'—'}</span><span class="sub">${o.status==='ukończono'&&o.ukonczono?'ukończono '+fmtD(o.ukonczono):(dueSub||'LP '+esc(o.lp))}</span></div>
-      <div class="art c-art">${k('Artykuł')}<span class="v">${esc(o.kat||o.uwagi.slice(0,60)||'Zadanie')}${o.trudne?'<span class="tag hard" title="'+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.stawka>0?'<span class="tag hr">godzinowe</span>':''}</span><span class="sub">LP ${esc(o.lp)}${o.nr?' · nr '+esc(o.nr):''}${o.qtyZam&&o.qtyZam!==qty?' · Twoja część: '+num.format(qty)+' z '+num.format(o.qtyZam)+' szt.':''}${wsp.length?' · razem z: '+esc(wsp.map(x=>bezNr(x.prac)).join(', ')):''}${o.komentarz?' · <b style="color:var(--amber)">uwagi klienta</b>':''}</span>
+      <div class="c-due">${k('Termin')}<span class="due ${cls}">${o.termin?fmtD(o.termin):'—'}</span><span class="sub">${o.status==='ukończono'&&o.ukonczono?'ukończono '+fmtD(o.ukonczono):(dueSub||'')}</span></div>
+      <div class="art c-art">${k('Artykuł')}<span class="v">${esc(o.kat||o.uwagi.slice(0,60)||'Zadanie')}${o.trudne?'<span class="tag hard" title="'+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.stawka>0?'<span class="tag hr">godzinowe</span>':''}</span><span class="sub">${o.nr?'Zamówienie nr '+esc(o.nr):'bez numeru'}${o.qtyZam&&o.qtyZam!==qty?' · Twoja część: '+num.format(qty)+' z '+num.format(o.qtyZam)+' szt.':''}${wsp.length?' · razem z: '+esc(wsp.map(x=>bezNr(x.prac)).join(', ')):''}${o.komentarz?' · <b style="color:var(--amber)">uwagi klienta</b>':''}</span>
         <div class="links"><button class="link" data-det>Szczegóły</button>${o.uwagi?`<button class="link" data-x="opis">${tryb==='opis'?'Ukryj opis':'Pełny opis'}</button>`:''}<button class="link p" data-x="problem">${o.problem?'⚠ Problem zgłoszony':'Zgłoś problem'}</button></div></div>
       <div>${k('Rozmiar')}${v(d.rozmiar||o.specE)}</div><div>${k('Tkanina')}${v(d.tkanina)}</div><div>${k('Kolor')}${v(d.kolor)}</div>
       <div class="c-qty">${k('Wykonano')}
@@ -1885,8 +1942,8 @@ function renderMonths(){
     el.innerHTML=`<div class="month-h"><h3>${mlabel(M.miesiac)}${M.miesiac===cm?'<span class="live">bieżący · na żywo</span>':''}</h3>
       <div class="stat"><div><small>Wykonane</small><b class="num">${num.format(M.szt)}</b> <small style="display:inline">szt.</small></div>${M.godz?`<div><small>Praca na godziny</small><b class="num">${esc(czasTxt(M.godz*3600))}</b></div>`:''}<div><small>Kwota</small><b class="num">${zl.format(M.kwota)}</b></div></div>
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
-      ${otwMies.has(M.miesiac)?`<div class="tbl"><table><thead><tr><th>Data</th><th class="r">LP</th><th>Artykuł</th><th class="r">Szt. / czas</th><th class="r">Cena / stawka</th><th class="r">Kwota</th></tr></thead><tbody>
-        ${M.pozycje.map(p=>`<tr><td class="num m-d" data-lp="${esc(p.lp)}">${fmtD(p.data)}</td><td class="r lp num m-lp">${esc(p.lp)}</td><td class="m-a"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.spec?'<br><small class="lp">'+esc(p.spec)+'</small>':''}${p.stawka?'<span class="tag hr">godzinowe</span>':''}</td><td class="r num m-s${p.stawka?' m-h':''}">${p.stawka?esc(czasTxt((p.godz||0)*3600))+(p.szt?' · '+num.format(p.szt)+' szt.':''):num.format(p.szt)}</td><td class="r num m-c">${p.stawka?zl.format(p.stawka)+'/h':p.cenaSzt?zl.format(p.cenaSzt):'—'}</td><td class="r num m-k"><b>${zl.format(p.kwota)}</b></td></tr>`).join('')}
+      ${otwMies.has(M.miesiac)?`<div class="tbl"><table><thead><tr><th>Data</th><th>Nr zam.</th><th>Artykuł</th><th class="r">Szt. / czas</th><th class="r">Cena / stawka</th><th class="r">Kwota</th></tr></thead><tbody>
+        ${M.pozycje.map(p=>`<tr><td class="num m-d" data-nr="${p.nr?' · nr '+esc(p.nr):''}">${fmtD(p.data)}</td><td class="lp num m-lp">${esc(p.nr||'—')}</td><td class="m-a"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.spec?'<br><small class="lp">'+esc(p.spec)+'</small>':''}${p.stawka?'<span class="tag hr">godzinowe</span>':''}</td><td class="r num m-s${p.stawka?' m-h':''}">${p.stawka?esc(czasTxt((p.godz||0)*3600))+(p.szt?' · '+num.format(p.szt)+' szt.':''):num.format(p.szt)}</td><td class="r num m-c">${p.stawka?zl.format(p.stawka)+'/h':p.cenaSzt?zl.format(p.cenaSzt):'—'}</td><td class="r num m-k"><b>${zl.format(p.kwota)}</b></td></tr>`).join('')}
       </tbody></table></div>`:''}`;
     el.querySelector('.month-h').onclick=()=>{ otwMies.has(M.miesiac)?otwMies.delete(M.miesiac):otwMies.add(M.miesiac); renderMonths(); };
     box.appendChild(el);
