@@ -1145,13 +1145,16 @@ function setOptions(sel, values, def){
 
 /* kanał sprzedaży z BaseLinkera (Allegro, eBay, sklep…) */
 const KANALY={ allegro:'Allegro', ebay:'eBay', amazon:'Amazon', shop:'Sklep', personal:'Osobiste', emag:'eMAG', kaufland:'Kaufland', erli:'Erli', empik:'Empik', etsy:'Etsy', olx:'OLX', temu:'Temu', morele:'Morele', ceneo:'Ceneo', facebook:'Facebook', allegrolokalnie:'Allegro Lokalnie', zalando:'Zalando', vinted:'Vinted', otto:'OTTO', cdiscount:'Cdiscount', mirakl:'Mirakl' };
+const platforma = o => { const k=String(o.kanalZ||'').trim(); return k ? (KANALY[k.toLowerCase().replace(/[\s_-]/g,'')] || (k[0].toUpperCase()+k.slice(1))) : ''; };
+/* sklep / konto w BaseLinkerze (np. „VestPol - Selly”, konto Allegro); gdy brak nazwy — sama platforma */
 function kanalNazwa(o){
+  if(o.konto) return o.konto;
   const k=String(o.kanalZ||'').trim();
   if(!k) return o.zrodloZam==='BaseLinker' ? 'BaseLinker' : '';
   return KANALY[k.toLowerCase().replace(/[\s_-]/g,'')] || (k[0].toUpperCase()+k.slice(1));
 }
 function zrodloTag(o){
-  if(o.zrodloZam==='BaseLinker'){ const k=String(o.kanalZ||'').toLowerCase().replace(/[^a-z]/g,''); return '<span class="srcTag bl'+(k?' k-'+k:'')+'" title="Zamówienie z BaseLinkera — kanał sprzedaży">'+esc(kanalNazwa(o))+'</span>'; }
+  if(o.zrodloZam==='BaseLinker'){ const k=String(o.kanalZ||'').toLowerCase().replace(/[^a-z]/g,''); return '<span class="srcTag bl'+(k?' k-'+k:'')+'" title="'+esc((platforma(o)?platforma(o)+(o.konto?' — konto: '+o.konto:''):'BaseLinker'))+'">'+esc(kanalNazwa(o))+'</span>'; }
   if(o.zrodloZam==='Ręcznie') return '<span class="srcTag re" title="Dodane ręcznie w aplikacji">ręczne</span>';
   return '';
 }
@@ -1371,7 +1374,7 @@ function openDrawer(o){
       ${o.adm?`<div class="sect">Uwagi wewnętrzne (BaseLinker)</div><p class="raw">${esc(o.adm)}</p>`:''}
       <div class="sect">Źródło zamówienia</div>
       <dl class="dl">
-        ${o.nr?row('Nr zamówienia', o.nr):''}${row('Źródło', o.zrodloZam==='BaseLinker' ? 'BaseLinker'+(kanalNazwa(o)&&kanalNazwa(o)!=='BaseLinker'?' · '+kanalNazwa(o):'') : o.zrodloZam==='Ręcznie' ? 'Dodane ręcznie'+(o.dodal?' ('+o.dodal+')':'') : 'Stary Excel'+(o.ark?' · '+o.ark:''))}
+        ${o.nr?row('Nr zamówienia', o.nr):''}${row('Źródło', o.zrodloZam==='BaseLinker' ? (o.konto ? o.konto+(platforma(o)?' ('+platforma(o)+')':'') : 'BaseLinker'+(platforma(o)?' · '+platforma(o):'')) : o.zrodloZam==='Ręcznie' ? 'Dodane ręcznie'+(o.dodal?' ('+o.dodal+')':'') : 'Stary Excel'+(o.ark?' · '+o.ark:''))}
         ${o.blId?row('ID w BaseLinkerze', o.blId):''}${row('LP w bazie', String(o.lp))}
         ${o.blStatus?`<dt>Status w BaseLinkerze</dt><dd>${blBadge(o).replace('margin-left:6px','')}${o.zBL?' <span class="lp">— w aplikacji liczone jako ukończone</span>':''}</dd>`:''}
       </dl>
