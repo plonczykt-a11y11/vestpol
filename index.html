@@ -30,7 +30,7 @@
   --amber:#8a5a00; --amber-soft:#fdf1d6; --amber-line:#f0d595;
   --red:#c2301f; --red-soft:#fdeceb; --red-line:#f3c1bc;
   --blue:#2457a6; --blue-soft:#e9f0fb; --blue-line:#c3d4f0;
-  --grey-soft:#eeeff4; --scroll:#c9ccd9; --scroll-h:#a9adbf;
+  --grey-soft:#eeeff4; --row-alt:#f3f5fb; --scroll:#c9ccd9; --scroll-h:#a9adbf;
   --shadow:0 1px 2px rgba(20,24,45,.05),0 4px 16px rgba(20,24,45,.05);
   --shadow-lg:0 14px 44px rgba(20,24,45,.18);
   --r:14px; --r-sm:9px;
@@ -47,7 +47,7 @@
     --amber:#e8b84f; --amber-soft:#33290f; --amber-line:#5a4716;
     --red:#f2877d; --red-soft:#3a1c19; --red-line:#5e2a25;
     --blue:#8fb2ec; --blue-soft:#18233a; --blue-line:#2b3d62;
-    --grey-soft:#232738; --scroll:#33384d; --scroll-h:#454b64;
+    --grey-soft:#232738; --row-alt:#1e2234; --scroll:#33384d; --scroll-h:#454b64;
     --shadow:0 1px 2px rgba(0,0,0,.35),0 4px 16px rgba(0,0,0,.25);
     --shadow-lg:0 14px 44px rgba(0,0,0,.55);
   }
@@ -63,7 +63,7 @@
     --amber:#e8b84f; --amber-soft:#33290f; --amber-line:#5a4716;
     --red:#f2877d; --red-soft:#3a1c19; --red-line:#5e2a25;
     --blue:#8fb2ec; --blue-soft:#18233a; --blue-line:#2b3d62;
-    --grey-soft:#232738; --scroll:#33384d; --scroll-h:#454b64;
+    --grey-soft:#232738; --row-alt:#1e2234; --scroll:#33384d; --scroll-h:#454b64;
     --shadow:0 1px 2px rgba(0,0,0,.35),0 4px 16px rgba(0,0,0,.25);
     --shadow-lg:0 14px 44px rgba(0,0,0,.55);
 }
@@ -511,6 +511,7 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
   .month td.m-s{grid-column:2;grid-row:2;font-size:12.5px;color:var(--muted)}
   .month td.m-s::after{content:" szt."}
   .month td.m-c{display:none}
+  .month td.m-h::after{content:""}
   .seg{display:flex;width:100%}
   .seg button{flex:1;padding:7px 8px}
   .pageHead>.monthChip{width:100%;justify-content:space-between}
@@ -522,6 +523,82 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
   .kpi{padding:12px}
   .brand .vplogo{height:32px}
   .brand .app{display:none}
+}
+
+/* ========== v11: statusy, grupy zamówień, przydziały, czas pracy, magazyn ========== */
+.chip.s-as{background:var(--blue-soft);border-color:var(--blue-line);color:var(--blue)} .chip.s-as .d{background:var(--blue)}
+.chip.s-ps{background:var(--grey-soft);border-color:var(--line);color:var(--ink-2)} .chip.s-ps .d{background:var(--muted)}
+.chip .plus{font-weight:650;color:var(--muted);margin-left:1px}
+.chip.multi{padding-left:4px}
+.avs{display:inline-flex}
+.avs .mini-av{border:2px solid var(--surface);margin-left:-6px} .avs .mini-av:first-child{margin-left:0}
+.otable tr.g-alt{background:var(--row-alt)}
+.otable tr.g-alt:hover{background:var(--hover)}
+.otable tr.grp-h td{border-bottom-color:var(--line-2)}
+.gchev{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;background:var(--grey-soft);color:var(--ink-2);margin-right:7px;vertical-align:-4px;transition:transform .15s;flex:none}
+.gchev svg{width:12px;height:12px}
+tr.grp-h.open .gchev{transform:rotate(90deg)}
+.gcnt{display:inline-flex;align-items:center;border-radius:99px;font-size:11px;font-weight:650;padding:1px 8px;margin-left:6px;background:var(--brand-soft);color:var(--brand);vertical-align:1px;white-space:nowrap}
+.otable tr.poz td:first-child{box-shadow:inset 3px 0 0 var(--brand-line)}
+.otable tr.poz .c-prod b{font-weight:500}
+.otable td.c-prod{white-space:normal;min-width:230px;max-width:400px}
+.otable td.c-prod small{line-height:1.5}
+.otable td.c-prod b{white-space:nowrap}
+.otable tr.grp-h td.c-prod b{white-space:normal}
+.blst{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--ink-2);margin-left:6px;white-space:nowrap;vertical-align:1px}
+.blst i{width:8px;height:8px;border-radius:3px;background:var(--muted);flex:none}
+.tag.hr{background:var(--brand-soft);color:var(--brand);border-color:var(--brand-line)}
+.tmr{font-variant-numeric:tabular-nums;font-weight:650;color:var(--amber)}
+.stb.go{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.stb.ps{background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber)}
+.stb.done{background:var(--ok);border-color:var(--ok);color:#fff;cursor:default}
+.stb svg{width:14px;height:14px}
+.sthead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.sthead .chip{cursor:default}
+.przl{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.przi{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.przi .nm{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.przi .meta{grid-column:2/-1;font-size:12.5px;color:var(--muted)}
+.przi .chip{cursor:default}
+.przi .pbar2{grid-column:1/-1;margin-top:4px}
+.przi .pr{grid-column:1/-1;font-size:12.5px;color:var(--coral);white-space:pre-wrap}
+.grpl{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.grpl button{display:flex;justify-content:space-between;gap:10px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 11px}
+.grpl button:hover{border-color:var(--brand-line)}
+.grpl button.cur{border-color:var(--brand);background:var(--brand-soft)}
+.grpl small{color:var(--muted)}
+.scrim2{position:fixed;inset:0;background:rgba(10,12,22,.42);z-index:54;animation:fade .15s}
+.modal{position:fixed;z-index:55;left:50%;top:50%;transform:translate(-50%,-50%);width:min(540px,calc(100vw - 20px));max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-lg);animation:pop .14s ease-out}
+.modal .drawer-b{overflow:auto}
+.przRow{display:grid;grid-template-columns:minmax(0,1fr) 96px 38px;gap:8px;align-items:center;margin-bottom:8px}
+.przRow .btn{padding:8px;height:38px}
+.przSum{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;margin:6px 0 4px;padding:9px 11px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}
+.przSum.err{border-color:var(--red-line);background:var(--red-soft);color:var(--red)}
+.przSum.ok{border-color:var(--ok-line);background:var(--ok-soft);color:var(--ok)}
+.przHead{display:grid;grid-template-columns:minmax(0,1fr) 96px 38px;gap:8px;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px}
+.przDone{font-size:11.5px;color:var(--muted);margin:-4px 0 8px 2px}
+.chkrow{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;cursor:pointer}
+.chkrow input{margin-top:3px;width:16px;height:16px;flex:none}
+.stable td{white-space:nowrap}
+.stable td.nm{white-space:normal;min-width:240px}
+.stable .zero{color:var(--muted)}
+.stable .low{color:var(--red);font-weight:600}
+.stable tr.var td.nm{padding-left:28px}
+.headlink{display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:860px){
+  .otable tr.poz{margin-left:12px;border-left:3px solid var(--brand-line)}
+  .otable tr.poz td:first-child{box-shadow:none}
+  .otable tr.grp-h td.c-who,.otable tr.grp-h td.c-st{grid-column:1/-1}
+  .stable thead{display:none}
+  .stable,.stable tbody{display:block}
+  .stable tr{display:grid;grid-template-columns:1fr auto;gap:3px 12px;padding:11px 14px;border-bottom:1px solid var(--line-2)}
+  .stable td{border:none;padding:0;white-space:normal}
+  .stable td.nm{grid-column:1;min-width:0}
+  .stable td.tot{grid-column:2;grid-row:1;font-weight:650}
+  .stable td.sku{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
+  .stable td.mag,.stable td.ean{display:none}
+  .stable td.cn{grid-column:1/-1;font-size:12.5px}
+  .stable tr.var td.nm{padding-left:12px}
 }
 </style>
 </head>
@@ -572,7 +649,8 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
         <label class="field"><span>Miesiąc</span><select class="input" id="fMonth"></select></label>
         <label class="field"><span>Liczony wg</span><select class="input" id="fBy"><option value="zam">daty zamówienia</option><option value="real">daty realizacji</option></select></label>
         <label class="field"><span>Pracownik</span><select class="input" id="fWorker"></select></label>
-        <label class="field"><span>Status</span><select class="input" id="fStatus"><option value="all">Wszystkie</option><option value="">Nowe</option><option value="w trakcie">W trakcie</option><option value="ukończono">Ukończone</option><option value="__prob">Z problemem</option></select></label>
+        <label class="field"><span>Status</span><select class="input" id="fStatus"><option value="all">Wszystkie</option><option value="">Nowe (bez przypisania)</option><option value="przypisano">Przypisano</option><option value="w trakcie">W trakcie</option><option value="wstrzymano">Wstrzymano</option><option value="__otw">Wszystkie nieukończone</option><option value="ukończono">Ukończone</option><option value="__prob">Z problemem</option></select></label>
+        <label class="field"><span>Status w BaseLinkerze</span><select class="input" id="fBl"><option value="all">Wszystkie</option></select></label>
         <label class="field"><span>Produkt</span><select class="input" id="fProduct"></select></label>
         <label class="field grow"><span>Szukaj</span><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input" type="search" id="fSearch" placeholder="Nr zamówienia, LP, opis…"></div></label>
       </div>
@@ -590,7 +668,7 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
           <div class="scroll wl"><ul class="wlist" id="workers"></ul></div>
         </div>
         <div class="panel">
-          <div class="panel-h"><h3>Lista zamówień</h3><span id="oCount"></span></div>
+          <div class="panel-h"><h3>Lista zamówień</h3><span style="display:flex;align-items:center;gap:10px"><span id="oCount"></span><button class="btn ghost sm" id="grpAll">Rozwiń wszystkie</button></span></div>
           <div class="scroll"><table class="otable">
             <thead><tr><th class="r">LP</th><th>Termin</th><th>Produkt</th><th class="col-desc">Opis</th><th class="r">Ilość</th><th>Wykonuje</th><th>Status i postęp</th><th class="col-zam">Data zam.</th><th class="r">Wartość</th></tr></thead>
             <tbody id="orders"></tbody></table>
@@ -602,15 +680,33 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
     <!-- KIEROWNIK: PRODUKTY -->
     <section id="vProducts" class="hidden">
       <div class="pageHead"><div><h2>Produkty</h2><p>Cennik z pliku dziewczyn + zmiany cen, dane produktów i nowe produkty dodane w aplikacji</p></div>
-        <button class="btn primary" id="addProdBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span>Dodaj produkt</span></button></div>
+        <div class="headlink"><button class="btn" id="toStockBtn">Produkty w BaseLinkerze</button><button class="btn primary" id="addProdBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span>Dodaj produkt</span></button></div></div>
       <div class="filters">
         <label class="field grow"><span>Szukaj</span><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input" type="search" id="pSearch" placeholder="Nazwa produktu, rozmiar, kolor…"></div></label>
-        <label class="field"><span>Pokaż</span><select class="input" id="pZrodlo"><option value="all">Wszystkie</option><option value="cennik">Z cennika (bez zmian)</option><option value="zmieniony">Zmienione w aplikacji</option><option value="nowy">Dodane w aplikacji</option><option value="ukryte">Ukryte w formularzu</option></select></label>
+        <label class="field"><span>Pokaż</span><select class="input" id="pZrodlo"><option value="all">Wszystkie</option><option value="cennik">Z cennika (bez zmian)</option><option value="zmieniony">Zmienione w aplikacji</option><option value="nowy">Dodane w aplikacji</option><option value="wbudowany">Prototyp (stawka godzinowa)</option><option value="ukryte">Ukryte w formularzu</option></select></label>
       </div>
       <div class="panel">
         <div class="panel-h"><h3>Lista produktów</h3><span id="pCount"></span></div>
         <div style="overflow-x:auto"><table class="ptable"><thead><tr><th>Produkt</th><th>Wariant / specyfikacja</th><th class="r">Cena</th><th>Dane produktu</th><th>Źródło</th><th></th></tr></thead><tbody id="pTable"></tbody></table></div>
         <div class="more hidden" id="pMoreBox"><button class="btn" id="pMore">Pokaż więcej</button></div>
+      </div>
+    </section>
+
+    <!-- KIEROWNIK: MAGAZYN BASELINKERA -->
+    <section id="vStock" class="hidden">
+      <div class="pageHead"><div><h2>Magazyn BaseLinkera</h2><p id="sSub">Produkty i stany magazynowe z BaseLinkera (tylko odczyt, odświeżane co 15 minut)</p></div>
+        <button class="btn primary" id="sRefresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-2.64-6.36M21 4v5h-5"/></svg><span>Odśwież z BaseLinkera</span></button></div>
+      <div class="banner hidden" id="sErr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div></div></div>
+      <div class="filters">
+        <label class="field grow"><span>Szukaj</span><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input" type="search" id="sSearch" placeholder="Nazwa, SKU, EAN…"></div></label>
+        <label class="field"><span>Katalog</span><select class="input" id="sKat"></select></label>
+        <label class="field"><span>Stan</span><select class="input" id="sStan"><option value="all">Wszystkie</option><option value="jest">Na stanie</option><option value="brak">Brak na stanie</option></select></label>
+        <label class="field"><span>Sortuj</span><select class="input" id="sSort"><option value="nazwa">Nazwa A–Z</option><option value="stan">Stan — najwięcej</option><option value="stan0">Stan — najmniej</option><option value="sku">SKU</option></select></label>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h3>Produkty</h3><span id="sCount"></span></div>
+        <div style="overflow-x:auto"><table class="stable"><thead id="sHead"></thead><tbody id="sTable"></tbody></table></div>
+        <div class="more hidden" id="sMoreBox"><button class="btn" id="sMore">Pokaż więcej</button></div>
       </div>
     </section>
 
@@ -629,9 +725,10 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
             </div>
             <p class="hint">Token znajdziesz w BaseLinkerze: <b>Moje konto → API</b>. Aplikacja tylko odczytuje zamówienia — niczego w BaseLinkerze nie zmienia. Token jest zapisany na serwerze aplikacji i nie jest nigdzie pokazywany.</p>
             <div id="blMore" class="hidden" style="display:flex;flex-direction:column;gap:14px">
+              <label class="chkrow"><input type="checkbox" id="blGw"><span>Pobieraj tylko zamówienia oznaczone <b>gwiazdką</b> (po lewej stronie zamówienia w BaseLinkerze). Gwiazdkę możesz dodać też później — zamówienie wejdzie przy najbliższej synchronizacji.</span></label>
               <label class="field" style="max-width:240px"><span>Pobieraj zamówienia od dnia</span><input class="input" type="date" id="blOd"></label>
               <div class="field"><span>Które statusy oznaczają zamówienie do uszycia?</span><div class="chkl" id="blStatusy"></div>
-                <p class="hint">Pobierane są zamówienia w zaznaczonych statusach (gdy nic nie zaznaczysz — wszystkie). Zamówienie, które później trafi do zaznaczonego statusu, też zostanie pobrane.</p></div>
+                <p class="hint">Pobierane są zamówienia w zaznaczonych statusach (gdy nic nie zaznaczysz — wszystkie). Zamówienie, które później trafi do zaznaczonego statusu, też zostanie pobrane. Statusy, uwagi klienta i uwagi wewnętrzne są aktualizowane przy każdej synchronizacji; zamówienie w statusie „Zrealizowane” liczy się w aplikacji jako ukończone.</p></div>
               <div class="row2"><button class="btn primary" id="blSave">Zapisz ustawienia</button><button class="btn" id="blSyncNow">Synchronizuj teraz</button></div>
             </div>
           </div>
@@ -683,7 +780,7 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
       </select></label></div>
       <div id="wTasksBox">
         <div class="tasks"><div class="tgrid" id="tasks"></div></div>
-        <div class="hint" id="wHint">Przyciskami − / + zaznaczasz, ile sztuk jest już gotowych. „Zgłoś problem” jest nieobowiązkowe.</div>
+        <div class="hint" id="wHint"><b>Rozpocznij</b> — zaczynasz pracę nad zadaniem (status „w trakcie”), <b>Wstrzymaj</b> — przerwa, <b>✓ Ukończ</b> — gotowe. Przyciskami − / + zaznaczasz, ile sztuk jest już gotowych. „Zgłoś problem” jest nieobowiązkowe.</div>
       </div>
       <div id="wSumBox" class="hidden"><div class="months" id="months"></div></div>
     </section>
@@ -793,30 +890,32 @@ function start(profil){
   $('appName').textContent = 'Plan produkcji'; $('appName').classList.toggle('hidden', me.rola==='kierownik');
   const nav=$('nav'); nav.innerHTML='';
   if(me.rola==='kierownik'){
-    [['orders','Zamówienia'],['products','Produkty'],['accounts','Konta i ustawienia']].forEach(([v,t])=>{ const b=document.createElement('button'); b.textContent=t; b.dataset.v=v; b.onclick=()=>setView(v); nav.appendChild(b); });
+    [['orders','Zamówienia'],['products','Produkty'],['stock','Magazyn'],['accounts','Konta i ustawienia']].forEach(([v,t])=>{ const b=document.createElement('button'); b.textContent=t; b.dataset.v=v; b.onclick=()=>setView(v); nav.appendChild(b); });
     setView('orders');
   } else {
     $('wHello').textContent='Plan produkcji — '+me.imie;
     setView('worker');
   }
   refresh(true);
-  clearInterval(timer); timer=setInterval(()=>{ if(!busy && !menuEl && !drawerOpen && !editing && !document.hidden) refresh(false); }, REFRESH_MS);
+  clearInterval(timer); timer=setInterval(()=>{ if(!busy && !menuEl && !drawerOpen && !modalOpen && !editing && !document.hidden) refresh(false); }, REFRESH_MS);
 }
 function setView(v){
   view=v;
   $('vOrders').classList.toggle('hidden', v!=='orders');
   $('vAccounts').classList.toggle('hidden', v!=='accounts');
   $('vProducts').classList.toggle('hidden', v!=='products');
+  $('vStock').classList.toggle('hidden', v!=='stock');
   $('vWorker').classList.toggle('hidden', v!=='worker');
   [...$('nav').children].forEach(b=>b.classList.toggle('on', b.dataset.v===v));
   if(v==='accounts'){ loadAccounts(); loadSettings(); }
   if(v==='products') loadProducts();
+  if(v==='stock') loadStock(false);
 }
 function logout(silent){
   if(token && !silent) api('wyloguj', token).catch(()=>{});
   token=null; me=null; rows=[]; podsum=[]; ss.set('token', null);
-  clearInterval(timer); closeMenu(); closeDrawer();
-  ['vOrders','vAccounts','vProducts','vWorker','banner'].forEach(id=>$(id).classList.add('hidden'));
+  clearInterval(timer); closeMenu(); closeDrawer(); closeModal(); mag=null;
+  ['vOrders','vAccounts','vProducts','vStock','vWorker','banner'].forEach(id=>$(id).classList.add('hidden'));
   $('orders').innerHTML=''; $('workers').innerHTML=''; $('tasks').innerHTML=''; $('months').innerHTML='';
   $('app').classList.add('hidden'); $('loginScreen').classList.remove('hidden');
   pinBuf=''; drawDots(); otwMies.clear(); otwMiesInit=false;
@@ -845,7 +944,8 @@ async function refresh(first){
   try{
     if(me.rola==='kierownik'){
       const r=await api('daneKierownika', token, first ? '' : $('fMonth').value, $('fBy').value);
-      rows=r.wiersze; workerList=r.pracownicy; info=r.info||{}; problemy=r.problemy||0;
+      rows=r.wiersze; workerList=r.pracownicy; info=r.info||{}; problemy=r.problemy||0; if(info.teraz) tOff=info.teraz-Date.now();
+      blStatusy=info.blStatusy||{};
       fillFilters(r.miesiace, r.miesiac);
       const bl=info.bl||{};
       banner(!bl.token ? 'BaseLinker nie jest jeszcze podłączony — wpisz token API w zakładce „Konta i ustawienia”, a nowe zamówienia będą pobierane same co 5 minut.'
@@ -853,7 +953,7 @@ async function refresh(first){
       blStatusy=info.blStatusy||{};
       $('ordersSub').textContent=num.format(info.liczba||0)+' pozycji w bazie · BaseLinker: '+(bl.token ? (bl.ostatnio ? 'sprawdzono '+godz(bl.ostatnio) : 'podłączony') : 'niepodłączony');
     } else {
-      const r=await api('danePracownika', token); rows=r.wiersze; podsum=r.podsumowanie||[]; info=r.info||{};
+      const r=await api('danePracownika', token); rows=r.wiersze; podsum=r.podsumowanie||[]; info=r.info||{}; if(info.teraz) tOff=info.teraz-Date.now();
       if(r.pracownik && me.pracownik!==r.pracownik){ me.pracownik=r.pracownik; $('whoRole').textContent='Pracownik · ID '+idOf(r.pracownik); }
     }
     render();
@@ -907,32 +1007,117 @@ function postepHtml(o){
   if(o.hist) return '<div class="pgc"><div class="pgt"><span>'+num.format(qty)+' / '+num.format(qty)+' szt.</span><b>100%</b></div><div class="pbar2"><i class="full" style="width:100%"></i></div><small>z historii Excela</small></div>';
   return '<div class="pgc"><div class="pgt"><span>'+num.format(w)+' / '+num.format(qty)+' szt.</span><b>'+proc+'%</b></div><div class="pbar2"><i class="'+(w>=qty?'full':w>0?'':'zero')+'" style="width:'+proc+'%"></i></div></div>';
 }
-const statusLabel = s => s==='ukończono' ? 'Ukończono' : s==='w trakcie' ? 'W trakcie' : 'Nowe';
-const statusCls = s => s==='ukończono' ? 's-ok' : s==='w trakcie' ? 's-wt' : 's-new';
+const statusLabel = s => s==='ukończono' ? 'Ukończono' : s==='w trakcie' ? 'W trakcie' : s==='wstrzymano' ? 'Wstrzymano' : s==='przypisano' ? 'Przypisano' : 'Nowe';
+const statusCls = s => s==='ukończono' ? 's-ok' : s==='w trakcie' ? 's-wt' : s==='wstrzymano' ? 's-ps' : s==='przypisano' ? 's-as' : 's-new';
 const pg = o => (o.qty>1 && o.status!=='ukończono' && o.wykonano>0) ? ' <span class="pg">'+num.format(o.wykonano)+'/'+num.format(o.qty)+'</span>' : '';
 const moze = (o,w) => !o.kr || !idOf(w) || o.kr.includes(+idOf(w));
+const pracOf = o => (o.pracList && o.pracList.length) ? o.pracList : (o.prac ? [o.prac] : []);
+/* czas pracy: zapisany + trwający odcinek (zegar serwera) */
+let tOff=0;
+const terazS = () => Date.now()+tOff;
+const czasNa = p => (p.czasZap||0) + (p.start ? Math.max(0,(terazS()-p.start)/1000) : 0);
+function czasTxt(s){ s=Math.max(0,Math.round(s||0)); const h=Math.floor(s/3600), m=Math.floor(s%3600/60); return h ? h+' h '+String(m).padStart(2,'0')+' min' : m ? m+' min' : (s ? s+' s' : '0 min'); }
+function zegar(s){ s=Math.max(0,Math.floor(s||0)); const h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return h+':'+String(m).padStart(2,'0')+':'+String(x).padStart(2,'0'); }
+const kwotaGodz = (p, stawka) => Math.round(czasNa(p)/3600*(stawka||0)*100)/100;
+const tmr = (p, stawka, typ) => `<span class="tmr" data-tmr="${typ||'t'}" data-zap="${p.czasZap||0}" data-st="${p.start||0}" data-stw="${stawka||0}">${typ==='kw' ? zl.format(kwotaGodz(p,stawka)) : zegar(czasNa(p))}</span>`;
+setInterval(()=>{ document.querySelectorAll('[data-tmr]').forEach(el=>{ const p={ czasZap:+el.dataset.zap||0, start:+el.dataset.st||0 };
+  el.textContent = el.dataset.tmr==='kw' ? zl.format(kwotaGodz(p, +el.dataset.stw||0)) : zegar(czasNa(p)); }); }, 1000);
+
+/* kto wykonuje: jedna osoba albo kilka (z ilościami) */
+function ktoHtml(o){
+  const L=o.przydzialy||[];
+  if(!L.length) return '+ Przypisz';
+  if(L.length===1) return '<span class="mini-av">'+esc(inicjaly(L[0].prac))+'</span><span class="cn">'+esc(bezNr(L[0].prac))+'</span>'+(L[0].ilosc<(o.qty||1)?'<span class="plus">'+num.format(L[0].ilosc)+' szt.</span>':'');
+  return '<span class="avs">'+L.slice(0,3).map(p=>'<span class="mini-av">'+esc(inicjaly(p.prac))+'</span>').join('')+'</span><span class="cn">'+esc(bezNr(L[0].prac))+'</span><span class="plus">+'+(L.length-1)+'</span>';
+}
+const ktoTytul = o => (o.przydzialy||[]).map(p=>bezNr(p.prac)+': '+p.ilosc+' szt. ('+statusLabel(p.status).toLowerCase()+(p.wykonano?', '+p.wykonano+' gotowe':'')+')').join('\n');
 function workerMenu(anchor, o){
-  const poz = w => ({ html:nazwaZId(w), icon:'<span class="mini-av">'+esc(inicjaly(w))+'</span>', cur:w===o.prac, act:()=>change(o,{prac:w},'przypisz',o.lp,w) });
-  let items;
+  const L=o.przydzialy||[], qty=Math.max(1,o.qty||1);
+  if(L.length>1) return przydzialDialog(o);
+  const jeden = L.length===1 ? L[0].prac : '';
+  const poz = w => ({ html:nazwaZId(w), icon:'<span class="mini-av">'+esc(inicjaly(w))+'</span>', cur:w===jeden && (!L.length || L[0].ilosc>=qty),
+    act:()=>change(o,{prac:w, pracList:[w], przydzialy:[{prac:w, ilosc:qty, wykonano:0, status:'przypisano'}], status:o.status||'przypisano'},'przypisz',o.lp,w) });
+  let items=[];
+  if(qty>1) items.push({ label:'Podziel między kilka osób…', icon:'<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>', act:()=>przydzialDialog(o) }, '-');
   if(o.kr){
     const tak=workerList.filter(w=>moze(o,w)), nie=workerList.filter(w=>!moze(o,w));
-    items=[{head:'Szyją ten produkt (wg cennika)'}, ...tak.map(poz)];
+    items.push({head:'Szyją ten produkt (wg cennika)'}, ...tak.map(poz));
     if(nie.length) items.push({head:'Pozostałe osoby'}, ...nie.map(poz));
-  } else items=workerList.map(poz);
-  openMenu(anchor, 'Przypisz do', [...items, '-', { label:'Usuń przypisanie', act:()=>change(o,{prac:''},'przypisz',o.lp,'') }]);
+  } else items.push(...workerList.map(poz));
+  if(L.length) items.push('-', { label:'Usuń przypisanie', act:()=>{ if(L[0].wykonano>0 && !confirm('Ta osoba zaznaczyła już postęp. Usunąć przypisanie?')) return; change(o,{prac:'', pracList:[], przydzialy:[]},'przypisz',o.lp,''); } });
+  openMenu(anchor, qty>1 ? 'Przypisz całość ('+num.format(qty)+' szt.) do' : 'Przypisz do', items);
+}
+/* okno przydziału: kilka osób, każda ze swoją liczbą sztuk */
+let modalOpen=false;
+function closeModal(){ const m=$('modalRoot'); if(m) m.remove(); modalOpen=false; }
+function przydzialDialog(o){
+  closeMenu(); closeModal();
+  const qty=Math.max(1,o.qty||1);
+  let L=(o.przydzialy||[]).map(p=>({ prac:p.prac, ilosc:p.ilosc, wyk:p.wykonano||0, status:p.status }));
+  if(!L.length) L=[{ prac:'', ilosc:qty }];
+  const root=document.createElement('div'); root.id='modalRoot'; document.body.appendChild(root); modalOpen=true;
+  const opcje = cur => '<option value="">— wybierz osobę —</option>'+workerList.map(w=>`<option value="${esc(w)}" ${w===cur?'selected':''}>${esc((idOf(w)?idOf(w)+' · ':'')+bezNr(w))}${o.kr&&!moze(o,w)?' ⚠':''}</option>`).join('');
+  function rysuj(){
+    const suma=L.reduce((s,x)=>s+(Number(x.ilosc)||0),0), wolne=qty-suma;
+    root.innerHTML=`<div class="scrim2"></div><div class="modal" role="dialog" aria-modal="true">
+      <div class="drawer-h"><div style="flex:1;min-width:0"><h3>Przydział pracowników</h3><p>LP ${esc(o.lp)} · ${esc(o.kat||'zamówienie')}${o.specE?' · '+esc(o.specE):''} · ${num.format(qty)} szt.</p></div><button class="btn ghost" id="mClose" aria-label="Zamknij">✕</button></div>
+      <div class="drawer-b">
+        <div class="przHead"><span>Pracownik</span><span>Ilość (szt.)</span><span></span></div>
+        ${L.map((x,i)=>`<div class="przRow"><select class="input" data-i="${i}" data-f="prac">${opcje(x.prac)}</select>
+          <input class="input num" type="number" min="1" max="${qty}" data-i="${i}" data-f="ilosc" value="${esc(x.ilosc)}" inputmode="numeric">
+          <button class="btn ghost danger" data-del="${i}" title="Usuń z przydziału" aria-label="Usuń">✕</button></div>
+          ${x.wyk||x.status&&x.status!=='przypisano'?`<div class="przDone">${statusLabel(x.status)}${x.wyk?' · gotowe '+num.format(x.wyk)+' szt.':''}</div>`:''}`).join('')}
+        <button class="btn" id="mAdd" ${L.length>=workerList.length?'disabled':''}>+ Dodaj osobę</button>
+        <div class="przSum ${wolne<0?'err':wolne===0?'ok':''}"><span>Przydzielono <b>${num.format(suma)}</b> z ${num.format(qty)} szt.</span><span>${wolne<0?'za dużo o '+num.format(-wolne)+' szt.':wolne>0?'do przydzielenia: '+num.format(wolne)+' szt.':'całe zamówienie rozdzielone'}</span></div>
+        ${o.kr?'<p class="hint">⚠ — tej osoby nie ma na liście krawcowych, które szyją ten produkt (wg cennika).</p>':''}<p class="hint">Każda osoba widzi w planie produkcji tylko swoją część i sama zaznacza jej postęp. Zamówienie jest ukończone, gdy wszyscy skończą swoje części.</p>
+        <div class="formMsg" id="mMsg" style="padding:10px 0 0"></div>
+        <div class="row2" style="margin-top:12px"><button class="btn primary" id="mSave">Zapisz przydział</button><button class="btn" id="mCancel">Anuluj</button>${(o.przydzialy||[]).length?'<button class="btn ghost danger" id="mClear" style="margin-left:auto">Usuń przydział</button>':''}</div>
+      </div></div>`;
+    root.querySelector('.scrim2').onclick=closeModal; $('mClose').onclick=closeModal; $('mCancel').onclick=closeModal;
+    root.querySelectorAll('[data-f]').forEach(el=>el.onchange=el.oninput=()=>{ const x=L[+el.dataset.i]; if(el.dataset.f==='prac') x.prac=el.value; else x.ilosc=el.value; if(el.tagName==='SELECT' || el.type!=='number') rysuj(); else { const s2=L.reduce((s,y)=>s+(Number(y.ilosc)||0),0), w2=qty-s2, box=root.querySelector('.przSum'); box.className='przSum '+(w2<0?'err':w2===0?'ok':''); box.innerHTML=`<span>Przydzielono <b>${num.format(s2)}</b> z ${num.format(qty)} szt.</span><span>${w2<0?'za dużo o '+num.format(-w2)+' szt.':w2>0?'do przydzielenia: '+num.format(w2)+' szt.':'całe zamówienie rozdzielone'}</span>`; } });
+    root.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ L.splice(+b.dataset.del,1); if(!L.length) L.push({prac:'',ilosc:qty}); rysuj(); });
+    $('mAdd').onclick=()=>{ const s2=L.reduce((s,y)=>s+(Number(y.ilosc)||0),0); L.push({ prac:'', ilosc:Math.max(1,qty-s2) }); rysuj(); };
+    if($('mClear')) $('mClear').onclick=async()=>{ if(!confirm('Usunąć przydział wszystkich osób z tego zamówienia?')) return; closeModal(); await change(o,{prac:'',pracList:[],przydzialy:[]},'przydziel',o.lp,[]); };
+    $('mSave').onclick=async()=>{
+      const lista=L.filter(x=>x.prac).map(x=>({ prac:x.prac, ilosc:Math.round(Number(x.ilosc)) }));
+      const msg=$('mMsg');
+      if(L.some(x=>!x.prac && Number(x.ilosc)>0) && lista.length) { msg.textContent='Wybierz osobę w każdym wierszu albo usuń pusty wiersz.'; return; }
+      if(lista.some(x=>!(x.ilosc>=1))) { msg.textContent='Ilość dla każdej osoby musi być co najmniej 1.'; return; }
+      if(new Set(lista.map(x=>x.prac)).size!==lista.length) { msg.textContent='Ta sama osoba jest na liście dwa razy.'; return; }
+      const suma=lista.reduce((s,x)=>s+x.ilosc,0);
+      if(suma>qty) { msg.textContent='Przydzielono '+suma+' szt., a zamówienie ma '+qty+' szt.'; return; }
+      $('mSave').disabled=true;
+      closeModal();
+      await change(o,{ pracList:lista.map(x=>x.prac), prac:lista.length?lista[0].prac:'', przydzialy:lista.map(x=>Object.assign({wykonano:0,status:'przypisano'},(o.przydzialy||[]).find(p=>p.prac===x.prac)||{},x)) },'przydziel',o.lp,lista);
+    };
+  }
+  rysuj();
 }
 function jestPoTerminie(o,t0){ return !!o.termin && o.termin<t0 && o.status!=='ukończono' && !o.hist; }
 function terminOpis(o){
+  if(o.terminR) return 'Termin ustawiony ręcznie'+(o.terminC?' (wg cennika: '+fmtD(o.terminC)+')':'');
   if(o.terminC) return 'Termin wg cennika: '+o.dniReal+' dni robocz'+(o.dniReal===1?'y':'e')+' od zamówienia'+(o.kanal?' ('+o.kanal+')':'')+' — bez weekendów i świąt';
   return o.real ? 'Data realizacji z Excela' : '';
 }
 function zrodloCeny(o){
-  return o.zrodlo==='sku' ? 'Cena z cennika — wariant rozpoznany po kodzie SKU' : o.zrodlo==='produkt' ? 'Cena z cennika — produkt rozpoznany po nazwie' : 'Wycenione z cennika kategorii';
+  return o.zrodlo==='sku' ? 'Cena z cennika — wariant rozpoznany po kodzie SKU' : o.zrodlo==='produkt' ? 'Cena z cennika — produkt rozpoznany po nazwie' : o.zrodlo==='produkty' ? 'Cena z zakładki Produkty' : 'Wycenione z cennika kategorii';
 }
 function statusMenu(anchor, o){
-  openMenu(anchor, 'Status', [['','Nowe'],['w trakcie','W trakcie'],['ukończono','Ukończono']].map(([v,t])=>({
-    label:t, icon:'<span class="chip '+statusCls(v)+'" style="padding:0;border:none;background:none"><span class="d"></span></span>', cur:(o.status||'')===v,
-    act:()=>change(o,{status:v},'ustawStatus',o.lp,v) })));
+  const reset = pracOf(o).length ? 'przypisano' : '';
+  const ico = v => '<span class="chip '+statusCls(v)+'" style="padding:0;border:none;background:none"><span class="d"></span></span>';
+  const items=[];
+  if(o.status==='w trakcie' || o.status==='wstrzymano') items.push({head:'„W trakcie” i „Wstrzymano” ustawiają pracownicy (Rozpocznij / Wstrzymaj)'});
+  items.push({ label: reset ? 'Przypisano — cofnij do początku' : 'Nowe — cofnij', icon:ico(reset), cur:(o.status||'')===reset,
+    act:()=>{ if((o.wykonano>0 || o.status==='ukończono') && !confirm('Cofnąć zamówienie do początku? Zaznaczony postęp zostanie wyzerowany (przepracowany czas zostaje zapisany).')) return; change(o,{status:reset, wykonano:0},'ustawStatus',o.lp,reset); } });
+  items.push({ label:'Ukończono — całe zamówienie', icon:ico('ukończono'), cur:o.status==='ukończono', act:()=>change(o,{status:'ukończono', wykonano:Math.max(1,o.qty||1)},'ustawStatus',o.lp,'ukończono') });
+  openMenu(anchor, 'Status', items);
+}
+const blInfo = id => (info.blStatusyLista||[]).find(s=>String(s.id)===String(id));
+const kolorOk = c => /^#[0-9a-f]{3,8}$/i.test(String(c||''));
+function blBadge(o){
+  if(!o.blStatus) return '';
+  const s=blInfo(o.blStatus), nazwa=o.blStatusNazwa||(s&&s.name)||blStatusy[o.blStatus]||('status '+o.blStatus);
+  return '<span class="blst" title="Status w BaseLinkerze"><i style="background:'+(s&&kolorOk(s.color)?s.color:'var(--muted)')+'"></i>'+esc(nazwa)+'</span>';
 }
 
 /* =================== KIEROWNIK =================== */
@@ -946,125 +1131,212 @@ function setOptions(sel, values, def){
 }
 function fillFilters(months, month){
   setOptions($('fMonth'), [['all','Wszystkie'], ...months.map(m=>[m,mlabel(m)])], month);
-  const ws=[...new Set([...workerList, ...rows.map(o=>o.prac).filter(Boolean)])].sort((a,b)=>bezNr(a).localeCompare(bezNr(b),'pl'));
+  const ws=[...new Set([...workerList, ...rows.flatMap(pracOf)])].sort((a,b)=>bezNr(a).localeCompare(bezNr(b),'pl'));
   setOptions($('fWorker'), [['all','Wszyscy'],['__none','— bez przypisania —'], ...ws.map(w=>[w,(idOf(w)?idOf(w)+' · ':'')+bezNr(w)])]);
   const prods=[...new Set(rows.map(o=>o.kat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pl'));
   setOptions($('fProduct'), [['all','Wszystkie'], ...prods.map(p=>[p,p])]);
+  const st=[...new Set(rows.map(o=>o.blStatus).filter(Boolean).map(String))];
+  const nazwaSt = id => (blInfo(id)||{}).name || blStatusy[id] || ('status '+id);
+  setOptions($('fBl'), [['all','Wszystkie'], ...st.sort((a,b)=>nazwaSt(a).localeCompare(nazwaSt(b),'pl')).map(id=>[id,nazwaSt(id)]), ['__brak','— spoza BaseLinkera —']]);
 }
 $('fMonth').onchange=()=>{ shown=PAGE; refresh(false); };
 $('fBy').onchange=()=>{ shown=PAGE; refresh(false); };
-['fWorker','fProduct','fStatus'].forEach(id=>$(id).onchange=()=>{ shown=PAGE; render(); });
+['fWorker','fProduct','fStatus','fBl'].forEach(id=>$(id).onchange=()=>{ shown=PAGE; render(); });
 $('fSearch').oninput=()=>{ shown=PAGE; render(); };
 $('moreBtn').onclick=()=>{ shown+=PAGE; render(); };
 $('kProbBox').onclick=()=>{ $('fStatus').value='__prob'; $('fMonth').value='all'; shown=PAGE; refresh(false); };
 
+/* jedno zamówienie = kilka pozycji: wiersz zbiorczy z możliwością rozwinięcia */
+const rozw=new Set(); let rozwWszystkie=false;
+$('grpAll').onclick=()=>{ rozwWszystkie=!rozwWszystkie; rozw.clear(); render(); };
+function grupuj(list){
+  const m=new Map();
+  list.forEach(o=>{ const k=o.grupa||('L'+o.lp); if(!m.has(k)) m.set(k,[]); m.get(k).push(o); });
+  return [...m].map(([k,poz])=>({ k, poz:poz.sort((a,b)=>a.lp-b.lp), lp:Math.max(...poz.map(o=>o.lp||0)) })).sort((a,b)=>b.lp-a.lp);
+}
+function statusGrupy(poz){
+  const s=poz.map(o=>o.status||'');
+  if(s.every(x=>x==='ukończono')) return 'ukończono';
+  if(s.includes('w trakcie')) return 'w trakcie';
+  if(s.some(x=>x==='wstrzymano'||x==='ukończono')) return 'wstrzymano';
+  if(s.includes('przypisano')) return 'przypisano';
+  return '';
+}
+const ICO_CHEV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 6l6 6-6 6"/></svg>';
+function wartoscHtml(o){
+  if(o.godzinowe) return `${o.cenaRazem?zl.format(o.cenaRazem):'<span class="lp">0 zł</span>'}<span class="tag hr" title="Rozliczenie godzinowe: ${esc(num.format(o.stawka))} zł/h × czas pracy">${esc(num.format(o.stawka))} zł/h</span>`;
+  return (o.cenaRazem?zl.format(o.cenaRazem):'<span class="lp">—</span>')+(o.cenaAuto?'<span class="tag'+(o.pewnosc==='pewne'?'':' warn')+'" title="'+esc(zrodloCeny(o))+'">'+(o.zrodlo==='sku'||o.zrodlo==='produkt'?'cennik':o.zrodlo==='produkty'?'produkty':'auto')+'</span>':o.zrodlo==='reczna'?'<span class="tag re" title="Cena wpisana ręcznie">ręczna</span>':'');
+}
+function wierszPozycji(o, cls, t0){
+  const tr=document.createElement('tr'); tr.className='clickable '+cls;
+  const late=jestPoTerminie(o,t0);
+  const prodName=o.kat || (o.uwagi ? o.uwagi.slice(0,50) : '—');
+  const nok=pracOf(o).some(w=>!moze(o,w));
+  const L=o.przydzialy||[], nieprz=L.length && !L.some(p=>p.excel) && (o.przydzielono||0)<(o.qty||1);
+  tr.innerHTML=`<td class="r lp num c-lp">${esc(o.lp)}</td><td class="num c-real${late?' late':''}" title="${esc(terminOpis(o))}">${fmtD(o.termin)||'<span class="lp">—</span>'}${o.terminR?' <span class="tag re" title="Termin ustawiony ręcznie">ręczny</span>':''}</td>
+    <td class="prod c-prod"><b title="${esc(o.nazwaProd||prodName)}">${esc(prodName)}${o.katAuto?'<span class="tag" title="Rozpoznane z opisu">auto</span>':''}${o.godzinowe?'<span class="tag hr">godzinowe</span>':''}${o.trudne?'<span class="tag hard" title="Trudne do szycia: '+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.ark?'<span class="tag arch">archiwum</span>':''}${o.problem&&o.status!=='ukończono'?'<span class="warnIco" title="'+esc(o.problem)+'">'+ICO_WARN+'</span>':''}</b><small>${esc(o.specE||'')}${o.nr?' · nr '+esc(o.nr):''}${o.zrodloZam==='BaseLinker'?'<span class="srcTag bl" title="Z BaseLinkera'+(o.kanal?' · '+esc(o.kanal):'')+'">BL</span>':o.zrodloZam==='Ręcznie'?'<span class="srcTag re" title="Dodane ręcznie w aplikacji">ręczne</span>':''}${blBadge(o)}${o.komentarz?' <span class="tag" title="Uwagi klienta: '+esc(o.komentarz)+'">uwagi</span>':''}</small>${o.uwagi?'<div class="desc d-in">'+esc(o.uwagi)+'</div>':''}</td>
+    <td class="col-desc"><div class="desc" title="${esc(o.uwagi)}">${esc(o.uwagi)}</div></td>
+    <td class="r num c-qty">${num.format(o.qty)}</td>
+    <td class="c-who"><span class="chip ${L.length?'':'none'} ${L.length>1?'multi':''} ${o._busy?'busy':''}" data-a="w" title="${esc(nok?'Nie każda z tych osób szyje ten produkt wg cennika\n':'')}${esc(ktoTytul(o))}">${ktoHtml(o)}${nok?'<span class="nok">!</span>':''}</span>${nieprz?'<div class="lp" style="font-size:11.5px;margin-top:3px">nieprzydzielone: '+num.format((o.qty||1)-(o.przydzielono||0))+' szt.</div>':''}</td>
+    <td class="c-st"><span class="chip ${statusCls(o.status)} ${o._busy?'busy':''}" data-a="s"><span class="d"></span>${statusLabel(o.status)}</span>${postepHtml(o)}</td>
+    <td class="num lp col-zam">${fmtD(o.zam)}</td>
+    <td class="r num c-val">${wartoscHtml(o)}</td>`;
+  tr.querySelector('[data-a="w"]').onclick=e=>{ e.stopPropagation(); workerMenu(e.currentTarget,o); };
+  tr.querySelector('[data-a="s"]').onclick=e=>{ e.stopPropagation(); statusMenu(e.currentTarget,o); };
+  tr.onclick=()=>openDrawer(o);
+  return tr;
+}
+function wierszGrupy(g, otw, cls, t0){
+  const P=g.poz, o0=P[0], tr=document.createElement('tr'); tr.className='clickable grp-h '+cls+(otw?' open':'');
+  const qty=P.reduce((s,o)=>s+(o.qty||0),0), wyk=P.reduce((s,o)=>s+Math.min(o.wykonano||0,o.qty||0),0), wart=P.reduce((s,o)=>s+(o.cenaRazem||0),0);
+  const terminy=P.map(o=>o.termin).filter(Boolean).sort(), termin=terminy[0]||'';
+  const late=P.some(o=>jestPoTerminie(o,t0)), st=statusGrupy(P), proc=qty?Math.round(100*wyk/qty):0;
+  const prac=[...new Set(P.flatMap(pracOf))], bez=P.filter(o=>!pracOf(o).length).length;
+  const kat=[...new Set(P.map(o=>o.kat||'').filter(Boolean))];
+  const prob=P.some(o=>o.problem&&o.status!=='ukończono');
+  tr.innerHTML=`<td class="r lp num c-lp">${esc(P.map(o=>o.lp)[0])}–${esc(P[P.length-1].lp)}</td>
+    <td class="num c-real${late?' late':''}">${fmtD(termin)||'<span class="lp">—</span>'}${terminy.length>1&&terminy[0]!==terminy[terminy.length-1]?'<br><small class="lp">do '+fmtD(terminy[terminy.length-1])+'</small>':''}</td>
+    <td class="prod c-prod"><b><span class="gchev">${ICO_CHEV}</span>Zamówienie ${o0.nr?'nr '+esc(o0.nr):'LP '+esc(o0.lp)}<span class="gcnt">${num.format(P.length)} poz.</span>${prob?'<span class="warnIco" title="Zgłoszony problem w pozycji zamówienia">'+ICO_WARN+'</span>':''}</b>
+      <small>${esc(kat.slice(0,2).join(', '))}${kat.length>2?' i '+(kat.length-2)+' inne':''}${o0.zrodloZam==='BaseLinker'?'<span class="srcTag bl">BL</span>':o0.zrodloZam==='Ręcznie'?'<span class="srcTag re">ręczne</span>':''}${blBadge(o0)}${o0.kanalZ?' · '+esc(o0.kanalZ):''}</small></td>
+    <td class="col-desc"><div class="desc">${esc(P.map(o=>(o.kat||o.uwagi.slice(0,40))+(o.specE?' '+o.specE:'')+' ×'+o.qty).join(' · '))}</div></td>
+    <td class="r num c-qty">${num.format(qty)}</td>
+    <td class="c-who">${prac.length?`<span class="chip multi" style="cursor:default" title="${esc(prac.map(bezNr).join(', '))}"><span class="avs">${prac.slice(0,3).map(w=>'<span class="mini-av">'+esc(inicjaly(w))+'</span>').join('')}</span><span class="cn">${esc(prac.length===1?bezNr(prac[0]):prac.length+' osoby')}</span></span>`:''}${bez?`<div class="lp" style="font-size:11.5px;margin-top:3px">${bez===P.length?'bez przypisania':'bez przypisania: '+bez+' poz.'}</div>`:''}</td>
+    <td class="c-st"><span class="chip ${statusCls(st)}" style="cursor:default"><span class="d"></span>${statusLabel(st)}</span><div class="pgc"><div class="pgt"><span>${num.format(wyk)} / ${num.format(qty)} szt.</span><b>${proc}%</b></div><div class="pbar2"><i class="${wyk>=qty?'full':wyk>0?'':'zero'}" style="width:${proc}%"></i></div></div></td>
+    <td class="num lp col-zam">${fmtD(o0.zam)}</td>
+    <td class="r num c-val">${wart?zl.format(wart):'<span class="lp">—</span>'}</td>`;
+  tr.onclick=()=>{ if(rozwWszystkie){ rozwWszystkie=false; grupyWidoczne.forEach(x=>{ if(x.poz.length>1) rozw.add(x.k); }); } rozw.has(g.k)?rozw.delete(g.k):rozw.add(g.k); render(); };
+  return tr;
+}
+let grupyWidoczne=[];
 function renderOrders(){
-  const w=$('fWorker').value, p=$('fProduct').value, st=$('fStatus').value, q=$('fSearch').value.trim().toLowerCase();
+  const w=$('fWorker').value, p=$('fProduct').value, st=$('fStatus').value, bl=$('fBl').value, q=$('fSearch').value.trim().toLowerCase();
   const base=rows.filter(o=>(p==='all'||o.kat===p)
-    && (st==='all' || (st==='__prob' ? (o.problem && o.status!=='ukończono') : (o.status||'')===st))
-    && (!q || [o.nr,o.uwagi,o.specE,o.kat,o.prac,String(o.lp),o.problem].join(' ').toLowerCase().includes(q)));
-  const list=base.filter(o=>w==='all' || (w==='__none' ? !o.prac : o.prac===w));
+    && (st==='all' || (st==='__prob' ? (o.problem && o.status!=='ukończono') : st==='__otw' ? o.status!=='ukończono' : (o.status||'')===st))
+    && (bl==='all' || (bl==='__brak' ? !o.blStatus : String(o.blStatus)===bl))
+    && (!q || [o.nr,o.uwagi,o.specE,o.kat,pracOf(o).join(' '),String(o.lp),o.problem,o.komentarz,o.blStatusNazwa].join(' ').toLowerCase().includes(q)));
+  const list=base.filter(o=>w==='all' || (w==='__none' ? !pracOf(o).length : pracOf(o).includes(w)));
   const done=list.filter(o=>o.status==='ukończono').length, wt=list.filter(o=>o.status==='w trakcie').length;
   const auto=list.filter(o=>o.cenaAuto).length;
   const szt=list.reduce((s,o)=>s+(o.qty||0),0), sztW=list.reduce((s,o)=>s+(o.wykonano||0),0);
   $('kPos').textContent=num.format(list.length);
-  $('kPosS').textContent=list.filter(o=>o.katAuto).length ? num.format(list.filter(o=>o.katAuto).length)+' rozpoznanych z opisu' : ' ';
+  $('kPosS').textContent=list.filter(o=>o.katAuto).length ? num.format(list.filter(o=>o.katAuto).length)+' rozpoznanych z opisu' : ' ';
   $('kQty').textContent=num.format(szt); $('kQtyS').textContent=num.format(sztW)+' wykonanych';
   $('kVal').textContent=zl0.format(list.reduce((s,o)=>s+(o.cenaRazem||0),0));
-  $('kValS').textContent=auto ? 'w tym '+num.format(auto)+' wycenionych z cennika' : ' ';
+  $('kValS').textContent=auto ? 'w tym '+num.format(auto)+' wycenionych z cennika' : ' ';
   $('kProg').textContent=list.length ? Math.round(100*done/list.length)+'%' : '–';
   $('kBarOk').style.width=(list.length?100*done/list.length:0)+'%'; $('kBarWt').style.width=(list.length?100*wt/list.length:0)+'%';
-  $('kNone').textContent=num.format(base.filter(o=>!o.prac).length);
+  $('kNone').textContent=num.format(base.filter(o=>!pracOf(o).length).length);
   $('kProb').textContent=num.format(problemy); $('kProbBox').classList.toggle('alert', problemy>0);
   const m=$('fMonth').value; $('wMonth').textContent= m==='all' ? 'wszystkie miesiące' : mlabel(m);
 
+  // pracownicy: każda osoba ze swoją częścią zamówienia
   const agg=new Map();
-  base.forEach(o=>{ const k=o.prac||'__none'; const a=agg.get(k)||{n:0,d:0,t:0,v:0}; a.n++; if(o.status==='ukończono') a.d++; if(o.status==='w trakcie') a.t++; a.v+=o.cenaRazem||0; agg.set(k,a); });
+  const dodaj=(k,v,stt)=>{ const a=agg.get(k)||{n:0,d:0,t:0,v:0}; a.n++; if(stt==='ukończono') a.d++; if(stt==='w trakcie') a.t++; a.v+=v||0; agg.set(k,a); };
+  base.forEach(o=>{
+    const L=o.przydzialy||[];
+    if(!L.length) return dodaj('__none', o.cenaRazem, o.status);
+    L.forEach(x=>dodaj(x.prac, o.godzinowe ? (x.kwota||0) : L.length===1 ? o.cenaRazem : (o.cenaSzt||0)*x.ilosc, x.status));
+  });
   const ul=$('workers'); ul.innerHTML='';
   [...agg].sort((a,b)=>(a[0]==='__none')-(b[0]==='__none') || b[1].v-a[1].v).forEach(([name,a])=>{
     const li=document.createElement('li'); if(name===w) li.classList.add('sel'); if(name==='__none') li.classList.add('none');
     li.innerHTML=`<span class="nm">${name==='__none'?'<span>Bez przypisania</span>':nazwaZId(name)}</span><span class="vl num">${zl0.format(a.v)}</span>
-      <span class="meta">${num.format(a.n)} poz. · ${num.format(a.d)} ukończ.</span><span></span>
+      <span class="meta">${num.format(a.n)} poz. · ${num.format(a.d)} ukończ.${a.t?' · '+num.format(a.t)+' w trakcie':''}</span><span></span>
       <div class="bar"><i class="b-ok" style="width:${100*a.d/a.n}%"></i><i class="b-wt" style="width:${100*a.t/a.n}%"></i></div>`;
     li.onclick=()=>{ $('fWorker').value=(w===name?'all':name); shown=PAGE; render(); };
     ul.appendChild(li);
   });
-  const tot=[...agg.values()].reduce((s,a)=>({n:s.n+a.n,v:s.v+a.v}),{n:0,v:0});
+  const tot=base.reduce((s,o)=>({n:s.n+1,v:s.v+(o.cenaRazem||0)}),{n:0,v:0});
   const li=document.createElement('li'); li.className='total'; li.innerHTML=`<span class="nm"><b>Razem</b></span><span class="vl num">${zl0.format(tot.v)}</span><span class="meta">${num.format(tot.n)} poz.</span>`; ul.appendChild(li);
 
-  const sorted=list.slice().sort((a,b)=>(b.lp||0)-(a.lp||0));
-  $('oCount').textContent=num.format(sorted.length)+' poz.';
+  const G=grupuj(list); grupyWidoczne=G;
+  const wiele=G.filter(g=>g.poz.length>1).length;
+  $('oCount').textContent=num.format(G.length)+' zam. · '+num.format(list.length)+' poz.';
+  $('grpAll').classList.toggle('hidden', !wiele);
+  $('grpAll').textContent = rozwWszystkie ? 'Zwiń wszystkie' : 'Rozwiń wszystkie';
   const tb=$('orders'); tb.innerHTML=''; const t0=todayStr();
-  if(!sorted.length){ tb.innerHTML='<tr><td colspan="9" class="empty">Brak zamówień dla wybranych filtrów</td></tr>'; }
-  sorted.slice(0,shown).forEach(o=>{
-    const tr=document.createElement('tr'); tr.className='clickable';
-    const late=jestPoTerminie(o,t0);
-    const prodName=o.kat || (o.uwagi ? o.uwagi.slice(0,50) : '—');
-    const nok=o.prac && !moze(o,o.prac);
-    tr.innerHTML=`<td class="r lp num c-lp">${esc(o.lp)}</td><td class="num c-real${late?' late':''}" title="${esc(terminOpis(o))}">${fmtD(o.termin)||'<span class="lp">—</span>'}</td>
-      <td class="prod c-prod"><b title="${esc(o.nazwaProd||prodName)}">${esc(prodName)}${o.katAuto?'<span class="tag" title="Rozpoznane z opisu">auto</span>':''}${o.trudne?'<span class="tag hard" title="Trudne do szycia: '+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.ark?'<span class="tag arch">archiwum</span>':''}${o.problem&&o.status!=='ukończono'?'<span class="warnIco" title="'+esc(o.problem)+'">'+ICO_WARN+'</span>':''}</b><small>${esc(o.specE||'')}${o.nr?' · nr '+esc(o.nr):''}${o.zrodloZam==='BaseLinker'?'<span class="srcTag bl" title="Z BaseLinkera'+(o.kanal?' · '+esc(o.kanal):'')+'">BL</span>':o.zrodloZam==='Ręcznie'?'<span class="srcTag re" title="Dodane ręcznie w aplikacji">ręczne</span>':''}</small>${o.uwagi?'<div class="desc d-in">'+esc(o.uwagi)+'</div>':''}</td>
-      <td class="col-desc"><div class="desc" title="${esc(o.uwagi)}">${esc(o.uwagi)}</div></td>
-      <td class="r num c-qty">${num.format(o.qty)}</td>
-      <td class="c-who"><span class="chip ${o.prac?'':'none'} ${o._busy?'busy':''}" data-a="w" ${nok?'title="Tej osoby nie ma na liście krawcowych, które szyją ten produkt"':''}>${o.prac?'<span class="mini-av">'+esc(inicjaly(o.prac))+'</span><span class="cn">'+esc(bezNr(o.prac))+'</span>'+(nok?'<span class="nok">!</span>':''):'+ Przypisz'}</span></td>
-      <td class="c-st"><span class="chip ${statusCls(o.status)} ${o._busy?'busy':''}" data-a="s"><span class="d"></span>${statusLabel(o.status)}</span>${postepHtml(o)}</td>
-      <td class="num lp col-zam">${fmtD(o.zam)}</td>
-      <td class="r num c-val">${o.cenaRazem?zl.format(o.cenaRazem):'<span class="lp">—</span>'}${o.cenaAuto?'<span class="tag'+(o.pewnosc==='pewne'?'':' warn')+'" title="'+esc(zrodloCeny(o))+'">'+(o.zrodlo==='sku'||o.zrodlo==='produkt'?'cennik':'auto')+'</span>':''}</td>`;
-    tr.querySelector('[data-a="w"]').onclick=e=>{ e.stopPropagation(); workerMenu(e.currentTarget,o); };
-    tr.querySelector('[data-a="s"]').onclick=e=>{ e.stopPropagation(); statusMenu(e.currentTarget,o); };
-    tr.onclick=()=>openDrawer(o);
-    tb.appendChild(tr);
+  if(!G.length){ tb.innerHTML='<tr><td colspan="9" class="empty">Brak zamówień dla wybranych filtrów</td></tr>'; }
+  const frag=document.createDocumentFragment();
+  G.slice(0,shown).forEach((g,i)=>{
+    const cls=i%2 ? 'g-alt' : '';
+    if(g.poz.length===1){ frag.appendChild(wierszPozycji(g.poz[0], cls, t0)); return; }
+    const otw = rozwWszystkie || rozw.has(g.k) || (!!q && g.poz.length<=12);
+    frag.appendChild(wierszGrupy(g, otw, cls, t0));
+    if(otw) g.poz.forEach(o=>frag.appendChild(wierszPozycji(o, cls+' poz', t0)));
   });
-  $('moreBox').classList.toggle('hidden', sorted.length<=shown);
+  tb.appendChild(frag);
+  $('moreBox').classList.toggle('hidden', G.length<=shown);
 }
 
 /* ---------- szczegóły zamówienia ---------- */
 let drawerOpen=null;
 function closeDrawer(){ $('drawerRoot').innerHTML=''; drawerOpen=null; }
-document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeMenu(); closeDrawer(); } });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(modalOpen) return closeModal(); closeMenu(); closeDrawer(); } });
+function przydzialyHtml(o){
+  const L=o.przydzialy||[];
+  if(!L.length) return '<p class="hint" style="margin:0 0 20px">Nikt nie jest jeszcze przypisany do tego zamówienia.</p>';
+  return '<div class="przl">'+L.map(p=>{
+    const proc=Math.round(100*Math.min(p.wykonano||0,p.ilosc)/Math.max(1,p.ilosc));
+    const czas=(p.czasZap||p.czas||p.start) ? (p.start?'pracuje teraz · ':'')+'czas: '+(p.start?tmr(p,0,'t'):czasTxt(p.czas)) : '';
+    return `<div class="przi"><span class="mini-av">${esc(inicjaly(p.prac))}</span><span class="nm">${esc(bezNr(p.prac))}</span><span class="chip ${statusCls(p.status)}"><span class="d"></span>${statusLabel(p.status)}</span>
+      <span class="meta">${num.format(Math.min(p.wykonano||0,p.ilosc))} / ${num.format(p.ilosc)} szt.${czas?' · '+czas:''}${o.godzinowe?' · kwota: '+(p.start?tmr(p,o.stawka,'kw'):zl.format(p.kwota||0)):''}${p.ukonczono&&p.status==='ukończono'?' · ukończono '+godz(p.ukonczono):''}${p.excel?' · przypisanie z Excela':''}</span>
+      <div class="pbar2"><i class="${proc>=100?'full':proc>0?'':'zero'}" style="width:${proc}%"></i></div>
+      ${p.problem?`<div class="pr">⚠ ${esc(p.problem)}</div>`:''}</div>`;
+  }).join('')+'</div>';
+}
 function openDrawer(o){
   drawerOpen=o; const d=o.det||{};
   const row=(k,v)=>`<dt>${k}</dt><dd>${v?esc(v):'<span class="lp">—</span>'}</dd>`;
-  const rowC=(k,v,pole)=>`<dt>${k}</dt><dd>${v?esc(v)+((d.recznie||[]).includes(pole)?' <span class="tag re" title="Wpisane ręcznie w aplikacji">ręcznie</span>':(d.zProduktu||[]).includes(pole)?' <span class="tag ok" title="Z zakładki Produkty (dane tego produktu)">z produktów</span>':(d.zCennika||[]).includes(pole)?' <span class="tag" title="Tej informacji nie było w opisie — uzupełniona z cennika (dane tego produktu)">z cennika</span>':''):'<span class="lp">—</span>'}</dd>`;
+  const rowC=(k,v,pole)=>`<dt>${k}</dt><dd>${v?esc(v)+((d.recznie||[]).includes(pole)?' <span class="tag re" title="Wpisane ręcznie w aplikacji">ręcznie</span>':(d.zUwag||[]).includes(pole)?' <span class="tag warn" title="Z uwag klienta (np. Allegro)">z uwag klienta</span>':(d.zProduktu||[]).includes(pole)?' <span class="tag ok" title="Z zakładki Produkty (dane tego produktu)">z produktów</span>':(d.zCennika||[]).includes(pole)?' <span class="tag" title="Tej informacji nie było w opisie — uzupełniona z cennika (dane tego produktu)">z cennika</span>':''):'<span class="lp">—</span>'}</dd>`;
   const dod=(o.dodatki||[]).map(x=>`<div class="row"><span>+ ${esc(x.nazwa)}</span><span class="num">${zl.format(x.cena)}</span></div>`).join('');
-  const zrodlo = (o.cenaAuto ? zrodloCeny(o)+(o.pewnosc==='pewne'?'.':' — sprawdź.') : o.zrodlo==='excel' ? 'Cena z arkusza Excel.' : 'Brak ceny w cenniku dla tego opisu.')
+  const zrodlo = (o.godzinowe ? 'Rozliczenie godzinowe: stawka × czas pracy (liczony od „Rozpocznij” do „Wstrzymaj” / „Ukończ”).' : o.zrodlo==='reczna' ? 'Cena wpisana ręcznie.' : o.cenaAuto ? zrodloCeny(o)+(o.pewnosc==='pewne'?'.':' — sprawdź.') : o.zrodlo==='excel' ? 'Cena z arkusza Excel.' : 'Brak ceny w cenniku dla tego opisu.')
     + (o.cenaExcel && o.cenaAuto && Math.abs(o.cenaExcel-o.cenaSzt)>=0.01 ? ' W Excelu: '+zl.format(o.cenaExcel)+' / szt.' : '')
     + (o.hist ? ' Zamówienie z historii Excela (przed uruchomieniem aplikacji) — liczone jako wykonane.' : '');
   const kto = o.kr ? workerList.filter(w=>moze(o,w)) : null;
-  const t0=todayStr();
+  const t0=todayStr(), grupa=o.grupa ? rows.filter(x=>x.grupa===o.grupa).sort((a,b)=>a.lp-b.lp) : [o];
+  const s=blInfo(o.blStatus);
   $('drawerRoot').innerHTML=`<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true">
-    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${esc(o.kat||'Zamówienie')}</h3><p>LP ${esc(o.lp)}${o.nr?' · nr '+esc(o.nr):''} · zamówiono ${fmtD(o.zam)||'—'}${o.ark?' · '+esc(o.ark):''}</p></div><button class="btn ghost" id="dClose" aria-label="Zamknij">✕</button></div>
-    <div class="drawer-b">
+    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${esc(o.kat||'Zamówienie')}</h3><p>LP ${esc(o.lp)}${o.nr?' · nr '+esc(o.nr):''} · zamówiono ${fmtD(o.zam)||'—'}${o.ark?' · '+esc(o.ark):''}</p></div><button class="btn" id="dEditZ" title="Edytuj zamówienie i termin">Edytuj</button><button class="btn ghost" id="dClose" aria-label="Zamknij">✕</button></div>
+    <div class="drawer-b" id="dBody">
       <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
-        <span class="chip ${o.prac?'':'none'}" id="dW">${o.prac?'<span class="mini-av">'+esc(inicjaly(o.prac))+'</span>'+esc(bezNr(o.prac)):'+ Przypisz'}</span>
+        <span class="chip ${pracOf(o).length?'':'none'}" id="dW" title="${esc(ktoTytul(o))}">${ktoHtml(o)}</span>
         <span class="chip ${statusCls(o.status)}" id="dS"><span class="d"></span>${statusLabel(o.status)}${pg(o)}</span>
-        ${o.termin?`<span class="chip" style="cursor:default${jestPoTerminie(o,t0)?';color:var(--red);border-color:var(--red)':''}" title="${esc(terminOpis(o))}">Termin: ${fmtD(o.termin)}</span>`:''}
+        ${o.termin?`<span class="chip" id="dT" style="${jestPoTerminie(o,t0)?'color:var(--red);border-color:var(--red)':''}" title="${esc(terminOpis(o))} — kliknij, aby zmienić">Termin: ${fmtD(o.termin)}${o.terminR?' (ręczny)':''}</span>`:`<span class="chip none" id="dT">+ Termin</span>`}
       </div>
       ${o.trudne?`<div class="hardbox"><b>Trudne do szycia</b> — ${esc(o.trudne.join(', '))}</div>`:''}
-      ${o.problem?`<div class="probbox"><b>Zgłoszony problem</b> <small>${o.problemKiedy?godz(o.problemKiedy):''}</small><p>${esc(o.problem)}</p></div>`:''}
-      <div class="sect sectH"><span>Specyfikacja</span>${me.rola==='kierownik'?'<button class="btn" id="dEdit">Uzupełnij / popraw</button>':''}</div>
+      ${(o.problemy||[]).length?(o.problemy.map(x=>`<div class="probbox"><b>Zgłoszony problem${(o.przydzialy||[]).length>1?' — '+esc(bezNr(x.prac)):''}</b> <small>${x.kiedy?godz(x.kiedy):''}</small><p>${esc(x.tekst)}</p></div>`).join('')):o.problem?`<div class="probbox"><b>Zgłoszony problem</b> <small>${o.problemKiedy?godz(o.problemKiedy):''}</small><p>${esc(o.problem)}</p></div>`:''}
+      ${grupa.length>1?`<div class="sect">Pozycje tego zamówienia (${grupa.length})</div><div class="grpl">${grupa.map(x=>`<button data-lp="${esc(x.lp)}" class="${x===o?'cur':''}"><span><b style="font-weight:600">${esc(x.kat||x.uwagi.slice(0,40))}</b>${x.specE?' · '+esc(x.specE):''} <small>· ${num.format(x.qty)} szt. · LP ${esc(x.lp)}</small></span><span class="chip ${statusCls(x.status)}" style="cursor:inherit"><span class="d"></span>${statusLabel(x.status)}</span></button>`).join('')}</div>`:''}
+      <div class="sect sectH"><span>Przydział i postęp</span><button class="btn" id="dPrz">${(o.przydzialy||[]).length>1||(o.qty||1)>1?'Przydziel / podziel':'Przypisz'}</button></div>
+      ${przydzialyHtml(o)}
+      <div style="margin:-8px 0 20px">${postepHtml(o)}</div>
+      <div class="sect sectH"><span>Specyfikacja</span><button class="btn" id="dEdit">Uzupełnij / popraw</button></div>
       <dl class="dl" id="dSpec">
         ${o.nazwaProd?row('Produkt (cennik)', o.nazwaProd+' · ID '+o.pid):''}${o.sku?row('Kod SKU', o.sku):''}
-        ${row('Kategoria', o.kat)}${rowC('Wariant / rozmiar', o.wariant||o.specE||d.rozmiar, (o.wariant||o.specE)?'':'rozmiar')}${rowC('Tkanina', d.tkanina,'tkanina')}${rowC('Kolor', d.kolor,'kolor')}
+        ${row('Kategoria', o.kat)}${o.katOrig&&o.katOrig!==o.kat?row('Kategoria w cenniku', o.katOrig):''}${rowC('Wariant / rozmiar', o.wariant||o.specE||d.rozmiar, (o.wariant||o.specE)?'':'rozmiar')}${rowC('Tkanina', d.tkanina,'tkanina')}${rowC('Kolor', d.kolor,'kolor')}
         ${rowC('Wypełnienie', d.wypelnienie,'wypelnienie')}${rowC('Waga', d.waga,'waga')}${row('Ilość', o.qty?num.format(o.qty)+' szt.':'')}      </dl>
+      ${o.komentarz?`<div class="sect">Uwagi klienta</div><p class="raw">${esc(o.komentarz)}</p>`:''}
+      ${o.adm?`<div class="sect">Uwagi wewnętrzne (BaseLinker)</div><p class="raw">${esc(o.adm)}</p>`:''}
       <div class="sect">Źródło zamówienia</div>
       <dl class="dl">
         ${row('Źródło', o.zrodloZam==='BaseLinker' ? 'BaseLinker'+(o.kanalZ?' · '+o.kanalZ:'') : o.zrodloZam==='Ręcznie' ? 'Dodane ręcznie'+(o.dodal?' ('+o.dodal+')':'') : 'Stary Excel'+(o.ark?' · '+o.ark:''))}
-        ${o.blId?row('ID w BaseLinkerze', o.blId):''}${o.blStatus?row('Status w BaseLinkerze', blStatusy[o.blStatus]||o.blStatus):''}
-        ${o.komentarz?row('Komentarz klienta', o.komentarz):''}
+        ${o.blId?row('ID w BaseLinkerze', o.blId):''}
+        ${o.blStatus?`<dt>Status w BaseLinkerze</dt><dd>${blBadge(o).replace('margin-left:6px','')}${o.zBL?' <span class="lp">— w aplikacji liczone jako ukończone</span>':''}</dd>`:''}
       </dl>
       <div class="sect">Realizacja</div>
       <dl class="dl">
-        ${row('Termin', o.terminC ? fmtD(o.terminC)+' — '+o.dniReal+' dni robocz'+(o.dniReal===1?'y':'e')+(o.kanal?' ('+o.kanal+')':'') : '')}
-        ${row('Data realizacji (Excel)', fmtD(o.real))}
+        ${row('Termin', fmtD(o.termin)+(o.terminR?' (ustawiony ręcznie)':''))}
+        ${row('Wg cennika', o.terminC ? fmtD(o.terminC)+' — '+o.dniReal+' dni robocz'+(o.dniReal===1?'y':'e')+(o.kanal?' ('+o.kanal+')':'') : '')}
+        ${o.real?row('Data realizacji (Excel)', fmtD(o.real)):''}
         <dt>Kto szyje</dt><dd>${kto ? (kto.length ? '<div class="krlist">'+kto.map(w=>'<span>'+nazwaZId(w)+'</span>').join('')+'</div>' : '<span class="lp">nikt z listy</span>') : '<span class="lp">brak danych w cenniku</span>'}</dd>
       </dl>
-      <div class="sect">Postęp wykonania</div>
-      <div style="margin-bottom:20px">${postepHtml(o)}</div>
-      <div class="sect">Cena</div>
+      <div class="sect">${o.godzinowe?'Rozliczenie godzinowe':'Cena'}</div>
       <div class="pricebox">
-        ${o.cenaBaza?`<div class="row"><span>${o.cenaAuto?'Cena z cennika':'Cena z Excela'}</span><span class="num">${zl.format(o.cenaBaza)}</span></div>`+dod:''}
+        ${o.godzinowe?`<div class="row"><span>Stawka</span><span class="num">${zl.format(o.stawka)} / h</span></div>
+          <div class="row"><span>Czas pracy (wszyscy)</span><span class="num">${czasTxt(o.czas)}</span></div>
+          <div class="row tot"><span>Kwota</span><span class="num">${zl.format(o.cenaRazem||0)}</span></div>`:`
+        ${o.cenaBaza?`<div class="row"><span>${o.zrodlo==='reczna'?'Cena wpisana ręcznie':o.cenaAuto?'Cena z cennika':'Cena z Excela'}</span><span class="num">${zl.format(o.cenaBaza)}</span></div>`+dod:''}
         <div class="row"><span>Cena za sztukę</span><span class="num">${o.cenaSzt?zl.format(o.cenaSzt):'—'}</span></div>
-        <div class="row tot"><span>Razem (${num.format(o.qty||0)} szt.)</span><span class="num">${o.cenaRazem?zl.format(o.cenaRazem):'—'}</span></div>
+        <div class="row tot"><span>Razem (${num.format(o.qty||0)} szt.)</span><span class="num">${o.cenaRazem?zl.format(o.cenaRazem):'—'}</span></div>`}
         <div class="note">${zrodlo}${o.uwagaRozmiar?' Uwaga: '+esc(o.uwagaRozmiar)+'.':''}</div>
       </div>
       <div class="sect">Pełny opis</div>
@@ -1074,16 +1346,62 @@ function openDrawer(o){
   $('drawerRoot').querySelector('.scrim').onclick=closeDrawer;
   $('dClose').onclick=closeDrawer;
   $('dW').onclick=e=>{ e.stopPropagation(); workerMenu(e.currentTarget,o); };
+  $('dPrz').onclick=e=>{ e.stopPropagation(); (o.qty||1)>1 || (o.przydzialy||[]).length>1 ? przydzialDialog(o) : workerMenu(e.currentTarget,o); };
   $('dS').onclick=e=>{ e.stopPropagation(); statusMenu(e.currentTarget,o); };
-  if($('dEdit')) $('dEdit').onclick=()=>edytujSzczegoly(o);
+  $('dT').onclick=()=>edytujZamowienie(o, 'termin');
+  $('dEditZ').onclick=()=>edytujZamowienie(o);
+  $('dEdit').onclick=()=>edytujSzczegoly(o);
+  $('drawerRoot').querySelectorAll('.grpl [data-lp]').forEach(b=>b.onclick=()=>{ const x=rows.find(r=>String(r.lp)===b.dataset.lp); if(x) openDrawer(x); });
   if($('dDel')) $('dDel').onclick=async()=>{
     if(!confirm('Usunąć zamówienie LP '+o.lp+'? Tej operacji nie można cofnąć.')) return;
     try{ await api('usunZamowienie', token, o.lp); closeDrawer(); toast('Zamówienie usunięte'); refresh(false); }catch(e){ toast(e.message); }
   };
 }
 
+/* ---------- edycja zamówienia (termin, ilość, cena, stawka, produkt, opis) ---------- */
+async function edytujZamowienie(o, fokus){
+  if(!slownikCache){ try{ slownikCache=await api('slownik', token); }catch(e){ slownikCache={kategorie:[],pracownicy:workerList}; } }
+  const grupa=o.grupa ? rows.filter(x=>x.grupa===o.grupa).length : 1;
+  const katy=(slownikCache.kategorie||[]).map(k=>k[0]);
+  const cenaPocz = o.cenaR ? o.cenaR : (o.zrodloZam==='Ręcznie' && o.cenaX ? o.cenaX : '');
+  const pocz={ termin:o.terminR||'', qty:String(o.qty||1), cena:String(cenaPocz||''), stawka:o.stawka?String(o.stawka):'', kat:o.prod||'', spec:o.spec||'', opis:o.uwagi||'', nr:o.nr||'' };
+  $('dBody').innerHTML=`<div class="sect">Edycja zamówienia LP ${esc(o.lp)}</div>
+    <div class="fgrid">
+      <label class="field"><span>Termin</span><input class="input" type="date" id="eTermin" value="${esc(pocz.termin)}"></label>
+      <label class="field"><span>Ilość (szt.)</span><input class="input" type="number" min="1" id="eQty" value="${esc(pocz.qty)}"></label>
+      ${grupa>1?`<label class="chkrow full"><input type="checkbox" id="eTerGr"><span>Ustaw ten termin dla wszystkich pozycji tego zamówienia (${grupa})</span></label>`:''}
+      <p class="hint full">Pusty termin = wg cennika${o.terminC?' ('+fmtD(o.terminC)+')':''}.${o.przydzielono?' Przydzielono pracownikom '+num.format(o.przydzielono)+' szt. — ilość nie może być mniejsza.':''}</p>
+      <label class="field"><span>Cena za szt. (zł)</span><input class="input" type="number" min="0" step="0.01" id="eCena" value="${esc(pocz.cena)}" placeholder="${o.godzinowe?'—':o.cenaBaza&&o.zrodlo!=='reczna'?'wg cennika: '+num.format(o.cenaBaza):'wg cennika'}"></label>
+      <label class="field"><span>Stawka godzinowa (zł/h)</span><input class="input" type="number" min="0" step="0.01" id="eStawka" value="${esc(pocz.stawka)}" placeholder="puste = akord"></label>
+      <p class="hint full">Pusta cena = z cennika. Stawka godzinowa zamienia rozliczenie na czas pracy × stawka (jak Prototyp).</p>
+      <label class="field full"><span>Produkt / kategoria</span><input class="input" id="eKat" list="eKatL" value="${esc(pocz.kat)}" placeholder="${esc(o.kat?'rozpoznano: '+o.kat:'rozpoznawany z opisu')}" maxlength="120" autocomplete="off"><datalist id="eKatL">${katy.map(k=>`<option value="${esc(k)}">`).join('')}</datalist></label>
+      <label class="field full"><span>Wariant / specyfikacja</span><input class="input" id="eSpec" value="${esc(pocz.spec)}" placeholder="${esc(o.specE?'rozpoznano: '+o.specE:'')}" maxlength="120"></label>
+      <label class="field full"><span>Nr zamówienia</span><input class="input" id="eNr" value="${esc(pocz.nr)}" maxlength="80"></label>
+      <label class="field full"><span>Opis</span><textarea class="input" id="eOpis" maxlength="2000">${esc(pocz.opis)}</textarea></label>
+    </div>
+    <p class="hint" style="margin-top:10px">Puste pola produktu i wariantu = rozpoznawane automatycznie z opisu.${o.zrodloZam==='BaseLinker'?' Zmiany dotyczą tylko aplikacji — w BaseLinkerze nic się nie zmienia.':''}</p>
+    <div class="formMsg" id="eMsg" style="padding:10px 0 0"></div>
+    <div class="row2" style="margin-top:12px"><button class="btn primary" id="eSave">Zapisz zmiany</button><button class="btn" id="eCancel">Anuluj</button></div>`;
+  $('eCancel').onclick=()=>openDrawer(o);
+  const f=fokus==='termin' ? $('eTermin') : $('eQty'); try{ f.focus(); }catch(e){}
+  $('eSave').onclick=async()=>{
+    const v={ termin:$('eTermin').value, qty:$('eQty').value, cena:$('eCena').value, stawka:$('eStawka').value, kat:$('eKat').value.trim(), spec:$('eSpec').value.trim(), opis:$('eOpis').value.trim(), nr:$('eNr').value.trim() };
+    const z={}; Object.keys(v).forEach(k=>{ if(String(v[k])!==String(pocz[k])) z[k]=v[k]; });
+    if($('eTerGr') && $('eTerGr').checked){ z.termin=v.termin; z.terminGrupa=true; }
+    if(!Object.keys(z).length) return openDrawer(o);
+    $('eSave').disabled=true; $('eMsg').textContent='';
+    try{
+      const r=await api('edytujZamowienie', token, o.lp, z);
+      toast('Zapisano zmiany'+(r.zmieniono>1?' ('+r.zmieniono+' pozycje)':''));
+      if(r.zamowienie) Object.assign(o, r.zamowienie);
+      openDrawer(o); refresh(false);
+    }catch(e){ $('eMsg').textContent=e.message; $('eSave').disabled=false; }
+  };
+}
+
 /* ---------- dodawanie zamówienia (spoza BaseLinkera) ---------- */
 let slownikCache=null;
+const PROTO='Prototyp';
 $('addOrderBtn').onclick=async()=>{
   const b=$('addOrderBtn'); b.disabled=true;
   try{ if(!slownikCache) slownikCache=await api('slownik', token); }catch(e){ b.disabled=false; return toast(e.message); }
@@ -1095,30 +1413,38 @@ $('addOrderBtn').onclick=async()=>{
     <div class="drawer-b"><div class="fgrid">
       <label class="field"><span>Data zamówienia</span><input class="input" type="date" id="nZam" value="${todayStr()}"></label>
       <label class="field"><span>Nr zamówienia / klient</span><input class="input" type="text" id="nNr" maxlength="80" placeholder="np. magazyn, Huggy 3352"></label>
-      <label class="field full"><span>Produkt (z zakładki Produkty)</span><select class="input" id="nKat"><option value="">— wybierz (albo opisz niżej) —</option>${kat.map(([k])=>`<option>${esc(k)}</option>`).join('')}</select></label>
+      <label class="field full"><span>Produkt (z zakładki Produkty)</span><select class="input" id="nKat"><option value="">— wybierz (albo opisz niżej) —</option>${kat.map(([k])=>`<option value="${esc(k)}">${esc(k)}${k===PROTO?' — praca na godziny (stawka zł/h)':''}</option>`).join('')}</select></label>
       <label class="field full hidden" id="nSpecL"><span>Specyfikacja / rozmiar</span><select class="input" id="nSpec"></select></label>
       <label class="field full"><span>Opis</span><textarea class="input" id="nOpis" maxlength="2000" placeholder="kolor, tkanina, wypełnienie, waga, uwagi…"></textarea></label>
       <label class="field"><span>Ilość (szt.)</span><input class="input" type="number" id="nQty" min="1" value="1"></label>
-      <label class="field"><span>Cena za szt. (zł)</span><input class="input" type="number" id="nCena" min="0" step="0.01" placeholder="z cennika"></label>
-      <label class="field"><span>Dodatki za szt. (zł)</span><input class="input" type="number" id="nDod" min="0" step="0.01" placeholder="0"></label>
+      <label class="field hidden" id="nStawkaL"><span>Stawka godzinowa (zł/h)</span><input class="input" type="number" id="nStawka" min="0" step="0.01" placeholder="np. 30"></label>
+      <label class="field" id="nCenaL"><span>Cena za szt. (zł)</span><input class="input" type="number" id="nCena" min="0" step="0.01" placeholder="z cennika"></label>
+      <label class="field" id="nDodL"><span>Dodatki za szt. (zł)</span><input class="input" type="number" id="nDod" min="0" step="0.01" placeholder="0"></label>
       <label class="field"><span>Termin</span><input class="input" type="date" id="nTerm"></label>
       <label class="field full"><span>Przypisz do</span><select class="input" id="nPrac"><option value="">— później —</option>${prac.map(w=>`<option value="${esc(w)}">${esc((idOf(w)?idOf(w)+' · ':'')+bezNr(w))}</option>`).join('')}</select></label>
     </div>
-    <p class="hint" style="margin-top:12px">Puste pole ceny = cena z cennika dla wybranego produktu. Pusty termin = wg cennika (dni robocze od daty zamówienia).</p>
+    <p class="hint" id="nHint" style="margin-top:12px">Puste pole ceny = cena z cennika dla wybranego produktu. Pusty termin = wg cennika (dni robocze od daty zamówienia).</p>
     <div class="formMsg" id="nMsg" style="padding:10px 0 0"></div>
     <div class="row2" style="margin-top:12px"><button class="btn primary" id="nSave">Dodaj zamówienie</button><button class="btn" id="nCancel">Anuluj</button></div>
     </div></aside>`;
   const zamknij=()=>closeDrawer();
   $('drawerRoot').querySelector('.scrim').onclick=zamknij; $('nClose').onclick=zamknij; $('nCancel').onclick=zamknij;
+  const proto=()=>$('nKat').value===PROTO;
   $('nKat').onchange=()=>{
-    const e=kat.find(([k])=>k===$('nKat').value)||[,[],{}], w=e[1], ceny=e[2]||{};
+    const e=kat.find(([k])=>k===$('nKat').value)||[,[],{}], w=e[1], ceny=e[2]||{}, p=proto();
     $('nSpecL').classList.toggle('hidden', !w.length);
     $('nSpec').innerHTML=w.map(v=>`<option value="${esc(v)}">${esc(v)}${ceny[v]!=null?' — '+zl.format(ceny[v]):''}</option>`).join('');
+    $('nStawkaL').classList.toggle('hidden', !p); $('nCenaL').classList.toggle('hidden', p); $('nDodL').classList.toggle('hidden', p);
+    $('nHint').textContent = p ? 'Prototyp rozlicza się godzinowo: od chwili, gdy pracownik kliknie „Rozpocznij”, aż do ukończenia liczy się czas pracy × stawka (przerwy „Wstrzymaj” się nie liczą).' : 'Puste pole ceny = cena z cennika dla wybranego produktu. Pusty termin = wg cennika (dni robocze od daty zamówienia).';
+    if(p) setTimeout(()=>$('nStawka').focus(),0);
   };
   $('nSave').onclick=async()=>{
+    const p=proto();
     const z={ zam:$('nZam').value, nr:$('nNr').value, kat:$('nKat').value, spec:$('nSpecL').classList.contains('hidden')?'':$('nSpec').value,
-      opis:$('nOpis').value, qty:$('nQty').value, cena:$('nCena').value, dod:$('nDod').value, termin:$('nTerm').value, prac:$('nPrac').value };
-    $('nMsg').textContent=''; $('nSave').disabled=true;
+      opis:$('nOpis').value, qty:$('nQty').value, cena:p?'':$('nCena').value, dod:p?'':$('nDod').value, stawka:p?$('nStawka').value:'', termin:$('nTerm').value, prac:$('nPrac').value };
+    $('nMsg').textContent='';
+    if(p && !(Number(String(z.stawka).replace(',','.'))>0)){ $('nMsg').textContent='Wpisz stawkę za godzinę (zł/h).'; return; }
+    $('nSave').disabled=true;
     try{ const r=await api('dodajZamowienie', token, z); closeDrawer(); toast('Dodano zamówienie LP '+r.lp); refresh(false); }
     catch(e){ $('nMsg').textContent=e.message; $('nSave').disabled=false; }
   };
@@ -1164,7 +1490,7 @@ async function loadProducts(){
 }
 ['pSearch','pZrodlo'].forEach(id=>$(id)[id==='pSearch'?'oninput':'onchange']=()=>{ pShown=200; renderProducts(); });
 $('pMore').onclick=()=>{ pShown+=200; renderProducts(); };
-const zrodloProd = p => p.zrodlo==='nowy' ? '<span class="tag ok">dodany w aplikacji</span>' : p.zrodlo==='zmieniony' ? '<span class="tag re">zmieniony</span>' : '<span class="lp">cennik</span>';
+const zrodloProd = p => p.zrodlo==='wbudowany' ? '<span class="tag hr">wbudowany</span>' : p.zrodlo==='nowy' ? '<span class="tag ok">dodany w aplikacji</span>' : p.zrodlo==='zmieniony' ? '<span class="tag re">zmieniony</span>' : '<span class="lp">cennik</span>';
 function renderProducts(){
   const q=$('pSearch').value.trim().toLowerCase(), z=$('pZrodlo').value;
   const l=prod.lista.filter(p=>(z==='all'||(z==='ukryte'?!p.aktywny:p.zrodlo===z)) && (!q || [p.kat,p.war,p.rozmiar,p.tkanina,p.kolor,p.wypelnienie,p.waga,p.uwagi].join(' ').toLowerCase().includes(q)));
@@ -1173,6 +1499,11 @@ function renderProducts(){
   if(!l.length) tb.innerHTML='<tr><td colspan="6" class="empty">Brak produktów dla tych filtrów</td></tr>';
   l.slice(0,pShown).forEach(p=>{
     const tr=document.createElement('tr'); tr.className='clickable'+(p.aktywny?'':' off');
+    if(p.godzinowy){
+      tr.innerHTML=`<td><b style="font-weight:600">${esc(p.kat)}</b></td><td><span class="lp">dowolny</span></td><td class="r nw">stawka zł/h</td><td><div class="pd">${esc(p.uwagi)}</div></td><td class="nw">${zrodloProd(p)}</td><td class="r"></td>`;
+      tr.onclick=()=>toast('Stawkę godzinową wpisujesz przy dodawaniu zamówienia (produkt „Prototyp”).');
+      return tb.appendChild(tr);
+    }
     const dane=[p.rozmiar,p.tkanina,p.kolor,p.wypelnienie,p.waga].filter(Boolean).join(' · ') + (p.dni?(p.rozmiar||p.tkanina||p.kolor||p.wypelnienie||p.waga?' · ':'')+p.dni+' dni realizacji':'');
     tr.innerHTML=`<td><b style="font-weight:500">${esc(p.kat)}</b>${p.aktywny?'':' <span class="tag arch">ukryty</span>'}</td><td>${esc(p.war)||'<span class="lp">—</span>'}</td>
       <td class="r nw num">${p.cenaCennik!=null&&p.cena!==p.cenaCennik?'<span class="old">'+zl.format(p.cenaCennik)+'</span>':''}${p.cena!=null?zl.format(p.cena):'—'}${p.przyszla&&p.przyszla.length?'<br><small class="lp">od '+fmtD(p.przyszla[0].od)+': '+zl.format(p.przyszla[0].cena)+'</small>':''}</td>
@@ -1182,6 +1513,8 @@ function renderProducts(){
   });
   $('pMoreBox').classList.toggle('hidden', l.length<=pShown);
 }
+$('toStockBtn').onclick=()=>setView('stock');
+
 $('addProdBtn').onclick=()=>formProduktu(null);
 function formProduktu(p){
   const nowy=!p, edytNazwe=nowy||p.zrodlo==='nowy', pod=prod.podpowiedzi||{};
@@ -1218,6 +1551,50 @@ function formProduktu(p){
   };
 }
 
+/* ---------- MAGAZYN BASELINKERA (tylko odczyt) ---------- */
+let mag=null, sShown=200, magLad=false;
+async function loadStock(odswiez){
+  if(magLad) return; magLad=true;
+  if(!mag) $('sTable').innerHTML='<tr><td class="empty">Wczytywanie magazynu z BaseLinkera…</td></tr>';
+  $('sRefresh').disabled=true;
+  try{ mag=await api('magazyn', token, !!odswiez); renderStock(); if(odswiez) toast('Pobrano stany z BaseLinkera'); }
+  catch(e){ toast(e.message); if(!mag) $('sTable').innerHTML='<tr><td class="empty">'+esc(e.message)+'</td></tr>'; }
+  finally{ magLad=false; $('sRefresh').disabled=false; }
+}
+$('sRefresh').onclick=()=>loadStock(true);
+['sSearch','sKat','sStan','sSort'].forEach(id=>$(id)[id==='sSearch'?'oninput':'onchange']=()=>{ sShown=200; renderStock(); });
+$('sMore').onclick=()=>{ sShown+=200; renderStock(); };
+function renderStock(){
+  if(!mag) return;
+  const err=$('sErr');
+  if(mag.brakTokenu){ err.classList.remove('hidden'); err.lastElementChild.textContent='BaseLinker nie jest podłączony — wpisz token API w zakładce „Konta i ustawienia”.'; }
+  else if(mag.blad){ err.classList.remove('hidden'); err.lastElementChild.textContent='Ostatnie pobranie magazynu nie udało się: '+mag.blad+(mag.kiedy?' (pokazuję stan z '+godz(mag.kiedy)+')':''); }
+  else err.classList.add('hidden');
+  $('sSub').textContent='Produkty i stany magazynowe z BaseLinkera (tylko odczyt) · '+(mag.kiedy?'pobrano '+godz(mag.kiedy):'jeszcze nie pobrano')+' · odświeżane co 15 minut';
+  setOptions($('sKat'), [['all','Wszystkie'], ...(mag.katalogi||[]).map(k=>[k.id,k.nazwa])]);
+  const M=mag.magazyny||[], q=$('sSearch').value.trim().toLowerCase(), kat=$('sKat').value, st=$('sStan').value, srt=$('sSort').value;
+  const nazwy=new Map((mag.produkty||[]).map(p=>[p.id,p.nazwa]));
+  let l=(mag.produkty||[]).filter(p=>(kat==='all'||p.katalog===kat) && (st==='all'||(st==='jest'?p.razem>0:p.razem<=0))
+    && (!q || [p.nazwa,p.sku,p.ean,p.rodzic?nazwy.get(p.rodzic):''].join(' ').toLowerCase().includes(q)));
+  const S={ nazwa:(a,b)=>a.nazwa.localeCompare(b.nazwa,'pl'), stan:(a,b)=>b.razem-a.razem||a.nazwa.localeCompare(b.nazwa,'pl'), stan0:(a,b)=>a.razem-b.razem||a.nazwa.localeCompare(b.nazwa,'pl'), sku:(a,b)=>(a.sku||'~').localeCompare(b.sku||'~','pl',{numeric:true}) };
+  l=l.slice().sort(S[srt]||S.nazwa);
+  const suma=l.reduce((s,p)=>s+(p.razem||0),0);
+  $('sCount').textContent=num.format(l.length)+' produktów · '+num.format(suma)+' szt. na stanie';
+  $('sHead').innerHTML='<tr><th>Produkt</th><th>SKU</th><th class="ean">EAN</th><th class="r">Cena</th>'+M.map(m=>`<th class="r mag">${esc(m.nazwa)}</th>`).join('')+'<th class="r">Razem</th></tr>';
+  const tb=$('sTable'); tb.innerHTML='';
+  if(!l.length){ tb.innerHTML=`<tr><td colspan="${5+M.length}" class="empty">${(mag.produkty||[]).length?'Brak produktów dla tych filtrów':'Brak produktów w magazynie BaseLinkera'}</td></tr>`; }
+  const ile=v=>`<span class="${v<=0?'zero':v<3?'low':''}">${num.format(v||0)}</span>`;
+  const frag=document.createDocumentFragment();
+  l.slice(0,sShown).forEach(p=>{
+    const tr=document.createElement('tr'); if(p.rodzic) tr.className='var';
+    tr.innerHTML=`<td class="nm"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.rodzic?'<br><small class="lp">wariant: '+esc(nazwy.get(p.rodzic)||'')+'</small>':''}</td><td class="sku num">${esc(p.sku)||'<span class="lp">—</span>'}</td><td class="ean num lp">${esc(p.ean)}</td>
+      <td class="r num cn">${p.cena!=null?zl.format(p.cena):'<span class="lp">—</span>'}</td>${M.map(m=>`<td class="r num mag">${ile((p.stan||{})[m.id]||0)}</td>`).join('')}<td class="r num tot">${ile(p.razem)}</td>`;
+    frag.appendChild(tr);
+  });
+  tb.appendChild(frag);
+  $('sMoreBox').classList.toggle('hidden', l.length<=sShown);
+}
+
 /* ---------- ustawienia: BaseLinker i archiwum ---------- */
 let ust=null;
 async function loadSettings(){
@@ -1231,7 +1608,7 @@ function renderSettings(){
   $('blTokLbl').textContent = b.token ? 'Nowy token API (gdy chcesz zmienić)' : 'Token API';
   $('blTokDel').classList.toggle('hidden', !b.token);
   $('blMore').classList.toggle('hidden', !b.token);
-  $('blOd').value=b.od||'';
+  $('blOd').value=b.od||''; $('blGw').checked=b.gwiazdka!==false;
   const wyb=new Set(b.wybrane||[]);
   $('blStatusy').innerHTML=(b.statusy||[]).map(s=>`<label><input type="checkbox" value="${esc(s.id)}" ${wyb.has(String(s.id))?'checked':''}><span class="sw" style="background:${/^#[0-9a-f]{3,8}$/i.test(s.color)?s.color:'var(--muted)'}"></span>${esc(s.name)}</label>`).join('') || '<span class="hint">Brak listy statusów — zapisz token.</span>';
   $('arKiedy').textContent = a.kiedy ? 'zapisano '+godz(a.kiedy) : '';
@@ -1254,7 +1631,7 @@ $('blTokDel').onclick=async()=>{
 };
 $('blSave').onclick=async()=>{
   const statusy=[...$('blStatusy').querySelectorAll('input:checked')].map(x=>x.value);
-  const r=await akcjaUst($('blSave'),'zapiszUstawienia',{od:$('blOd').value, statusy}); if(r){ ust=r; renderSettings(); toast('Zapisano ustawienia BaseLinkera'); }
+  const r=await akcjaUst($('blSave'),'zapiszUstawienia',{od:$('blOd').value, statusy, gwiazdka:$('blGw').checked}); if(r){ ust=r; renderSettings(); toast('Zapisano ustawienia BaseLinkera'); }
 };
 $('blSyncNow').onclick=()=>synchronizujTeraz($('blSyncNow'));
 $('arSave').onclick=async()=>{
@@ -1331,6 +1708,36 @@ $('aSave').onclick=async()=>{
 /* =================== PLAN PRODUKCJI (pracownik) =================== */
 $('tabTodo').onclick=()=>{ wTab='todo'; render(); };
 $('tabDone').onclick=()=>{ wTab='done'; render(); };
+const ICO_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>';
+const ICO_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+/* Rozpocznij / Wstrzymaj / Ukończ — praca pracownika nad jego częścią zadania */
+async function akcjaZadania(o, typ){
+  if(o._busy) return false;
+  const qty=Math.max(1,o.qty||1);
+  // jedno zadanie naraz: rozpoczęcie innego wstrzymuje poprzednie (tak samo robi serwer)
+  if(typ==='start') rows.forEach(x=>{ if(x!==o && x.status==='w trakcie'){ x.czasZap=Math.round(czasNa(x)); x.start=null; x.status='wstrzymano'; } });
+  const patch = typ==='start' ? { status:'w trakcie', start:terazS() } : typ==='pauza' ? { status:'wstrzymano', czasZap:Math.round(czasNa(o)), start:null } : { status:'ukończono', wykonano:qty, czasZap:Math.round(czasNa(o)), start:null };
+  const fn = typ==='start' ? 'rozpocznij' : typ==='pauza' ? 'wstrzymaj' : 'ustawStatus';
+  const ok = typ==='koniec' ? await change(o, patch, fn, o.lp, 'ukończono') : await change(o, patch, fn, o.lp);
+  if(ok) toast(typ==='start' ? 'Rozpoczęto pracę — '+(o.kat||'zadanie') : typ==='pauza' ? 'Praca wstrzymana' : 'Zadanie ukończone ✓');
+  if(drawerOpen && drawerOpen.zadanie===o) szczegolyZadania(o);
+  return ok;
+}
+function przyciskiZadania(o){
+  if(o.status==='ukończono') return `<button class="stb done" disabled>✓ Ukończono</button>`;
+  const dz = o.status==='w trakcie'
+    ? `<button class="stb ps" data-akc="pauza" ${o._busy?'disabled':''}>${ICO_PAUSE}Wstrzymaj</button>`
+    : `<button class="stb go" data-akc="start" ${o._busy?'disabled':''}>${ICO_PLAY}${o.status==='wstrzymano'?'Wznów':'Rozpocznij'}</button>`;
+  return dz+`<button class="stb ok" data-akc="koniec" ${o._busy?'disabled':''}>✓ Ukończ</button>`;
+}
+function podpnijAkcje(el, o){
+  el.querySelectorAll('[data-akc]').forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    const t=b.dataset.akc;
+    if(t==='koniec' && (o.wykonano||0)<Math.max(1,o.qty||1)-0 && (o.qty||1)>1 && !confirm('Oznaczyć jako ukończone wszystkie '+num.format(o.qty)+' szt.?')) return;
+    akcjaZadania(o, t);
+  });
+}
 /* szczegóły zadania dla pracownika — tylko to, co potrzebne do uszycia (bez cen klienta, adresów, numerów BaseLinkera) */
 function szczegolyZadania(o){
   const d=o.det||{}, t0=todayStr(), qty=Math.max(1,o.qty||1), wyk=o.wykonano||0;
@@ -1339,15 +1746,20 @@ function szczegolyZadania(o){
   const kolorHtml=kolory.length>1?`<dt>Kolor</dt><dd>${kolory.map(esc).join('<br>')}</dd>`:row('Kolor', d.kolor);
   const dodatki=(o.dodatki||[]).map(x=>String(x.nazwa||'')).filter(n=>n && !/z excela/i.test(n));
   const late=o.termin && o.termin<t0 && o.status!=='ukończono';
+  const wsp=o.wspolnie||[];
   drawerOpen={zadanie:o};
   $('drawerRoot').innerHTML=`<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true">
     <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${esc(o.kat||o.nazwaProd||'Zadanie')}</h3><p>LP ${esc(o.lp)}${o.nr?' · nr '+esc(o.nr):''}</p></div><button class="btn ghost" id="zClose" aria-label="Zamknij">✕</button></div>
     <div class="drawer-b">
       <div class="zchips">
         ${o.termin?`<span class="chip" style="${late?'color:var(--red);border-color:var(--red)':''}">Termin: ${fmtD(o.termin)}</span>`:''}
-        <span class="chip">Ilość: ${num.format(qty)} szt.</span>
+        <span class="chip">${o.qtyZam&&o.qtyZam!==qty?'Twoja część: '+num.format(qty)+' z '+num.format(o.qtyZam)+' szt.':'Ilość: '+num.format(qty)+' szt.'}</span>
         <span class="chip ${statusCls(o.status)}"><span class="d"></span>${statusLabel(o.status)} · ${num.format(Math.min(wyk,qty))}/${num.format(qty)}</span>
+        ${(o.czasZap||o.start)?`<span class="chip">Czas pracy: ${o.start?tmr(o,0,'t'):czasTxt(o.czasZap)}</span>`:''}
       </div>
+      <div class="stbtns" style="margin-bottom:18px">${przyciskiZadania(o)}</div>
+      ${o.stawka>0?`<div class="pricebox"><div class="row"><span>Praca na godziny — stawka</span><span class="num">${zl.format(o.stawka)} / h</span></div><div class="row tot"><span>Naliczono</span><span class="num">${o.start?tmr(o,o.stawka,'kw'):zl.format(kwotaGodz(o,o.stawka))}</span></div><div class="note">Czas liczy się od „Rozpocznij” do „Wstrzymaj” lub „Ukończ”.</div></div>`:''}
+      ${wsp.length?`<div class="hardbox" style="border-left-color:var(--brand)"><b style="color:var(--brand)">Zamówienie wykonujesz razem z:</b> ${wsp.map(x=>esc(bezNr(x.prac))+' ('+num.format(x.ilosc)+' szt.)').join(', ')}</div>`:''}
       ${o.trudne?`<div class="hardbox"><b>Trudne do szycia</b> — ${esc(o.trudne.join(', '))}</div>`:''}
       <div class="sect">Co uszyć</div>
       <dl class="dl duzy">
@@ -1357,11 +1769,13 @@ function szczegolyZadania(o){
       </dl>
       ${dodatki.length?`<div class="sect">Dodatki do wykonania</div><ul class="dodl">${dodatki.map(n=>'<li>'+esc(n)+'</li>').join('')}</ul><div style="height:16px"></div>`:''}
       ${o.komentarz?`<div class="sect">Uwagi klienta</div><p class="raw">${esc(o.komentarz)}</p>`:''}
+      ${o.adm?`<div class="sect">Uwagi wewnętrzne</div><p class="raw">${esc(o.adm)}</p>`:''}
       ${o.problem?`<div class="probbox"><b>Twoje zgłoszenie problemu</b><p>${esc(o.problem)}</p></div>`:''}
       ${o.uwagi?`<div class="sect">Pełny opis zamówienia</div><p class="raw">${esc(o.uwagi)}</p>`:''}
-      <p class="hint" style="margin-top:14px">Postęp i problem zaznaczasz w planie produkcji (przyciski − / + i „Zgłoś problem”).</p>
+      <p class="hint" style="margin-top:14px">Gotowe sztuki i problem zaznaczasz w planie produkcji (przyciski − / + i „Zgłoś problem”).</p>
     </div></aside>`;
   $('drawerRoot').querySelector('.scrim').onclick=closeDrawer; $('zClose').onclick=closeDrawer;
+  podpnijAkcje($('drawerRoot'), o);
 }
 try{ const z=localStorage.getItem('vp-sort-ukonczone'); if(z) $('wSort').value=z; }catch(e){}
 $('wSort').onchange=()=>{ try{ localStorage.setItem('vp-sort-ukonczone', $('wSort').value); }catch(e){} render(); };
@@ -1373,12 +1787,17 @@ const timery=new Map();
 function ustawSztuki(o, val){
   const qty=Math.max(1,o.qty||1); val=Math.max(0,Math.min(qty,val));
   if(val===o.wykonano) return;
-  o.wykonano=val; o.status = val>=qty ? 'ukończono' : val>0 ? 'w trakcie' : (o.status==='w trakcie'?'w trakcie':'');
+  const wiecej=val>(o.wykonano||0);
+  o.wykonano=val;
+  if(val>=qty){ o.czasZap=Math.round(czasNa(o)); o.start=null; o.status='ukończono'; }
+  else if(o.status==='ukończono') o.status='wstrzymano';
+  else if(wiecej && o.status!=='w trakcie'){ rows.forEach(x=>{ if(x!==o && x.status==='w trakcie'){ x.czasZap=Math.round(czasNa(x)); x.start=null; x.status='wstrzymano'; } }); o.status='w trakcie'; o.start=terazS(); }
   render();
-  clearTimeout(timery.get(o.lp));
-  busy++;
+  const czeka=timery.get(o.lp);
+  if(czeka) clearTimeout(czeka); else busy++;          // jeden zapis po serii kliknięć
   timery.set(o.lp, setTimeout(async()=>{
-    try{ const r=await api('ustawPostep', token, o.lp, o.wykonano); Object.assign(o,r); if(o.status==='ukończono') toast('Zadanie ukończone ✓'); }
+    timery.delete(o.lp);
+    try{ const r=await api('ustawPostep', token, o.lp, o.wykonano); Object.assign(o,r); if(r && r.teraz) tOff=r.teraz-Date.now(); if(o.status==='ukończono') toast('Zadanie ukończone ✓'); }
     catch(e){ toast(e.message); }
     finally{ busy--; render(); if(!busy) refresh(false); }
   }, 600));
@@ -1389,10 +1808,10 @@ function renderWorker(){
   ['tabTodo','tabDone','tabSum'].forEach(id=>$(id).classList.toggle('on', ({tabTodo:'todo',tabDone:'done',tabSum:'sum'})[id]===wTab));
   $('wSortL').classList.toggle('hidden', wTab!=='done');
   const t0=todayStr(), cm=t0.slice(0,7);
-  const late=todo.filter(o=>o.termin && o.termin<t0).length, today=todo.filter(o=>o.termin===t0).length;
-  $('wSub').textContent = todo.length ? `${todo.length} do wykonania`+(late?` · ${late} po terminie`:'')+(today?` · ${today} na dziś`:'') : 'Wszystko zrobione — brak zadań w planie';
+  const late=todo.filter(o=>o.termin && o.termin<t0).length, today=todo.filter(o=>o.termin===t0).length, teraz=todo.filter(o=>o.status==='w trakcie').length;
+  $('wSub').textContent = todo.length ? `${todo.length} do wykonania`+(teraz?` · ${teraz} w trakcie`:'')+(late?` · ${late} po terminie`:'')+(today?` · ${today} na dziś`:'') : 'Wszystko zrobione — brak zadań w planie';
   const cur=podsum.find(m=>m.miesiac===cm);
-  $('wMonthVal').textContent=zl.format(cur?cur.kwota:0); $('wMonthSzt').textContent=(cur?num.format(cur.szt):0)+' szt. wykonanych';
+  $('wMonthVal').textContent=zl.format(cur?cur.kwota:0); $('wMonthSzt').textContent=(cur?num.format(cur.szt):0)+' szt. wykonanych'+(cur&&cur.godz?' · '+czasTxt(cur.godz*3600):'');
   $('wTasksBox').classList.toggle('hidden', wTab==='sum'); $('wSumBox').classList.toggle('hidden', wTab!=='sum');
   if(wTab==='sum') return renderMonths();
 
@@ -1400,8 +1819,9 @@ function renderWorker(){
   const SORT={ nowe:(a,b)=>(b.ukonczono||'').localeCompare(a.ukonczono||'')||b.lp-a.lp, stare:(a,b)=>(a.ukonczono||'9999').localeCompare(b.ukonczono||'9999')||a.lp-b.lp,
     termin:(a,b)=>(a.termin||'9999').localeCompare(b.termin||'9999')||a.lp-b.lp, art:(a,b)=>nazwa(a).localeCompare(nazwa(b),'pl')||a.lp-b.lp,
     cena:(a,b)=>(b.cenaRazem||0)-(a.cenaRazem||0)||b.lp-a.lp, lp:(a,b)=>b.lp-a.lp };
+  const wagaSt = o => o.status==='w trakcie' ? 0 : 1;
   const list=(wTab==='todo'?todo:done).slice().sort(wTab==='todo'
-    ? (a,b)=>((a.termin||'9999').localeCompare(b.termin||'9999')) || (a.lp-b.lp) : (SORT[srt]||SORT.nowe));
+    ? (a,b)=>(wagaSt(a)-wagaSt(b)) || ((a.termin||'9999').localeCompare(b.termin||'9999')) || (a.lp-b.lp) : (SORT[srt]||SORT.nowe));
   const g=$('tasks');
   g.innerHTML=`<div class="thead">${['Termin','Artykuł','Rozmiar','Tkanina','Kolor','Wykonano','Wypełnienie','Waga','Cena','Status'].map(h=>`<div>${h}</div>`).join('')}</div>`;
   if(!list.length){ g.insertAdjacentHTML('beforeend', `<div class="empty" style="grid-column:1/-1">${wTab==='todo'?'Nie masz zadań w planie produkcji.':'Brak ukończonych zadań.'}</div>`); return; }
@@ -1414,22 +1834,22 @@ function renderWorker(){
     }
     const v=x=>x?`<span class="v" title="${esc(x)}">${esc(x)}</span>`:'<span class="v lp">—</span>';
     const k=t=>`<span class="k">${t}</span>`;
-    const tryb=otwarte.get(o.lp);
+    const tryb=otwarte.get(o.lp), wsp=o.wspolnie||[];
     const r=document.createElement('div'); r.className='trow '+(cls?'r-'+cls:'')+(o.status==='ukończono'?' done':'');
+    const cena = o.stawka>0
+      ? `<span class="v num">${zl.format(o.stawka)}/h</span><span class="sub">naliczono ${o.start?tmr(o,o.stawka,'kw'):zl.format(kwotaGodz(o,o.stawka))}</span>`
+      : o.cenaSzt ? `<span class="v num">${zl.format(o.cenaSzt)}</span><span class="sub">za szt. · razem ${zl.format(o.cenaRazem)}</span>` : '<span class="v lp">—</span>';
     r.innerHTML=`
       <div class="c-due">${k('Termin')}<span class="due ${cls}">${o.termin?fmtD(o.termin):'—'}</span><span class="sub">${o.status==='ukończono'&&o.ukonczono?'ukończono '+fmtD(o.ukonczono):(dueSub||'LP '+esc(o.lp))}</span></div>
-      <div class="art c-art">${k('Artykuł')}<span class="v">${esc(o.kat||o.uwagi.slice(0,60)||'Zadanie')}${o.trudne?'<span class="tag hard" title="'+esc(o.trudne.join(', '))+'">trudne</span>':''}</span><span class="sub">LP ${esc(o.lp)}${o.nr?' · nr '+esc(o.nr):''}</span>
+      <div class="art c-art">${k('Artykuł')}<span class="v">${esc(o.kat||o.uwagi.slice(0,60)||'Zadanie')}${o.trudne?'<span class="tag hard" title="'+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.stawka>0?'<span class="tag hr">godzinowe</span>':''}</span><span class="sub">LP ${esc(o.lp)}${o.nr?' · nr '+esc(o.nr):''}${o.qtyZam&&o.qtyZam!==qty?' · Twoja część: '+num.format(qty)+' z '+num.format(o.qtyZam)+' szt.':''}${wsp.length?' · razem z: '+esc(wsp.map(x=>bezNr(x.prac)).join(', ')):''}${o.komentarz?' · <b style="color:var(--amber)">uwagi klienta</b>':''}</span>
         <div class="links"><button class="link" data-det>Szczegóły</button>${o.uwagi?`<button class="link" data-x="opis">${tryb==='opis'?'Ukryj opis':'Pełny opis'}</button>`:''}<button class="link p" data-x="problem">${o.problem?'⚠ Problem zgłoszony':'Zgłoś problem'}</button></div></div>
       <div>${k('Rozmiar')}${v(d.rozmiar||o.specE)}</div><div>${k('Tkanina')}${v(d.tkanina)}</div><div>${k('Kolor')}${v(d.kolor)}</div>
       <div class="c-qty">${k('Wykonano')}
         <div class="stepper"><button data-q="-1" ${wyk<=0?'disabled':''} aria-label="Mniej">−</button><span class="val num">${num.format(wyk)} <small>/ ${num.format(qty)}</small></span><button data-q="1" ${wyk>=qty?'disabled':''} aria-label="Więcej">+</button></div>
         <div class="pbar"><i class="${wyk>=qty?'full':''}" style="width:${100*Math.min(wyk,qty)/qty}%"></i></div></div>
       <div>${k('Wypełnienie')}${v(d.wypelnienie)}</div><div>${k('Waga')}${v(d.waga)}</div>
-      <div>${k('Cena')}${o.cenaSzt?`<span class="v num">${zl.format(o.cenaSzt)}</span><span class="sub">za szt. · razem ${zl.format(o.cenaRazem)}</span>`:'<span class="v lp">—</span>'}</div>
-      <div class="c-st">${k('Status')}<div class="stbtns">
-        <button class="stb wt ${o.status==='w trakcie'?'on':''}" data-s="w trakcie" ${o._busy?'disabled':''}>W trakcie</button>
-        <button class="stb ok ${o.status==='ukończono'?'on':''}" data-s="ukończono" ${o._busy?'disabled':''}>✓ Ukończono</button>
-      </div></div>
+      <div>${k('Cena')}${cena}</div>
+      <div class="c-st">${k('Status')}<div class="sthead"><span class="chip ${statusCls(o.status)}"><span class="d"></span>${statusLabel(o.status)}</span>${o.status==='w trakcie'?tmr(o,0,'t'):(o.czasZap&&o.status!=='przypisano'?'<span class="lp" style="font-size:12px">'+czasTxt(o.czasZap)+'</span>':'')}</div><div class="stbtns">${przyciskiZadania(o)}</div></div>
       ${tryb==='opis'?`<div class="full"><p>${esc(o.uwagi)}</p></div>`:''}
       ${tryb==='problem'?`<div class="full"><div class="probForm">
           <label class="field"><span>Opisz problem przy tym zadaniu (nieobowiązkowe) — zobaczy go kierownik</span>
@@ -1441,10 +1861,7 @@ function renderWorker(){
     // kliknięcie w zadanie (poza przyciskami i polami) — szczegóły potrzebne do wykonania
     r.querySelector('[data-det]').onclick=e=>{ e.stopPropagation(); szczegolyZadania(o); };
     r.onclick=e=>{ if(e.target.closest('button,textarea,input,select,a,label,.full')) return; szczegolyZadania(o); };
-    r.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{
-      const val=b.dataset.s; if(val===o.status || o._busy) return;
-      change(o,{status:val, wykonano: val==='ukończono'?qty:(wyk>=qty?Math.max(0,qty-1):wyk)},'ustawStatus',o.lp,val).then(ok=>{ if(ok && val==='ukończono') toast('Zadanie ukończone ✓'); });
-    });
+    podpnijAkcje(r, o);
     r.querySelectorAll('[data-p]').forEach(b=>b.onclick=async()=>{
       const a=b.dataset.p;
       if(a==='cancel'){ otwarte.delete(o.lp); editing=false; return render(); }
@@ -1466,10 +1883,10 @@ function renderMonths(){
   podsum.forEach(M=>{
     const el=document.createElement('section'); el.className='month'+(M.miesiac===cm?' cur':'')+(otwMies.has(M.miesiac)?' open':'');
     el.innerHTML=`<div class="month-h"><h3>${mlabel(M.miesiac)}${M.miesiac===cm?'<span class="live">bieżący · na żywo</span>':''}</h3>
-      <div class="stat"><div><small>Wykonane</small><b class="num">${num.format(M.szt)}</b> <small style="display:inline">szt.</small></div><div><small>Kwota</small><b class="num">${zl.format(M.kwota)}</b></div></div>
+      <div class="stat"><div><small>Wykonane</small><b class="num">${num.format(M.szt)}</b> <small style="display:inline">szt.</small></div>${M.godz?`<div><small>Praca na godziny</small><b class="num">${esc(czasTxt(M.godz*3600))}</b></div>`:''}<div><small>Kwota</small><b class="num">${zl.format(M.kwota)}</b></div></div>
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
-      ${otwMies.has(M.miesiac)?`<div class="tbl"><table><thead><tr><th>Data</th><th class="r">LP</th><th>Artykuł</th><th class="r">Szt.</th><th class="r">Cena / szt.</th><th class="r">Kwota</th></tr></thead><tbody>
-        ${M.pozycje.map(p=>`<tr><td class="num m-d" data-lp="${esc(p.lp)}">${fmtD(p.data)}</td><td class="r lp num m-lp">${esc(p.lp)}</td><td class="m-a"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.spec?'<br><small class="lp">'+esc(p.spec)+'</small>':''}</td><td class="r num m-s">${num.format(p.szt)}</td><td class="r num m-c">${p.cenaSzt?zl.format(p.cenaSzt):'—'}</td><td class="r num m-k"><b>${zl.format(p.kwota)}</b></td></tr>`).join('')}
+      ${otwMies.has(M.miesiac)?`<div class="tbl"><table><thead><tr><th>Data</th><th class="r">LP</th><th>Artykuł</th><th class="r">Szt. / czas</th><th class="r">Cena / stawka</th><th class="r">Kwota</th></tr></thead><tbody>
+        ${M.pozycje.map(p=>`<tr><td class="num m-d" data-lp="${esc(p.lp)}">${fmtD(p.data)}</td><td class="r lp num m-lp">${esc(p.lp)}</td><td class="m-a"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.spec?'<br><small class="lp">'+esc(p.spec)+'</small>':''}${p.stawka?'<span class="tag hr">godzinowe</span>':''}</td><td class="r num m-s${p.stawka?' m-h':''}">${p.stawka?esc(czasTxt((p.godz||0)*3600))+(p.szt?' · '+num.format(p.szt)+' szt.':''):num.format(p.szt)}</td><td class="r num m-c">${p.stawka?zl.format(p.stawka)+'/h':p.cenaSzt?zl.format(p.cenaSzt):'—'}</td><td class="r num m-k"><b>${zl.format(p.kwota)}</b></td></tr>`).join('')}
       </tbody></table></div>`:''}`;
     el.querySelector('.month-h').onclick=()=>{ otwMies.has(M.miesiac)?otwMies.delete(M.miesiac):otwMies.add(M.miesiac); renderMonths(); };
     box.appendChild(el);
