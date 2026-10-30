@@ -357,6 +357,7 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
 .menu .ico svg{width:16px;height:16px}
 .toast{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,10px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:10px;font-weight:500;opacity:0;transition:all .2s;pointer-events:none;z-index:80;box-shadow:var(--shadow-lg);max-width:calc(100vw - 32px)}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.err{background:var(--red);color:#fff}
 
 /* konta */
 .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;padding:16px;align-items:end}
@@ -526,6 +527,10 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
   .brand .app{display:none}
 }
 
+/* wzięte z magazynu */
+.chip.mag{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok)}
+.boxi{display:inline-grid;place-items:center;width:18px;height:18px}
+.boxi svg{width:15px;height:15px}
 /* kanał sprzedaży, nr zamówienia */
 .nrIn{display:none}
 .otable td.c-lp{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;padding-right:6px}
@@ -662,7 +667,7 @@ tr.grp-h.open .gchev{transform:rotate(90deg)}
         <label class="field"><span>Miesiąc</span><select class="input" id="fMonth"></select></label>
         <label class="field"><span>Liczony wg</span><select class="input" id="fBy"><option value="zam">daty zamówienia</option><option value="real">daty realizacji</option></select></label>
         <label class="field"><span>Pracownik</span><select class="input" id="fWorker"></select></label>
-        <label class="field"><span>Status</span><select class="input" id="fStatus"><option value="all">Wszystkie</option><option value="">Nowe (bez przypisania)</option><option value="przypisano">Przypisano</option><option value="w trakcie">W trakcie</option><option value="wstrzymano">Wstrzymano</option><option value="__otw">Wszystkie nieukończone</option><option value="ukończono">Ukończone</option><option value="__prob">Z problemem</option></select></label>
+        <label class="field"><span>Status</span><select class="input" id="fStatus"><option value="all">Wszystkie</option><option value="">Nowe (bez przypisania)</option><option value="przypisano">Przypisano</option><option value="w trakcie">W trakcie</option><option value="wstrzymano">Wstrzymano</option><option value="__otw">Wszystkie nieukończone</option><option value="__mag">Wzięte z magazynu</option><option value="ukończono">Ukończone</option><option value="__prob">Z problemem</option></select></label>
         <label class="field"><span>Kanał sprzedaży</span><select class="input" id="fKanal"><option value="all">Wszystkie</option></select></label>
         <label class="field"><span>Status w BaseLinkerze</span><select class="input" id="fBl"><option value="all">Wszystkie</option></select></label>
         <label class="field"><span>Kategoria</span><select class="input" id="fProduct"></select></label>
@@ -817,7 +822,7 @@ const bezNr = s => String(s||'').replace(/^\d+\s+/,'');
 const inicjaly = s => bezNr(s).split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase() || '?';
 const nazwaZId = s => { const i=idOf(s); return (i?'<span class="idb">'+esc(i)+'</span>':'')+'<span>'+esc(bezNr(s))+'</span>'; };
 const ICO_WARN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>';
-function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2800); }
+function toast(m, blad){ const t=$('toast'); t.textContent=m; t.classList.toggle('err', !!blad); t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'), blad?7000:2800); }
 const ss = { get(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ v==null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k,v); }catch(e){} } };
 
 let token=null, me=null, rows=[], workerList=[], shown=PAGE, view='orders', wTab='todo', timer=null, busy=0, info={}, podsum=[], problemy=0, blStatusy={};
@@ -951,13 +956,15 @@ const godz = t => t ? new Date(t).toLocaleString('pl-PL',{day:'2-digit',month:'2
 function banner(t){ $('banner').classList.toggle('hidden', !t); $('bannerText').textContent=t||''; }
 
 /* =================== DANE =================== */
-let refreshing=false;
+let refreshing=false, jeszczeRaz=false, zmiany=0;
 async function refresh(first){
-  if(refreshing) return; refreshing=true;
+  if(refreshing){ jeszczeRaz=true; return; } refreshing=true; jeszczeRaz=false;
+  const nrZmian=zmiany;
   sync('busy','Odświeżanie…');
   try{
     if(me.rola==='kierownik'){
       const r=await api('daneKierownika', token, first ? '' : $('fMonth').value, $('fBy').value);
+      if(busy || nrZmian!==zmiany){ jeszczeRaz=true; return; }      // w trakcie pobierania coś zmieniono — te dane są nieaktualne
       rows=r.wiersze; workerList=r.pracownicy; info=r.info||{}; problemy=r.problemy||0; if(info.teraz) tOff=info.teraz-Date.now();
       blStatusy=info.blStatusy||{};
       fillFilters(r.miesiace, r.miesiac);
@@ -967,21 +974,23 @@ async function refresh(first){
       blStatusy=info.blStatusy||{};
       $('ordersSub').textContent=num.format(info.liczba||0)+' pozycji w bazie · BaseLinker: '+(bl.token ? (bl.ostatnio ? 'sprawdzono '+godz(bl.ostatnio) : 'podłączony') : 'niepodłączony');
     } else {
-      const r=await api('danePracownika', token); rows=r.wiersze; podsum=r.podsumowanie||[]; info=r.info||{}; if(info.teraz) tOff=info.teraz-Date.now();
+      const r=await api('danePracownika', token);
+      if(busy || nrZmian!==zmiany){ jeszczeRaz=true; return; }
+      rows=r.wiersze; podsum=r.podsumowanie||[]; info=r.info||{}; if(info.teraz) tOff=info.teraz-Date.now();
       if(r.pracownik && me.pracownik!==r.pracownik){ me.pracownik=r.pracownik; $('whoRole').textContent='Pracownik · ID '+idOf(r.pracownik); }
     }
     render();
     sync('', 'Aktualne · '+new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'}));
   }catch(e){ sync('err', e.message); }
-  finally{ refreshing=false; }
+  finally{ refreshing=false; if(jeszczeRaz && !busy) setTimeout(()=>refresh(false), 50); }
 }
 
 /* zmiana z natychmiastowym podglądem; po zapisie odświeżenie (podsumowanie liczy się na serwerze) */
 async function change(o, patch, fn, ...args){
   const old={}; Object.keys(patch).forEach(k=>old[k]=o[k]); Object.assign(o,patch);
-  o._busy=true; busy++; render(); if(drawerOpen===o) openDrawer(o);
+  o._busy=true; busy++; zmiany++; render(); if(drawerOpen===o) openDrawer(o);
   try{ const r=await api(fn, token, ...args); if(r && typeof r==='object') Object.assign(o,r); return true; }
-  catch(e){ Object.assign(o,old); toast(e.message); return false; }
+  catch(e){ Object.assign(o,old); toast('Nie zapisano: '+e.message, true); return false; }
   finally{ o._busy=false; busy--; render(); if(drawerOpen===o) openDrawer(o); if(!busy) refresh(false); }
 }
 
@@ -1038,21 +1047,24 @@ setInterval(()=>{ document.querySelectorAll('[data-tmr]').forEach(el=>{ const p=
   el.textContent = el.dataset.tmr==='kw' ? zl.format(kwotaGodz(p, +el.dataset.stw||0)) : zegar(czasNa(p)); }); }, 1000);
 
 /* kto wykonuje: jedna osoba albo kilka (z ilościami) */
+const ICO_BOX='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg>';
 function ktoHtml(o){
+  if(o.zMagazynu) return '<span class="boxi">'+ICO_BOX+'</span><span class="cn">Z magazynu</span>';
   const L=o.przydzialy||[];
   if(!L.length) return '+ Przypisz';
   if(L.length===1) return '<span class="mini-av">'+esc(inicjaly(L[0].prac))+'</span><span class="cn">'+esc(bezNr(L[0].prac))+'</span>'+(L[0].ilosc<(o.qty||1)?'<span class="plus">'+num.format(L[0].ilosc)+' szt.</span>':'');
   return '<span class="avs">'+L.slice(0,3).map(p=>'<span class="mini-av">'+esc(inicjaly(p.prac))+'</span>').join('')+'</span><span class="cn">'+esc(bezNr(L[0].prac))+'</span><span class="plus">+'+(L.length-1)+'</span>';
 }
-const ktoTytul = o => (o.przydzialy||[]).map(p=>bezNr(p.prac)+': '+p.ilosc+' szt. ('+statusLabel(p.status).toLowerCase()+(p.wykonano?', '+p.wykonano+' gotowe':'')+')').join('\n');
+const ktoTytul = o => o.zMagazynu ? 'Produkt wzięty z magazynu — nikt go nie szyje' : (o.przydzialy||[]).map(p=>bezNr(p.prac)+': '+p.ilosc+' szt. ('+statusLabel(p.status).toLowerCase()+(p.wykonano?', '+p.wykonano+' gotowe':'')+')').join('\n');
 function workerMenu(anchor, o){
   const L=o.przydzialy||[], qty=Math.max(1,o.qty||1);
-  if(L.length>1) return przydzialDialog(o);
   const jeden = L.length===1 ? L[0].prac : '';
   const poz = w => ({ html:nazwaZId(w), icon:'<span class="mini-av">'+esc(inicjaly(w))+'</span>', cur:w===jeden && (!L.length || L[0].ilosc>=qty),
     act:()=>change(o,{prac:w, pracList:[w], przydzialy:[{prac:w, ilosc:qty, wykonano:0, status:'przypisano'}], status:o.status||'przypisano'},'przypisz',o.lp,w) });
-  let items=[];
-  if(qty>1) items.push({ label:'Podziel między kilka osób…', icon:'<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>', act:()=>przydzialDialog(o) }, '-');
+  let items=[{ label:'Wzięte z magazynu (bez szycia)', icon:'<span class="ico">'+ICO_BOX+'</span>', cur:!!o.zMagazynu, act:()=>{ if(!o.zMagazynu) ustawMagazyn([o], false); } }];
+  if(o.zMagazynu) items.push({ label:'Cofnij — do uszycia', act:()=>ustawMagazyn([o], true) });
+  items.push('-');
+  if(qty>1 || L.length>1) items.push({ label:L.length>1?'Zmień podział między osoby…':'Podziel między kilka osób…', icon:'<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>', act:()=>przydzialDialog(o) }, '-');
   if(o.kr){
     const tak=workerList.filter(w=>moze(o,w)), nie=workerList.filter(w=>!moze(o,w));
     items.push({head:'Szyją ten produkt (wg cennika)'}, ...tak.map(poz));
@@ -1175,19 +1187,35 @@ function grupaMenu(anchor, P){
   const kr=P.some(o=>o.kr), tak=workerList.filter(ok), nie=workerList.filter(w=>!ok(w));
   const items = kr ? [{head:'Szyją wszystkie produkty (wg cennika)'}, ...tak.map(poz), ...(nie.length?[{head:'Pozostałe osoby'}, ...nie.map(poz)]:[])] : workerList.map(poz);
   if(wsz.length) items.push('-', { label:'Usuń przypisanie wszystkich pozycji', act:()=>przypiszGrupe(P, '') });
+  items.unshift({ label:'Całe zamówienie wzięte z magazynu', icon:'<span class="ico">'+ICO_BOX+'</span>', cur:P.every(o=>o.zMagazynu), act:()=>ustawMagazyn(P, false) },
+    ...(P.some(o=>o.zMagazynu)?[{ label:'Cofnij „z magazynu” — do uszycia', act:()=>ustawMagazyn(P.filter(o=>o.zMagazynu), true) }]:[]), '-');
   openMenu(anchor, 'Całe zamówienie ('+P.length+' poz.) do', items);
+}
+/* produkt wzięty z magazynu (gotowy, bez szycia) albo cofnięcie do uszycia */
+async function ustawMagazyn(P, cofnij){
+  const zPostepem=P.filter(o=>!cofnij && (o.przydzialy||[]).some(p=>p.wykonano>0 || p.status==='w trakcie' || p.status==='wstrzymano'));
+  if(zPostepem.length && !confirm('Pracownicy mają już postęp w '+zPostepem.length+' poz. Oznaczyć jako wzięte z magazynu? Przydział zostanie usunięty (przepracowany czas zostaje zapisany).')) return;
+  const stare=P.map(o=>({ o, k:{ prac:o.prac, pracList:o.pracList, przydzialy:o.przydzialy, status:o.status, wykonano:o.wykonano, zMagazynu:o.zMagazynu } }));
+  P.forEach(o=>{ Object.assign(o, cofnij ? { zMagazynu:false, status:'', wykonano:0 } : { zMagazynu:true, status:'ukończono', wykonano:Math.max(1,o.qty||1), prac:'', pracList:[], przydzialy:[] }); o._busy=true; });
+  busy++; zmiany++; render(); if(drawerOpen && P.includes(drawerOpen)) openDrawer(drawerOpen);
+  try{
+    const r=await api('zMagazynu', token, P.map(o=>o.lp), !!cofnij);
+    P.forEach(o=>{ if(r && r[o.lp]) Object.assign(o, r[o.lp]); });
+    toast(cofnij ? 'Cofnięto — pozycja do uszycia' : (P.length>1?'Całe zamówienie: wzięte z magazynu':'Wzięte z magazynu'));
+  }catch(e){ stare.forEach(x=>Object.assign(x.o, x.k)); toast('Nie zapisano: '+e.message, true); }
+  finally{ P.forEach(o=>o._busy=false); busy--; render(); if(drawerOpen && P.includes(drawerOpen)) openDrawer(drawerOpen); if(!busy) refresh(false); }
 }
 async function przypiszGrupe(P, w){
   const zPostepem=P.filter(o=>(o.przydzialy||[]).some(p=>p.prac!==w && (p.wykonano>0 || p.status==='w trakcie' || p.status==='wstrzymano' || p.status==='ukończono')));
   if(zPostepem.length && !confirm((w?'Przypisać całe zamówienie do: '+bezNr(w)+'?':'Usunąć przypisanie wszystkich pozycji?')+' Inne osoby mają już postęp w '+zPostepem.length+' poz. — ich przepracowany czas zostanie zapisany.')) return;
   const stare=P.map(o=>({ o, k:{ prac:o.prac, pracList:o.pracList, przydzialy:o.przydzialy, status:o.status } }));
-  P.forEach(o=>{ Object.assign(o, w ? { prac:w, pracList:[w], przydzialy:[{prac:w, ilosc:o.qty||1, wykonano:0, status:'przypisano'}], status:o.status==='ukończono'?o.status:'przypisano' } : { prac:'', pracList:[], przydzialy:[] }); o._busy=true; });
-  busy++; render(); if(drawerOpen && P.includes(drawerOpen)) openDrawer(drawerOpen);
+  P.forEach(o=>{ Object.assign(o, w ? { zMagazynu:false, prac:w, pracList:[w], przydzialy:[{prac:w, ilosc:o.qty||1, wykonano:0, status:'przypisano'}], status:o.status==='ukończono'?o.status:'przypisano' } : { prac:'', pracList:[], przydzialy:[] }); o._busy=true; });
+  busy++; zmiany++; render(); if(drawerOpen && P.includes(drawerOpen)) openDrawer(drawerOpen);
   try{
     const r=await api('przypiszZamowienie', token, P.map(o=>o.lp), w);
     P.forEach(o=>{ if(r && r[o.lp]) Object.assign(o, r[o.lp]); });
     toast(w ? 'Całe zamówienie przypisane: '+bezNr(w) : 'Usunięto przypisanie zamówienia');
-  }catch(e){ stare.forEach(x=>Object.assign(x.o, x.k)); toast(e.message); }
+  }catch(e){ stare.forEach(x=>Object.assign(x.o, x.k)); toast('Nie zapisano: '+e.message, true); }
   finally{ P.forEach(o=>o._busy=false); busy--; render(); if(drawerOpen && P.includes(drawerOpen)) openDrawer(drawerOpen); if(!busy) refresh(false); }
 }
 function fillFilters(months, month){
@@ -1240,7 +1268,7 @@ function wierszPozycji(o, cls, t0){
     <td class="prod c-prod"><b title="${esc(prodName+(o.kat?' · kategoria: '+o.kat:''))}">${esc(prodName)}${o.katAuto?'<span class="tag" title="Rozpoznane z opisu">auto</span>':''}${o.godzinowe?'<span class="tag hr">godzinowe</span>':''}${o.trudne?'<span class="tag hard" title="Trudne do szycia: '+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.ark?'<span class="tag arch">archiwum</span>':''}${o.problem&&o.status!=='ukończono'?'<span class="warnIco" title="'+esc(o.problem)+'">'+ICO_WARN+'</span>':''}</b><small>${esc(o.specE||'')}${nrZam(o)?'<span class="nrIn">'+(o.specE?' · ':'')+'nr '+esc(nrZam(o))+'</span>':''}${zrodloTag(o)}${blBadge(o)}${o.komentarz?' <span class="tag" title="Uwagi klienta: '+esc(o.komentarz)+'">uwagi</span>':''}</small>${o.uwagi?'<div class="desc d-in">'+esc(o.uwagi)+'</div>':''}</td>
     <td class="col-desc"><div class="desc" title="${esc(o.uwagi)}">${esc(o.uwagi)}</div></td>
     <td class="r num c-qty">${num.format(o.qty)}</td>
-    <td class="c-who"><span class="chip ${L.length?'':'none'} ${L.length>1?'multi':''} ${o._busy?'busy':''}" data-a="w" title="${esc(nok?'Nie każda z tych osób szyje ten produkt wg cennika\n':'')}${esc(ktoTytul(o))}">${ktoHtml(o)}${nok?'<span class="nok">!</span>':''}</span>${nieprz?'<div class="lp" style="font-size:11.5px;margin-top:3px">nieprzydzielone: '+num.format((o.qty||1)-(o.przydzielono||0))+' szt.</div>':''}</td>
+    <td class="c-who"><span class="chip ${o.zMagazynu?'mag':L.length?'':'none'} ${L.length>1?'multi':''} ${o._busy?'busy':''}" data-a="w" title="${esc(nok?'Nie każda z tych osób szyje ten produkt wg cennika\n':'')}${esc(ktoTytul(o))}">${ktoHtml(o)}${nok?'<span class="nok">!</span>':''}</span>${nieprz?'<div class="lp" style="font-size:11.5px;margin-top:3px">nieprzydzielone: '+num.format((o.qty||1)-(o.przydzielono||0))+' szt.</div>':''}</td>
     <td class="c-st"><span class="chip ${statusCls(o.status)} ${o._busy?'busy':''}" data-a="s"><span class="d"></span>${statusLabel(o.status)}</span>${postepHtml(o)}</td>
     <td class="num lp col-zam">${fmtD(o.zam)}</td>
     <td class="r num c-val">${wartoscHtml(o)}</td>`;
@@ -1254,7 +1282,7 @@ function wierszGrupy(g, otw, cls, t0){
   const qty=P.reduce((s,o)=>s+(o.qty||0),0), wyk=P.reduce((s,o)=>s+Math.min(o.wykonano||0,o.qty||0),0), wart=P.reduce((s,o)=>s+(o.cenaRazem||0),0);
   const terminy=P.map(o=>o.termin).filter(Boolean).sort(), termin=terminy[0]||'';
   const late=P.some(o=>jestPoTerminie(o,t0)), st=statusGrupy(P), proc=qty?Math.round(100*wyk/qty):0;
-  const prac=[...new Set(P.flatMap(pracOf))], bez=P.filter(o=>!pracOf(o).length).length;
+  const prac=[...new Set(P.flatMap(pracOf))], bez=P.filter(o=>!pracOf(o).length && !o.zMagazynu).length, mag=P.filter(o=>o.zMagazynu).length;
   const kat=[...new Set(P.map(o=>nazwaPoz(o)).filter(Boolean))];
   const prob=P.some(o=>o.problem&&o.status!=='ukończono');
   tr.innerHTML=`<td class="num c-lp"><b>${nrZam(o0)?esc(nrZam(o0)):'<span class="lp">—</span>'}</b></td>
@@ -1263,7 +1291,7 @@ function wierszGrupy(g, otw, cls, t0){
       <small>${esc(kat.slice(0,2).join(', '))}${kat.length>2?' i '+(kat.length-2)+' inne':''}${zrodloTag(o0)}${blBadge(o0)}</small></td>
     <td class="col-desc"><div class="desc">${esc(P.map(o=>nazwaPoz(o)+(o.specE?' '+o.specE:'')+' ×'+o.qty).join(' · '))}</div></td>
     <td class="r num c-qty">${num.format(qty)}</td>
-    <td class="c-who">${prac.length?`<span class="chip multi" data-a="gw" title="${esc(prac.map(bezNr).join(', '))} — kliknij, aby przypisać całe zamówienie"><span class="avs">${prac.slice(0,3).map(w=>'<span class="mini-av">'+esc(inicjaly(w))+'</span>').join('')}</span><span class="cn">${esc(prac.length===1?bezNr(prac[0]):prac.length+' osoby')}</span></span>`:`<span class="chip none" data-a="gw">+ Przypisz całe</span>`}${bez&&prac.length?`<div class="lp" style="font-size:11.5px;margin-top:3px">${bez===P.length?'bez przypisania':'bez przypisania: '+bez+' poz.'}</div>`:''}</td>
+    <td class="c-who">${prac.length?`<span class="chip multi" data-a="gw" title="${esc(prac.map(bezNr).join(', '))} — kliknij, aby przypisać całe zamówienie"><span class="avs">${prac.slice(0,3).map(w=>'<span class="mini-av">'+esc(inicjaly(w))+'</span>').join('')}</span><span class="cn">${esc(prac.length===1?bezNr(prac[0]):prac.length+' osoby')}</span></span>`:mag===P.length?`<span class="chip mag" data-a="gw"><span class="boxi">${ICO_BOX}</span><span class="cn">Z magazynu</span></span>`:`<span class="chip none" data-a="gw">+ Przypisz całe</span>`}${mag&&mag<P.length?`<div class="lp" style="font-size:11.5px;margin-top:3px">z magazynu: ${mag} poz.</div>`:''}${bez&&prac.length?`<div class="lp" style="font-size:11.5px;margin-top:3px">${bez===P.length?'bez przypisania':'bez przypisania: '+bez+' poz.'}</div>`:''}</td>
     <td class="c-st"><span class="chip ${statusCls(st)}" style="cursor:default"><span class="d"></span>${statusLabel(st)}</span><div class="pgc"><div class="pgt"><span>${num.format(wyk)} / ${num.format(qty)} szt.</span><b>${proc}%</b></div><div class="pbar2"><i class="${wyk>=qty?'full':wyk>0?'':'zero'}" style="width:${proc}%"></i></div></div></td>
     <td class="num lp col-zam">${fmtD(o0.zam)}</td>
     <td class="r num c-val">${wart?zl.format(wart):'<span class="lp">—</span>'}</td>`;
@@ -1275,11 +1303,11 @@ let grupyWidoczne=[];
 function renderOrders(){
   const w=$('fWorker').value, p=$('fProduct').value, st=$('fStatus').value, bl=$('fBl').value, kn=$('fKanal').value, q=$('fSearch').value.trim().toLowerCase();
   const base=rows.filter(o=>(p==='all'||o.kat===p)
-    && (st==='all' || (st==='__prob' ? (o.problem && o.status!=='ukończono') : st==='__otw' ? o.status!=='ukończono' : (o.status||'')===st))
+    && (st==='all' || (st==='__prob' ? (o.problem && o.status!=='ukończono') : st==='__otw' ? o.status!=='ukończono' : st==='__mag' ? !!o.zMagazynu : (o.status||'')===st))
     && (bl==='all' || (bl==='__brak' ? !o.blStatus : String(o.blStatus)===bl))
     && (kn==='all' || (kn==='__brak' ? !kanalNazwa(o) : kanalNazwa(o)===kn))
     && (!q || [o.nr,o.blId,nazwaPoz(o),o.uwagi,o.specE,o.kat,pracOf(o).join(' '),String(o.lp),o.problem,o.komentarz,o.blStatusNazwa,kanalNazwa(o)].join(' ').toLowerCase().includes(q)));
-  const list=base.filter(o=>w==='all' || (w==='__none' ? !pracOf(o).length : pracOf(o).includes(w)));
+  const list=base.filter(o=>w==='all' || (w==='__none' ? !pracOf(o).length && !o.zMagazynu : pracOf(o).includes(w)));
   const done=list.filter(o=>o.status==='ukończono').length, wt=list.filter(o=>o.status==='w trakcie').length;
   const auto=list.filter(o=>o.cenaAuto).length;
   const szt=list.reduce((s,o)=>s+(o.qty||0),0), sztW=list.reduce((s,o)=>s+(o.wykonano||0),0);
@@ -1290,7 +1318,7 @@ function renderOrders(){
   $('kValS').textContent=auto ? 'w tym '+num.format(auto)+' wycenionych z cennika' : ' ';
   $('kProg').textContent=list.length ? Math.round(100*done/list.length)+'%' : '–';
   $('kBarOk').style.width=(list.length?100*done/list.length:0)+'%'; $('kBarWt').style.width=(list.length?100*wt/list.length:0)+'%';
-  $('kNone').textContent=num.format(base.filter(o=>!pracOf(o).length).length);
+  $('kNone').textContent=num.format(base.filter(o=>!pracOf(o).length && !o.zMagazynu).length);
   $('kProb').textContent=num.format(problemy); $('kProbBox').classList.toggle('alert', problemy>0);
   const m=$('fMonth').value; $('wMonth').textContent= m==='all' ? 'wszystkie miesiące' : mlabel(m);
 
@@ -1299,16 +1327,17 @@ function renderOrders(){
   const dodaj=(k,v,stt)=>{ const a=agg.get(k)||{n:0,d:0,t:0,v:0}; a.n++; if(stt==='ukończono') a.d++; if(stt==='w trakcie') a.t++; a.v+=v||0; agg.set(k,a); };
   base.forEach(o=>{
     const L=o.przydzialy||[];
+    if(o.zMagazynu) return dodaj('__mag', o.cenaRazem, o.status);
     if(!L.length) return dodaj('__none', o.cenaRazem, o.status);
     L.forEach(x=>dodaj(x.prac, o.godzinowe ? (x.kwota||0) : L.length===1 ? o.cenaRazem : (o.cenaSzt||0)*x.ilosc, x.status));
   });
   const ul=$('workers'); ul.innerHTML='';
-  [...agg].sort((a,b)=>(a[0]==='__none')-(b[0]==='__none') || b[1].v-a[1].v).forEach(([name,a])=>{
+  [...agg].sort((a,b)=>(a[0]==='__none')-(b[0]==='__none') || (a[0]==='__mag')-(b[0]==='__mag') || b[1].v-a[1].v).forEach(([name,a])=>{
     const li=document.createElement('li'); if(name===w) li.classList.add('sel'); if(name==='__none') li.classList.add('none');
-    li.innerHTML=`<span class="nm">${name==='__none'?'<span>Bez przypisania</span>':nazwaZId(name)}</span><span class="vl num">${zl0.format(a.v)}</span>
+    li.innerHTML=`<span class="nm">${name==='__none'?'<span>Bez przypisania</span>':name==='__mag'?'<span>Wzięte z magazynu</span>':nazwaZId(name)}</span><span class="vl num">${zl0.format(a.v)}</span>
       <span class="meta">${num.format(a.n)} poz. · ${num.format(a.d)} ukończ.${a.t?' · '+num.format(a.t)+' w trakcie':''}</span><span></span>
       <div class="bar"><i class="b-ok" style="width:${100*a.d/a.n}%"></i><i class="b-wt" style="width:${100*a.t/a.n}%"></i></div>`;
-    li.onclick=()=>{ $('fWorker').value=(w===name?'all':name); shown=PAGE; render(); };
+    li.onclick=()=>{ if(name==='__mag'){ $('fStatus').value=$('fStatus').value==='__mag'?'all':'__mag'; $('fWorker').value='all'; } else $('fWorker').value=(w===name?'all':name); shown=PAGE; render(); };
     ul.appendChild(li);
   });
   const tot=base.reduce((s,o)=>({n:s.n+1,v:s.v+(o.cenaRazem||0)}),{n:0,v:0});
@@ -1349,6 +1378,7 @@ let drawerOpen=null;
 function closeDrawer(){ $('drawerRoot').innerHTML=''; drawerOpen=null; }
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(modalOpen) return closeModal(); closeMenu(); closeDrawer(); } });
 function przydzialyHtml(o){
+  if(o.zMagazynu) return '<div class="hardbox" style="border-left-color:var(--ok)"><b style="color:var(--ok)">Wzięte z magazynu</b> — produkt był gotowy, nikt go nie szyje (nie liczy się do zarobków pracowników).</div>';
   const L=o.przydzialy||[];
   if(!L.length) return '<p class="hint" style="margin:0 0 20px">Nikt nie jest jeszcze przypisany do tego zamówienia.</p>';
   return '<div class="przl">'+L.map(p=>{
@@ -1382,7 +1412,7 @@ function openDrawer(o){
       ${o.trudne?`<div class="hardbox"><b>Trudne do szycia</b> — ${esc(o.trudne.join(', '))}</div>`:''}
       ${(o.problemy||[]).length?(o.problemy.map(x=>`<div class="probbox"><b>Zgłoszony problem${(o.przydzialy||[]).length>1?' — '+esc(bezNr(x.prac)):''}</b> <small>${x.kiedy?godz(x.kiedy):''}</small><p>${esc(x.tekst)}</p></div>`).join('')):o.problem?`<div class="probbox"><b>Zgłoszony problem</b> <small>${o.problemKiedy?godz(o.problemKiedy):''}</small><p>${esc(o.problem)}</p></div>`:''}
       ${grupa.length>1?`<div class="sect sectH"><span>Pozycje tego zamówienia (${grupa.length})</span><button class="btn" id="dGrW">Przypisz całe zamówienie</button></div><div class="grpl">${grupa.map(x=>`<button data-lp="${esc(x.lp)}" class="${x===o?'cur':''}"><span><b style="font-weight:600">${esc(nazwaPoz(x))}</b>${x.specE?' · '+esc(x.specE):''} <small>· ${num.format(x.qty)} szt.${pracOf(x).length?' · '+esc(pracOf(x).map(bezNr).join(', ')):''}</small></span><span class="chip ${statusCls(x.status)}" style="cursor:inherit"><span class="d"></span>${statusLabel(x.status)}</span></button>`).join('')}</div>`:''}
-      <div class="sect sectH"><span>Przydział i postęp</span><button class="btn" id="dPrz">${(o.przydzialy||[]).length>1||(o.qty||1)>1?'Przydziel / podziel':'Przypisz'}</button></div>
+      <div class="sect sectH"><span>Przydział i postęp</span><button class="btn" id="dPrz">${o.zMagazynu?'Zmień':(o.przydzialy||[]).length?'Zmień przydział':'Przypisz / z magazynu'}</button></div>
       ${przydzialyHtml(o)}
       <div style="margin:-8px 0 20px">${postepHtml(o)}</div>
       <div class="sect sectH"><span>Specyfikacja</span><button class="btn" id="dEdit">Uzupełnij / popraw</button></div>
@@ -1422,7 +1452,7 @@ function openDrawer(o){
   $('drawerRoot').querySelector('.scrim').onclick=closeDrawer;
   $('dClose').onclick=closeDrawer;
   $('dW').onclick=e=>{ e.stopPropagation(); workerMenu(e.currentTarget,o); };
-  $('dPrz').onclick=e=>{ e.stopPropagation(); (o.qty||1)>1 || (o.przydzialy||[]).length>1 ? przydzialDialog(o) : workerMenu(e.currentTarget,o); };
+  $('dPrz').onclick=e=>{ e.stopPropagation(); workerMenu(e.currentTarget,o); };
   $('dS').onclick=e=>{ e.stopPropagation(); statusMenu(e.currentTarget,o); };
   if($('dGrW')) $('dGrW').onclick=e=>{ e.stopPropagation(); grupaMenu(e.currentTarget, grupa); };
   $('dT').onclick=()=>edytujZamowienie(o, 'termin');
@@ -1871,14 +1901,15 @@ function ustawSztuki(o, val){
   o.wykonano=val;
   if(val>=qty){ o.czasZap=Math.round(czasNa(o)); o.start=null; o.status='ukończono'; }
   else if(o.status==='ukończono') o.status='wstrzymano';
-  else if(wiecej && o.status!=='w trakcie'){ rows.forEach(x=>{ if(x!==o && x.status==='w trakcie'){ x.czasZap=Math.round(czasNa(x)); x.start=null; x.status='wstrzymano'; } }); o.status='w trakcie'; o.start=terazS(); }
+  else if(wiecej && o.status!=='w trakcie'){ o.status='w trakcie'; o.start=terazS(); }
   render();
   const czeka=timery.get(o.lp);
   if(czeka) clearTimeout(czeka); else busy++;          // jeden zapis po serii kliknięć
+  zmiany++;
   timery.set(o.lp, setTimeout(async()=>{
     timery.delete(o.lp);
     try{ const r=await api('ustawPostep', token, o.lp, o.wykonano); Object.assign(o,r); if(r && r.teraz) tOff=r.teraz-Date.now(); if(o.status==='ukończono') toast('Zadanie ukończone ✓'); }
-    catch(e){ toast(e.message); }
+    catch(e){ toast('Nie zapisano: '+e.message, true); }
     finally{ busy--; render(); if(!busy) refresh(false); }
   }, 600));
 }
