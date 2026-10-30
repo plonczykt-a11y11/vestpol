@@ -508,7 +508,7 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
   .month td.m-a{grid-column:1;grid-row:1}
   .month td.m-k{grid-column:2;grid-row:1}
   .month td.m-d{grid-column:1;grid-row:2;font-size:12.5px;color:var(--muted)}
-  .month td.m-d::after{content:attr(data-nr)}
+  
   .month td.m-lp{display:none}
   .month td.m-s{grid-column:2;grid-row:2;font-size:12.5px;color:var(--muted)}
   .month td.m-s::after{content:" szt."}
@@ -795,7 +795,7 @@ tr.grp-h.open .gchev{transform:rotate(90deg)}
       </div>
       <label class="field hidden" id="wSortL"><span>Sortuj ukończone</span><select class="input" id="wSort">
         <option value="nowe">Data ukończenia — najnowsze</option><option value="stare">Data ukończenia — najstarsze</option>
-        <option value="termin">Termin</option><option value="art">Artykuł A–Z</option><option value="cena">Wartość — najwyższa</option><option value="lp">Numer LP</option>
+        <option value="termin">Termin</option><option value="art">Artykuł A–Z</option><option value="cena">Wartość — najwyższa</option><option value="lp">Kolejność dodania</option>
       </select></label></div>
       <div id="wTasksBox">
         <div class="tasks"><div class="tgrid" id="tasks"></div></div>
@@ -1161,6 +1161,14 @@ function nazwaPoz(o){
   if(o.nazwaProd) return o.nazwaProd;
   const bl = o.zrodloZam==='BaseLinker' ? String(o.uwagi||'').split(' [SKU')[0].trim() : '';
   return bl || o.kat || String(o.uwagi||'').slice(0,60) || 'Zamówienie';
+}
+/* pełna nazwa dla pracownika: nazwa produktu z zamówienia razem z wariantem (np. „KOŁDRA OBCIĄŻENIOWA FUN - MOTYLKI Granulat szklany 150 x 200 cm”) */
+function nazwaPelna(o){
+  const bl = o.zrodloZam==='BaseLinker' ? String(o.uwagi||'').split(' [SKU')[0].trim() : '';
+  let base = bl && bl.length >= String(o.nazwaProd||'').length ? bl : (o.nazwaProd || bl || o.kat || String(o.uwagi||'').slice(0,80) || 'Zadanie');
+  const war = String(o.wariant || o.specE || '').trim(), n = x => x.toLowerCase().replace(/[×x\s]/g,'');
+  if(war && base!==bl && !n(base).includes(n(war))) base += ' — ' + war;      // nazwa z zamówienia (BaseLinker) jest już pełna
+  return base;
 }
 /* numer zamówienia jak w BaseLinkerze (zamówienia ręczne / z Excela — ich numer) */
 const nrZam = o => String(o.blId || o.nr || '');
@@ -1829,7 +1837,7 @@ async function akcjaZadania(o, typ){
   const patch = typ==='start' ? { status:'w trakcie', start:terazS() } : typ==='pauza' ? { status:'wstrzymano', czasZap:Math.round(czasNa(o)), start:null } : { status:'ukończono', wykonano:qty, czasZap:Math.round(czasNa(o)), start:null };
   const fn = typ==='start' ? 'rozpocznij' : typ==='pauza' ? 'wstrzymaj' : 'ustawStatus';
   const ok = typ==='koniec' ? await change(o, patch, fn, o.lp, 'ukończono') : await change(o, patch, fn, o.lp);
-  if(ok) toast(typ==='start' ? 'Rozpoczęto pracę — '+nazwaPoz(o) : typ==='pauza' ? 'Praca wstrzymana' : 'Zadanie ukończone ✓');
+  if(ok) toast(typ==='start' ? 'Rozpoczęto pracę — '+nazwaPelna(o) : typ==='pauza' ? 'Praca wstrzymana' : 'Zadanie ukończone ✓');
   if(drawerOpen && drawerOpen.zadanie===o) szczegolyZadania(o);
   return ok;
 }
@@ -1859,7 +1867,7 @@ function szczegolyZadania(o){
   const wsp=o.wspolnie||[];
   drawerOpen={zadanie:o};
   $('drawerRoot').innerHTML=`<div class="scrim"></div><aside class="drawer" role="dialog" aria-modal="true">
-    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${esc(nazwaPoz(o))}</h3><p>${nrZam(o)?'Zamówienie nr '+esc(nrZam(o)):'Zamówienie bez numeru'}</p></div><button class="btn ghost" id="zClose" aria-label="Zamknij">✕</button></div>
+    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${esc(nazwaPelna(o))}</h3></div><button class="btn ghost" id="zClose" aria-label="Zamknij">✕</button></div>
     <div class="drawer-b">
       <div class="zchips">
         ${o.termin?`<span class="chip" style="${late?'color:var(--red);border-color:var(--red)':''}">Termin: ${fmtD(o.termin)}</span>`:''}
@@ -1926,7 +1934,7 @@ function renderWorker(){
   $('wTasksBox').classList.toggle('hidden', wTab==='sum'); $('wSumBox').classList.toggle('hidden', wTab!=='sum');
   if(wTab==='sum') return renderMonths();
 
-  const srt=$('wSort').value, nazwa=o=>nazwaPoz(o);
+  const srt=$('wSort').value, nazwa=o=>nazwaPelna(o);
   const SORT={ nowe:(a,b)=>(b.ukonczono||'').localeCompare(a.ukonczono||'')||b.lp-a.lp, stare:(a,b)=>(a.ukonczono||'9999').localeCompare(b.ukonczono||'9999')||a.lp-b.lp,
     termin:(a,b)=>(a.termin||'9999').localeCompare(b.termin||'9999')||a.lp-b.lp, art:(a,b)=>nazwa(a).localeCompare(nazwa(b),'pl')||a.lp-b.lp,
     cena:(a,b)=>(b.cenaRazem||0)-(a.cenaRazem||0)||b.lp-a.lp, lp:(a,b)=>b.lp-a.lp };
@@ -1952,7 +1960,7 @@ function renderWorker(){
       : o.cenaSzt ? `<span class="v num">${zl.format(o.cenaSzt)}</span><span class="sub">za szt. · razem ${zl.format(o.cenaRazem)}</span>` : '<span class="v lp">—</span>';
     r.innerHTML=`
       <div class="c-due">${k('Termin')}<span class="due ${cls}">${o.termin?fmtD(o.termin):'—'}</span><span class="sub">${o.status==='ukończono'&&o.ukonczono?'ukończono '+fmtD(o.ukonczono):(dueSub||'')}</span></div>
-      <div class="art c-art">${k('Artykuł')}<span class="v">${esc(nazwaPoz(o))}${o.trudne?'<span class="tag hard" title="'+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.stawka>0?'<span class="tag hr">godzinowe</span>':''}</span><span class="sub">${nrZam(o)?'Zamówienie nr '+esc(nrZam(o)):'bez numeru'}${o.qtyZam&&o.qtyZam!==qty?' · Twoja część: '+num.format(qty)+' z '+num.format(o.qtyZam)+' szt.':''}${wsp.length?' · razem z: '+esc(wsp.map(x=>bezNr(x.prac)).join(', ')):''}${o.komentarz?' · <b style="color:var(--amber)">uwagi klienta</b>':''}</span>
+      <div class="art c-art">${k('Artykuł')}<span class="v">${esc(nazwaPelna(o))}${o.trudne?'<span class="tag hard" title="'+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.stawka>0?'<span class="tag hr">godzinowe</span>':''}</span><span class="sub">${o.qtyZam&&o.qtyZam!==qty?'Twoja część: '+num.format(qty)+' z '+num.format(o.qtyZam)+' szt.':num.format(qty)+' szt.'}${wsp.length?' · razem z: '+esc(wsp.map(x=>bezNr(x.prac)).join(', ')):''}${o.komentarz?' · <b style="color:var(--amber)">uwagi klienta</b>':''}</span>
         <div class="links"><button class="link" data-det>Szczegóły</button>${o.uwagi?`<button class="link" data-x="opis">${tryb==='opis'?'Ukryj opis':'Pełny opis'}</button>`:''}<button class="link p" data-x="problem">${o.problem?'⚠ Problem zgłoszony':'Zgłoś problem'}</button></div></div>
       <div>${k('Rozmiar')}${v(d.rozmiar||o.specE)}</div><div>${k('Tkanina')}${v(d.tkanina)}</div><div>${k('Kolor')}${v(d.kolor)}</div>
       <div class="c-qty">${k('Wykonano')}
@@ -1996,8 +2004,8 @@ function renderMonths(){
     el.innerHTML=`<div class="month-h"><h3>${mlabel(M.miesiac)}${M.miesiac===cm?'<span class="live">bieżący · na żywo</span>':''}</h3>
       <div class="stat"><div><small>Wykonane</small><b class="num">${num.format(M.szt)}</b> <small style="display:inline">szt.</small></div>${M.godz?`<div><small>Praca na godziny</small><b class="num">${esc(czasTxt(M.godz*3600))}</b></div>`:''}<div><small>Kwota</small><b class="num">${zl.format(M.kwota)}</b></div></div>
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
-      ${otwMies.has(M.miesiac)?`<div class="tbl"><table><thead><tr><th>Data</th><th>Nr zam.</th><th>Artykuł</th><th class="r">Szt. / czas</th><th class="r">Cena / stawka</th><th class="r">Kwota</th></tr></thead><tbody>
-        ${M.pozycje.map(p=>`<tr><td class="num m-d" data-nr="${p.nr?' · nr '+esc(p.nr):''}">${fmtD(p.data)}</td><td class="lp num m-lp">${esc(p.nr||'—')}</td><td class="m-a"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.spec?'<br><small class="lp">'+esc(p.spec)+'</small>':''}${p.stawka?'<span class="tag hr">godzinowe</span>':''}</td><td class="r num m-s${p.stawka?' m-h':''}">${p.stawka?esc(czasTxt((p.godz||0)*3600))+(p.szt?' · '+num.format(p.szt)+' szt.':''):num.format(p.szt)}</td><td class="r num m-c">${p.stawka?zl.format(p.stawka)+'/h':p.cenaSzt?zl.format(p.cenaSzt):'—'}</td><td class="r num m-k"><b>${zl.format(p.kwota)}</b></td></tr>`).join('')}
+      ${otwMies.has(M.miesiac)?`<div class="tbl"><table><thead><tr><th>Data</th><th>Artykuł</th><th class="r">Szt. / czas</th><th class="r">Cena / stawka</th><th class="r">Kwota</th></tr></thead><tbody>
+        ${M.pozycje.map(p=>`<tr><td class="num m-d">${fmtD(p.data)}</td><td class="m-a"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.spec?'<br><small class="lp">'+esc(p.spec)+'</small>':''}${p.stawka?'<span class="tag hr">godzinowe</span>':''}</td><td class="r num m-s${p.stawka?' m-h':''}">${p.stawka?esc(czasTxt((p.godz||0)*3600))+(p.szt?' · '+num.format(p.szt)+' szt.':''):num.format(p.szt)}</td><td class="r num m-c">${p.stawka?zl.format(p.stawka)+'/h':p.cenaSzt?zl.format(p.cenaSzt):'—'}</td><td class="r num m-k"><b>${zl.format(p.kwota)}</b></td></tr>`).join('')}
       </tbody></table></div>`:''}`;
     el.querySelector('.month-h').onclick=()=>{ otwMies.has(M.miesiac)?otwMies.delete(M.miesiac):otwMies.add(M.miesiac); renderMonths(); };
     box.appendChild(el);

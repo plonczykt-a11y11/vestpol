@@ -1,6 +1,6 @@
 // VEST-POL — service worker: aplikacja otwiera się szybko i działa jej „szkielet” bez internetu.
 // Dane (zamówienia, statusy) zawsze pobierane są na żywo z serwera — nie są zapisywane w pamięci telefonu.
-const WERSJA = 'vestpol-v14';
+const WERSJA = 'vestpol-v15';
 const PLIKI = ['./', 'index.html', 'config.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png', 'icons/favicon-64.png'];
 
