@@ -1406,7 +1406,7 @@ function przydzialyHtml(o){
   if(!L.length) return '<p class="hint" style="margin:0 0 20px">Nikt nie jest jeszcze przypisany do tego zamówienia.</p>';
   return '<div class="przl">'+L.map(p=>{
     const proc=Math.round(100*Math.min(p.wykonano||0,p.ilosc)/Math.max(1,p.ilosc));
-    const czas=(p.czasZap||p.czas||p.start) ? (p.start?'pracuje teraz · ':'')+'czas: '+(p.start?tmr(p,0,'t'):czasTxt(p.czas)) : '';
+    const czas=o.godzinowe && (p.czasZap||p.czas||p.start) ? (p.start?'pracuje teraz · ':'')+'czas: '+(p.start?tmr(p,0,'t'):czasTxt(p.czas)) : (p.start?'pracuje teraz':'');
     return `<div class="przi"><span class="mini-av">${esc(inicjaly(p.prac))}</span><span class="nm">${esc(bezNr(p.prac))}</span><span class="chip ${statusCls(p.status)}"><span class="d"></span>${statusLabel(p.status)}</span>
       <span class="meta">${num.format(Math.min(p.wykonano||0,p.ilosc))} / ${num.format(p.ilosc)} szt.${czas?' · '+czas:''}${o.godzinowe?' · kwota: '+(p.start?tmr(p,o.stawka,'kw'):zl.format(p.kwota||0)):''}${p.ukonczono&&p.status==='ukończono'?' · ukończono '+godz(p.ukonczono):''}${p.excel?' · przypisanie z Excela':''}</span>
       <div class="pbar2"><i class="${proc>=100?'full':proc>0?'':'zero'}" style="width:${proc}%"></i></div>
@@ -1494,6 +1494,7 @@ async function edytujZamowienie(o, fokus){
   const grupa=o.grupa ? rows.filter(x=>x.grupa===o.grupa).length : 1;
   const katy=(slownikCache.kategorie||[]).map(k=>k[0]);
   const cenaPocz = o.cenaR ? o.cenaR : (o.zrodloZam==='Ręcznie' && o.cenaX ? o.cenaX : '');
+  const proto=String(o.prod||'').toLowerCase()==='prototyp';
   const pocz={ termin:o.terminR||'', qty:String(o.qty||1), cena:String(cenaPocz||''), stawka:o.stawka?String(o.stawka):'', kat:o.prod||'', spec:o.spec||'', opis:o.uwagi||'', nr:o.nr||'' };
   $('dBody').innerHTML=`<div class="sect">Edycja zamówienia${nrZam(o)?' nr '+esc(nrZam(o)):''} · ${esc(nazwaPoz(o))}</div>
     <div class="fgrid">
@@ -1502,8 +1503,8 @@ async function edytujZamowienie(o, fokus){
       ${grupa>1?`<label class="chkrow full"><input type="checkbox" id="eTerGr"><span>Ustaw ten termin dla wszystkich pozycji tego zamówienia (${grupa})</span></label>`:''}
       <p class="hint full">Pusty termin = wg cennika${o.terminC?' ('+fmtD(o.terminC)+')':''}.${o.przydzielono?' Przydzielono pracownikom '+num.format(o.przydzielono)+' szt. — ilość nie może być mniejsza.':''}</p>
       <label class="field"><span>Cena za szt. (zł)</span><input class="input" type="number" min="0" step="0.01" id="eCena" value="${esc(pocz.cena)}" placeholder="${o.godzinowe?'—':o.cenaBaza&&o.zrodlo!=='reczna'?'wg cennika: '+num.format(o.cenaBaza):'wg cennika'}"></label>
-      <label class="field"><span>Stawka godzinowa (zł/h)</span><input class="input" type="number" min="0" step="0.01" id="eStawka" value="${esc(pocz.stawka)}" placeholder="puste = akord"></label>
-      <p class="hint full">Pusta cena = z cennika. Stawka godzinowa zamienia rozliczenie na czas pracy × stawka (jak Prototyp).</p>
+      ${proto?`<label class="field"><span>Stawka godzinowa (zł/h)</span><input class="input" type="number" min="0" step="0.01" id="eStawka" value="${esc(pocz.stawka)}"></label>`:''}
+      <p class="hint full">Pusta cena = z cennika.${proto?' Prototyp rozlicza się godzinowo: czas pracy × stawka.':''}</p>
       <label class="field full"><span>Produkt / kategoria</span><input class="input" id="eKat" list="eKatL" value="${esc(pocz.kat)}" placeholder="${esc(o.kat?'rozpoznano: '+o.kat:'rozpoznawany z opisu')}" maxlength="120" autocomplete="off"><datalist id="eKatL">${katy.map(k=>`<option value="${esc(k)}">`).join('')}</datalist></label>
       <label class="field full"><span>Wariant / specyfikacja</span><input class="input" id="eSpec" value="${esc(pocz.spec)}" placeholder="${esc(o.specE?'rozpoznano: '+o.specE:'')}" maxlength="120"></label>
       <label class="field full"><span>Nr zamówienia</span><input class="input" id="eNr" value="${esc(pocz.nr)}" maxlength="80"></label>
@@ -1515,7 +1516,7 @@ async function edytujZamowienie(o, fokus){
   $('eCancel').onclick=()=>openDrawer(o);
   const f=fokus==='termin' ? $('eTermin') : $('eQty'); try{ f.focus(); }catch(e){}
   $('eSave').onclick=async()=>{
-    const v={ termin:$('eTermin').value, qty:$('eQty').value, cena:$('eCena').value, stawka:$('eStawka').value, kat:$('eKat').value.trim(), spec:$('eSpec').value.trim(), opis:$('eOpis').value.trim(), nr:$('eNr').value.trim() };
+    const v={ termin:$('eTermin').value, qty:$('eQty').value, cena:$('eCena').value, stawka:$('eStawka')?$('eStawka').value:pocz.stawka, kat:$('eKat').value.trim(), spec:$('eSpec').value.trim(), opis:$('eOpis').value.trim(), nr:$('eNr').value.trim() };
     const z={}; Object.keys(v).forEach(k=>{ if(String(v[k])!==String(pocz[k])) z[k]=v[k]; });
     if($('eTerGr') && $('eTerGr').checked){ z.termin=v.termin; z.terminGrupa=true; }
     if(!Object.keys(z).length) return openDrawer(o);
@@ -1888,7 +1889,7 @@ function szczegolyZadania(o){
         ${o.termin?`<span class="chip" style="${late?'color:var(--red);border-color:var(--red)':''}">Termin: ${fmtD(o.termin)}</span>`:''}
         <span class="chip">${o.qtyZam&&o.qtyZam!==qty?'Twoja część: '+num.format(qty)+' z '+num.format(o.qtyZam)+' szt.':'Ilość: '+num.format(qty)+' szt.'}</span>
         <span class="chip ${statusCls(o.status)}"><span class="d"></span>${statusLabel(o.status)} · ${num.format(Math.min(wyk,qty))}/${num.format(qty)}</span>
-        ${(o.czasZap||o.start)?`<span class="chip">Czas pracy: ${o.start?tmr(o,0,'t'):czasTxt(o.czasZap)}</span>`:''}
+        ${o.stawka>0&&(o.czasZap||o.start)?`<span class="chip">Czas pracy: ${o.start?tmr(o,0,'t'):czasTxt(o.czasZap)}</span>`:''}
       </div>
       <div class="stbtns" style="margin-bottom:18px">${przyciskiZadania(o)}</div>
       ${o.stawka>0?`<div class="pricebox"><div class="row"><span>Praca na godziny — stawka</span><span class="num">${zl.format(o.stawka)} / h</span></div><div class="row tot"><span>Naliczono</span><span class="num">${o.start?tmr(o,o.stawka,'kw'):zl.format(kwotaGodz(o,o.stawka))}</span></div><div class="note">Czas liczy się od „Rozpocznij” do „Wstrzymaj” lub „Ukończ”.</div></div>`:''}
@@ -1983,7 +1984,7 @@ function renderWorker(){
         <div class="pbar"><i class="${wyk>=qty?'full':''}" style="width:${100*Math.min(wyk,qty)/qty}%"></i></div></div>
       <div>${k('Wypełnienie')}${v(d.wypelnienie)}</div><div>${k('Waga')}${v(d.waga)}</div>
       <div>${k('Cena')}${cena}</div>
-      <div class="c-st">${k('Status')}<div class="sthead"><span class="chip ${statusCls(o.status)}"><span class="d"></span>${statusLabel(o.status)}</span>${o.status==='w trakcie'?tmr(o,0,'t'):(o.czasZap&&o.status!=='przypisano'?'<span class="lp" style="font-size:12px">'+czasTxt(o.czasZap)+'</span>':'')}</div><div class="stbtns">${przyciskiZadania(o)}</div></div>
+      <div class="c-st">${k('Status')}<div class="sthead"><span class="chip ${statusCls(o.status)}"><span class="d"></span>${statusLabel(o.status)}</span>${!(o.stawka>0)?'':o.status==='w trakcie'?tmr(o,0,'t'):(o.czasZap&&o.status!=='przypisano'?'<span class="lp" style="font-size:12px">'+czasTxt(o.czasZap)+'</span>':'')}</div><div class="stbtns">${przyciskiZadania(o)}</div></div>
       ${tryb==='opis'?`<div class="full"><p>${esc(o.uwagi)}</p></div>`:''}
       ${tryb==='problem'?`<div class="full"><div class="probForm">
           <label class="field"><span>Opisz problem przy tym zadaniu (nieobowiązkowe) — zobaczy go kierownik</span>
