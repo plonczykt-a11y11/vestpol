@@ -528,6 +528,20 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
   .brand .app{display:none}
 }
 
+/* dodatki */
+.dgr{margin-bottom:12px}
+.dgh{font-size:11.5px;font-weight:650;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.dpoz{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:9px;margin-bottom:5px;background:var(--surface)}
+.dpoz.on{border-color:var(--brand-line);background:var(--brand-soft)}
+.dchk{display:flex;align-items:center;gap:8px;cursor:pointer;min-width:0;font-size:13.5px}
+.dchk input{width:16px;height:16px;flex:none}
+.dcena{font-size:12.5px;color:var(--ink-2);white-space:nowrap}
+.dqty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.dqty button{border:none;background:transparent;width:28px;height:30px;font-weight:650}
+.dqty button:disabled{opacity:.3}
+.dqty input{width:42px;border:none;border-left:1px solid var(--line);border-right:1px solid var(--line);height:30px;text-align:center;background:transparent;-moz-appearance:textfield}
+.dqty input::-webkit-outer-spin-button,.dqty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+@media (max-width:520px){ .dpoz{grid-template-columns:minmax(0,1fr) auto} .dpoz .dqty{grid-column:1/-1;justify-self:end} }
 /* wzięte z magazynu */
 .chip.mag{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok)}
 .boxi{display:inline-grid;place-items:center;width:18px;height:18px}
@@ -1071,7 +1085,8 @@ function workerMenu(anchor, o){
   const jeden = L.length===1 ? L[0].prac : '';
   const poz = w => ({ html:nazwaZId(w), icon:'<span class="mini-av">'+esc(inicjaly(w))+'</span>', cur:w===jeden && (!L.length || L[0].ilosc>=qty),
     act:()=>change(o,{prac:w, pracList:[w], przydzialy:[{prac:w, ilosc:qty, wykonano:0, status:'przypisano'}], status:o.status||'przypisano'},'przypisz',o.lp,w) });
-  let items=[{ label:'Wzięte z magazynu (bez szycia)', icon:'<span class="ico">'+ICO_BOX+'</span>', cur:!!o.zMagazynu, act:()=>{ if(!o.zMagazynu) ustawMagazyn([o], false); } }];
+  let items=o.godzinowe?[{ label:'Stawka godzinowa: '+zl.format(o.stawka||0)+'/h — zmień…', icon:'<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>', act:()=>stawkaDialog(o) }, '-']:[];
+  items.push({ label:'Wzięte z magazynu (bez szycia)', icon:'<span class="ico">'+ICO_BOX+'</span>', cur:!!o.zMagazynu, act:()=>{ if(!o.zMagazynu) ustawMagazyn([o], false); } });
   if(o.zMagazynu) items.push({ label:'Cofnij — do uszycia', act:()=>ustawMagazyn([o], true) });
   items.push('-');
   if(qty>1 || L.length>1) items.push({ label:L.length>1?'Zmień podział między osoby…':'Podziel między kilka osób…', icon:'<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>', act:()=>przydzialDialog(o) }, '-');
@@ -1292,7 +1307,7 @@ function wierszPozycji(o, cls, t0){
   const nok=pracOf(o).some(w=>!moze(o,w));
   const L=o.przydzialy||[], nieprz=L.length && !L.some(p=>p.excel) && (o.przydzielono||0)<(o.qty||1);
   tr.innerHTML=`<td class="num c-lp" title="${esc(nrZam(o)?'Nr '+nrZam(o)+(o.nr&&o.nr!==nrZam(o)?' · w sklepie: '+o.nr:''):'LP '+o.lp)}">${nrZam(o)?esc(nrZam(o)):'<span class="lp">—</span>'}${cls.includes('poz')?'':blPill(o)}</td><td class="num c-real${late?' late':''}" title="${esc(terminOpis(o))}">${fmtD(o.termin)||'<span class="lp">—</span>'}${o.terminR?' <span class="tag re" title="Termin ustawiony ręcznie">ręczny</span>':''}</td>
-    <td class="prod c-prod"><b title="${esc(prodName+(o.kat?' · kategoria: '+o.kat:''))}">${esc(prodName)}${o.katAuto?'<span class="tag" title="Rozpoznane z opisu">auto</span>':''}${o.godzinowe?'<span class="tag hr">godzinowe</span>':''}${o.trudne?'<span class="tag hard" title="Trudne do szycia: '+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.ark?'<span class="tag arch">archiwum</span>':''}${o.problem&&o.status!=='ukończono'?'<span class="warnIco" title="'+esc(o.problem)+'">'+ICO_WARN+'</span>':''}</b><small>${esc(o.specE||'')}${nrZam(o)?'<span class="nrIn">'+(o.specE?' · ':'')+'nr '+esc(nrZam(o))+'</span>':''}${zrodloTag(o)}${o.komentarz?' <span class="tag" title="Uwagi klienta: '+esc(o.komentarz)+'">uwagi</span>':''}</small>${o.uwagi?'<div class="desc d-in">'+esc(o.uwagi)+'</div>':''}</td>
+    <td class="prod c-prod"><b title="${esc(prodName+(o.kat?' · kategoria: '+o.kat:''))}">${esc(prodName)}${o.katAuto?'<span class="tag" title="Rozpoznane z opisu">auto</span>':''}${o.godzinowe?'<span class="tag hr">godzinowe</span>':''}${(o.dodatki||[]).length?'<span class="tag ok" title="'+esc(o.dodatki.map(x=>x.nazwa).join(', '))+'">+ dodatki ('+o.dodatki.length+')</span>':''}${o.trudne?'<span class="tag hard" title="Trudne do szycia: '+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.ark?'<span class="tag arch">archiwum</span>':''}${o.problem&&o.status!=='ukończono'?'<span class="warnIco" title="'+esc(o.problem)+'">'+ICO_WARN+'</span>':''}</b><small>${esc(o.specE||'')}${nrZam(o)?'<span class="nrIn">'+(o.specE?' · ':'')+'nr '+esc(nrZam(o))+'</span>':''}${zrodloTag(o)}${o.komentarz?' <span class="tag" title="Uwagi klienta: '+esc(o.komentarz)+'">uwagi</span>':''}</small>${o.uwagi?'<div class="desc d-in">'+esc(o.uwagi)+'</div>':''}</td>
     <td class="col-desc"><div class="desc" title="${esc(o.uwagi)}">${esc(o.uwagi)}</div></td>
     <td class="r num c-qty">${num.format(o.qty)}</td>
     <td class="c-who"><span class="chip ${o.zMagazynu?'mag':L.length?'':'none'} ${L.length>1?'multi':''} ${o._busy?'busy':''}" data-a="w" title="${esc(nok?'Nie każda z tych osób szyje ten produkt wg cennika\n':'')}${esc(ktoTytul(o))}">${ktoHtml(o)}${nok?'<span class="nok">!</span>':''}</span>${nieprz?'<div class="lp" style="font-size:11.5px;margin-top:3px">nieprzydzielone: '+num.format((o.qty||1)-(o.przydzielono||0))+' szt.</div>':''}</td>
@@ -1422,7 +1437,7 @@ function openDrawer(o){
   const row=(k,v)=>`<dt>${k}</dt><dd>${v?esc(v):'<span class="lp">—</span>'}</dd>`;
   const rowC=(k,v,pole)=>`<dt>${k}</dt><dd>${v?esc(v)+((d.recznie||[]).includes(pole)?' <span class="tag re" title="Wpisane ręcznie w aplikacji">ręcznie</span>':(d.zUwag||[]).includes(pole)?' <span class="tag warn" title="Z uwag klienta (np. Allegro)">z uwag klienta</span>':(d.zProduktu||[]).includes(pole)?' <span class="tag ok" title="Z zakładki Produkty (dane tego produktu)">z produktów</span>':(d.zCennika||[]).includes(pole)?' <span class="tag" title="Tej informacji nie było w opisie — uzupełniona z cennika (dane tego produktu)">z cennika</span>':''):'<span class="lp">—</span>'}</dd>`;
   const dod=(o.dodatki||[]).map(x=>`<div class="row"><span>+ ${esc(x.nazwa)}</span><span class="num">${zl.format(x.cena)}</span></div>`).join('');
-  const zrodlo = (o.godzinowe ? 'Rozliczenie godzinowe: stawka × czas pracy (liczony od „Rozpocznij” do „Wstrzymaj” / „Ukończ”).' : o.zrodlo==='reczna' ? 'Cena wpisana ręcznie.' : o.cenaAuto ? zrodloCeny(o)+(o.pewnosc==='pewne'?'.':' — sprawdź.') : o.zrodlo==='excel' ? 'Cena z arkusza Excel.' : 'Brak ceny w cenniku dla tego opisu.')
+  const zrodlo = (o.godzinowe ? 'Rozliczenie godzinowe: stawka × czas pracy (liczony od „Rozpocznij” do „Wstrzymaj” / „Ukończ”).' : o.tylkoDodatki ? 'Zamówienie tylko na dodatki — cena to suma dodatków z cennika.' : o.zrodlo==='reczna' ? 'Cena wpisana ręcznie.' : o.cenaAuto ? zrodloCeny(o)+(o.pewnosc==='pewne'?'.':' — sprawdź.') : o.zrodlo==='excel' ? 'Cena z arkusza Excel.' : 'Brak ceny w cenniku dla tego opisu.')
     + (o.cenaExcel && o.cenaAuto && Math.abs(o.cenaExcel-o.cenaSzt)>=0.01 ? ' W Excelu: '+zl.format(o.cenaExcel)+' / szt.' : '')
     + (o.hist ? ' Zamówienie z historii Excela (przed uruchomieniem aplikacji) — liczone jako wykonane.' : '');
   const kto = o.kr ? workerList.filter(w=>moze(o,w)) : null;
@@ -1462,12 +1477,13 @@ function openDrawer(o){
         ${o.real?row('Data realizacji (Excel)', fmtD(o.real)):''}
         <dt>Kto szyje</dt><dd>${kto ? (kto.length ? '<div class="krlist">'+kto.map(w=>'<span>'+nazwaZId(w)+'</span>').join('')+'</div>' : '<span class="lp">nikt z listy</span>') : '<span class="lp">brak danych w cenniku</span>'}</dd>
       </dl>
-      <div class="sect">${o.godzinowe?'Rozliczenie godzinowe':'Cena'}</div>
+      <div class="sect sectH"><span>${o.godzinowe?'Rozliczenie godzinowe':'Cena'}</span>${o.godzinowe?'<button class="btn" id="dStawka">Zmień stawkę</button>':'<button class="btn" id="dDodatki">Dodatki'+((o.dodatki||[]).length?' ('+o.dodatki.length+')':'')+'</button>'}</div>
       <div class="pricebox">
         ${o.godzinowe?`<div class="row"><span>Stawka</span><span class="num">${zl.format(o.stawka)} / h</span></div>
           <div class="row"><span>Czas pracy (wszyscy)</span><span class="num">${czasTxt(o.czas)}</span></div>
           <div class="row tot"><span>Kwota</span><span class="num">${zl.format(o.cenaRazem||0)}</span></div>`:`
-        ${o.cenaBaza?`<div class="row"><span>${o.zrodlo==='reczna'?'Cena wpisana ręcznie':o.cenaAuto?'Cena z cennika':'Cena z Excela'}</span><span class="num">${zl.format(o.cenaBaza)}</span></div>`+dod:''}
+        ${o.cenaBaza?`<div class="row"><span>${o.zrodlo==='reczna'?'Cena wpisana ręcznie':o.cenaAuto?'Cena z cennika':'Cena z Excela'}</span><span class="num">${zl.format(o.cenaBaza)}</span></div>`:''}${dod}
+        ${(o.dodatki||[]).length?`<div class="note" style="margin:0 0 4px">${(o.dodatki||[]).some(x=>x.wybrany)?'Dodatki wybrane w aplikacji':'Dodatki odczytane z opisu zamówienia'}</div>`:''}
         <div class="row"><span>Cena za sztukę</span><span class="num">${o.cenaSzt?zl.format(o.cenaSzt):'—'}</span></div>
         <div class="row tot"><span>Razem (${num.format(o.qty||0)} szt.)</span><span class="num">${o.cenaRazem?zl.format(o.cenaRazem):'—'}</span></div>`}
         <div class="note">${zrodlo}${o.uwagaRozmiar?' Uwaga: '+esc(o.uwagaRozmiar)+'.':''}</div>
@@ -1482,6 +1498,8 @@ function openDrawer(o){
   $('dPrz').onclick=e=>{ e.stopPropagation(); workerMenu(e.currentTarget,o); };
   $('dS').onclick=e=>{ e.stopPropagation(); statusMenu(e.currentTarget,o); };
   if($('dGrW')) $('dGrW').onclick=e=>{ e.stopPropagation(); grupaMenu(e.currentTarget, grupa); };
+  if($('dDodatki')) $('dDodatki').onclick=()=>edytujDodatki(o);
+  if($('dStawka')) $('dStawka').onclick=()=>stawkaDialog(o);
   $('dT').onclick=()=>edytujZamowienie(o, 'termin');
   $('dEditZ').onclick=()=>edytujZamowienie(o);
   $('dEdit').onclick=()=>edytujSzczegoly(o);
@@ -1534,6 +1552,93 @@ async function edytujZamowienie(o, fokus){
   };
 }
 
+
+/* ---------- DODATKI (pętelki, troczki, worek, naszywki…) — wielokrotny wybór z ilością ---------- */
+const TYLKO_DOD='Tylko dodatki';
+async function katalogDodatkow(){
+  if(!slownikCache) slownikCache=await api('slownik', token);
+  return slownikCache.dodatki||[];
+}
+/* wybrane: [{n,q}]; tryb: { zamowienie:true } pokazuje też „Automatycznie z opisu” i „Bez dodatków” */
+async function dodatkiDialog(wybrane, onZapisz, tryb){
+  tryb=tryb||{};
+  let kat; try{ kat=await katalogDodatkow(); }catch(e){ return toast(e.message, true); }
+  if(!kat.length) return toast('W cenniku nie ma dodatków (arkusz Cennik_opcje_final).', true);
+  closeMenu(); closeModal();
+  const W=new Map((wybrane||[]).map(x=>[x.n, Math.max(1, x.q||1)]));
+  const grupy=[...new Set(kat.map(x=>x.g))];
+  const root=document.createElement('div'); root.id='modalRoot'; document.body.appendChild(root); modalOpen=true;
+  let szukaj='';
+  const suma=()=>kat.reduce((s,x)=>s+(W.has(x.n)?x.c*W.get(x.n):0),0);
+  function lista(){
+    const q=szukaj.trim().toLowerCase();
+    return grupy.map(g=>{
+      const el=kat.filter(x=>x.g===g && (!q || x.n.toLowerCase().includes(q)));
+      if(!el.length) return '';
+      return `<div class="dgr"><div class="dgh">${esc(g)}</div>${el.map(x=>{ const on=W.has(x.n), etyk=x.n.startsWith(g+': ')?x.n.slice(g.length+2):x.n;
+        return `<div class="dpoz${on?' on':''}" data-n="${esc(x.n)}"><label class="dchk"><input type="checkbox" ${on?'checked':''}><span>${esc(etyk)}</span></label>
+          <span class="dcena num">${zl.format(x.c)}</span>
+          <span class="dqty"><button type="button" data-q="-1" ${on?'':'disabled'} aria-label="Mniej">−</button><input type="number" min="1" max="999" value="${on?W.get(x.n):1}" ${on?'':'disabled'} inputmode="numeric" aria-label="Ilość"><button type="button" data-q="1" ${on?'':'disabled'} aria-label="Więcej">+</button></span></div>`; }).join('')}</div>`;
+    }).join('') || '<p class="hint">Brak dodatków pasujących do wyszukiwania.</p>';
+  }
+  function podsum(){ const n=W.size; root.querySelector('#dSuma').innerHTML = n ? `Wybrane: <b>${n}</b> · razem <b>${zl.format(suma())}</b> za sztukę zamówienia` : 'Nic nie wybrano'; }
+  function podepnij(){
+    root.querySelectorAll('.dpoz').forEach(r=>{
+      const n=r.dataset.n, cb=r.querySelector('input[type=checkbox]'), inp=r.querySelector('input[type=number]');
+      const ustaw=v=>{ v=Math.max(1,Math.min(999,Math.round(Number(v)||1))); W.set(n,v); inp.value=v; podsum(); };
+      cb.onchange=()=>{ if(cb.checked){ W.set(n, Math.max(1,Number(inp.value)||1)); } else W.delete(n); r.classList.toggle('on', cb.checked); r.querySelectorAll('.dqty button,.dqty input').forEach(x=>x.disabled=!cb.checked); podsum(); };
+      inp.oninput=()=>{ if(W.has(n)) ustaw(inp.value); };
+      r.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>ustaw((W.get(n)||1)+Number(b.dataset.q)));
+    });
+  }
+  root.innerHTML=`<div class="scrim2"></div><div class="modal" role="dialog" aria-modal="true" style="width:min(620px,calc(100vw - 20px))">
+    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>Dodatki</h3><p>${esc(tryb.tytul||'Zaznacz dodatki i ich ilość (ceny z cennika)')}</p></div><button class="btn ghost" id="dClose2" aria-label="Zamknij">✕</button></div>
+    <div class="drawer-b">
+      <div class="search" style="margin-bottom:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input" type="search" id="dSzukaj" placeholder="Szukaj dodatku, np. naszywka sowa…"></div>
+      <div id="dLista">${lista()}</div>
+      <div class="przSum" id="dSuma" style="display:block"></div>
+      <div class="formMsg" id="dMsg" style="padding:8px 0 0"></div>
+      <div class="row2" style="margin-top:10px"><button class="btn primary" id="dSave">Zapisz dodatki</button><button class="btn" id="dCancel">Anuluj</button>
+        ${tryb.zamowienie?'<button class="btn ghost" id="dAuto" title="Dodatki odczytane automatycznie z opisu zamówienia">Automatycznie z opisu</button><button class="btn ghost danger" id="dNone">Bez dodatków</button>':''}</div>
+    </div></div>`;
+  podsum(); podepnij();
+  root.querySelector('.scrim2').onclick=closeModal; $('dClose2').onclick=closeModal; $('dCancel').onclick=closeModal;
+  $('dSzukaj').oninput=e=>{ szukaj=e.target.value; $('dLista').innerHTML=lista(); podepnij(); };
+  const zapisz=async lista=>{ $('dSave').disabled=true; try{ await onZapisz(lista); closeModal(); }catch(e){ $('dMsg').textContent=e.message; $('dSave').disabled=false; } };
+  $('dSave').onclick=()=>zapisz([...W].map(([n,q])=>({n,q})));
+  if($('dAuto')) $('dAuto').onclick=()=>zapisz(null);
+  if($('dNone')) $('dNone').onclick=()=>zapisz([]);
+}
+/* dodatki istniejącego zamówienia */
+function edytujDodatki(o){
+  dodatkiDialog(o.dodR||[], async lista=>{
+    const r=await api('zapiszDodatki', token, o.lp, lista);
+    if(r && r.zamowienie) Object.assign(o, r.zamowienie);
+    znakDanych=''; toast(lista===null?'Dodatki: automatycznie z opisu':lista.length?'Zapisano dodatki':'Zamówienie bez dodatków');
+    if(drawerOpen===o) openDrawer(o); refresh(false);
+  }, { zamowienie:true, tytul: nazwaPoz(o)+' — dodatki liczone za każdą sztukę zamówienia ('+num.format(o.qty||1)+' szt.)' });
+}
+const dodOpis = L => (L||[]).map(x=>x.n.replace(/^[^:]+:\s*/,m=>m)+(x.q>1?' × '+x.q:'')).join(', ');
+/* stawka godzinowa prototypu */
+function stawkaDialog(o){
+  closeMenu(); closeModal();
+  const root=document.createElement('div'); root.id='modalRoot'; document.body.appendChild(root); modalOpen=true;
+  root.innerHTML=`<div class="scrim2"></div><div class="modal" role="dialog" aria-modal="true" style="width:min(420px,calc(100vw - 20px))">
+    <div class="drawer-h"><div style="flex:1"><h3>Stawka godzinowa</h3><p>${esc(nazwaPoz(o))}</p></div><button class="btn ghost" id="sClose" aria-label="Zamknij">✕</button></div>
+    <div class="drawer-b"><label class="field"><span>Zarobek za godzinę pracy (zł/h)</span><input class="input" type="number" id="sStawka" min="0.01" step="0.01" value="${esc(o.stawka||'')}"></label>
+    <p class="hint" style="margin-top:8px">Kwota pracownika = czas od „Rozpocznij” do „Wstrzymaj” / „Ukończ” × stawka. Zmiana dotyczy całego czasu pracy przy tym prototypie.</p>
+    <div class="formMsg" id="sMsg2" style="padding:8px 0 0"></div>
+    <div class="row2" style="margin-top:10px"><button class="btn primary" id="sSave2">Zapisz stawkę</button><button class="btn" id="sCancel2">Anuluj</button></div></div></div>`;
+  root.querySelector('.scrim2').onclick=closeModal; $('sClose').onclick=closeModal; $('sCancel2').onclick=closeModal;
+  setTimeout(()=>{ try{ $('sStawka').focus(); }catch(e){} },0);
+  $('sSave2').onclick=async()=>{
+    const v=$('sStawka').value; if(!(Number(String(v).replace(',','.'))>0)){ $('sMsg2').textContent='Wpisz stawkę większą od zera.'; return; }
+    $('sSave2').disabled=true;
+    try{ const r=await api('edytujZamowienie', token, o.lp, { stawka:v }); if(r && r.zamowienie) Object.assign(o, r.zamowienie); closeModal(); znakDanych=''; toast('Zapisano stawkę: '+zl.format(o.stawka)+'/h'); render(); if(drawerOpen===o) openDrawer(o); refresh(false); }
+    catch(e){ $('sMsg2').textContent=e.message; $('sSave2').disabled=false; }
+  };
+}
+
 /* ---------- dodawanie zamówienia (spoza BaseLinkera) ---------- */
 let slownikCache=null;
 const PROTO='Prototyp';
@@ -1548,13 +1653,14 @@ $('addOrderBtn').onclick=async()=>{
     <div class="drawer-b"><div class="fgrid">
       <label class="field"><span>Data zamówienia</span><input class="input" type="date" id="nZam" value="${todayStr()}"></label>
       <label class="field"><span>Nr zamówienia / klient</span><input class="input" type="text" id="nNr" maxlength="80" placeholder="np. magazyn, Huggy 3352"></label>
-      <label class="field full"><span>Produkt (z zakładki Produkty)</span><select class="input" id="nKat"><option value="">— wybierz (albo opisz niżej) —</option>${kat.map(([k])=>`<option value="${esc(k)}">${esc(k)}${k===PROTO?' — praca na godziny (stawka zł/h)':''}</option>`).join('')}</select></label>
+      <label class="field full"><span>Produkt (z zakładki Produkty)</span><select class="input" id="nKat"><option value="">— wybierz (albo opisz niżej) —</option>${kat.map(([k])=>`<option value="${esc(k)}">${esc(k)}${k===PROTO?' — praca na godziny (stawka zł/h)':k===TYLKO_DOD?' — zamówienie na same dodatki (np. pętelki, naszywki)':''}</option>`).join('')}</select></label>
       <label class="field full hidden" id="nSpecL"><span>Specyfikacja / rozmiar</span><select class="input" id="nSpec"></select></label>
       <label class="field full"><span>Opis</span><textarea class="input" id="nOpis" maxlength="2000" placeholder="kolor, tkanina, wypełnienie, waga, uwagi…"></textarea></label>
       <label class="field"><span>Ilość (szt.)</span><input class="input" type="number" id="nQty" min="1" value="1"></label>
-      <label class="field hidden" id="nStawkaL"><span>Stawka godzinowa (zł/h)</span><input class="input" type="number" id="nStawka" min="0" step="0.01" placeholder="np. 30"></label>
+      <label class="field hidden" id="nStawkaL"><span>Zarobek pracownika za godzinę (zł/h)</span><input class="input" type="number" id="nStawka" min="0" step="0.01" placeholder="np. 30"></label>
       <label class="field" id="nCenaL"><span>Cena za szt. (zł)</span><input class="input" type="number" id="nCena" min="0" step="0.01" placeholder="z cennika"></label>
-      <label class="field" id="nDodL"><span>Dodatki za szt. (zł)</span><input class="input" type="number" id="nDod" min="0" step="0.01" placeholder="0"></label>
+      <div class="field full" id="nDodL"><span>Dodatki (pętelki, troczki, worek, naszywki…)</span><div class="row2" style="align-items:center"><button type="button" class="btn" id="nDodBtn">Wybierz dodatki</button><span class="hint" id="nDodTxt" style="flex:1;min-width:160px">brak — albo odczytane automatycznie z opisu</span></div></div>
+      <label class="field" id="nDodInneL"><span>Inne dopłaty za szt. (zł)</span><input class="input" type="number" id="nDod" min="0" step="0.01" placeholder="0"></label>
       <label class="field"><span>Termin</span><input class="input" type="date" id="nTerm"></label>
       <label class="field full"><span>Przypisz do</span><select class="input" id="nPrac"><option value="">— później —</option>${prac.map(w=>`<option value="${esc(w)}">${esc((idOf(w)?idOf(w)+' · ':'')+bezNr(w))}</option>`).join('')}</select></label>
     </div>
@@ -1564,20 +1670,26 @@ $('addOrderBtn').onclick=async()=>{
     </div></aside>`;
   const zamknij=()=>closeDrawer();
   $('drawerRoot').querySelector('.scrim').onclick=zamknij; $('nClose').onclick=zamknij; $('nCancel').onclick=zamknij;
-  const proto=()=>$('nKat').value===PROTO;
+  const proto=()=>$('nKat').value===PROTO, tylkoD=()=>$('nKat').value===TYLKO_DOD;
+  let nDod=null;
+  const nDodPokaz=()=>{ $('nDodTxt').textContent = nDod&&nDod.length ? dodOpis(nDod) : (tylkoD()?'wybierz co najmniej jeden dodatek':'brak — albo odczytane automatycznie z opisu'); };
+  $('nDodBtn').onclick=()=>dodatkiDialog(nDod||[], async L=>{ nDod=L; nDodPokaz(); }, { tytul:'Dodatki liczone za każdą sztukę zamówienia' });
   $('nKat').onchange=()=>{
     const e=kat.find(([k])=>k===$('nKat').value)||[,[],{}], w=e[1], ceny=e[2]||{}, p=proto();
     $('nSpecL').classList.toggle('hidden', !w.length);
     $('nSpec').innerHTML=w.map(v=>`<option value="${esc(v)}">${esc(v)}${ceny[v]!=null?' — '+zl.format(ceny[v]):''}</option>`).join('');
-    $('nStawkaL').classList.toggle('hidden', !p); $('nCenaL').classList.toggle('hidden', p); $('nDodL').classList.toggle('hidden', p);
+    const t=tylkoD();
+    $('nStawkaL').classList.toggle('hidden', !p); $('nCenaL').classList.toggle('hidden', p||t); $('nDodL').classList.toggle('hidden', p); $('nDodInneL').classList.toggle('hidden', p||t);
+    nDodPokaz(); if(t && !(nDod&&nDod.length)) setTimeout(()=>$('nDodBtn').click(),0);
     $('nHint').textContent = p ? 'Prototyp rozlicza się godzinowo: od chwili, gdy pracownik kliknie „Rozpocznij”, aż do ukończenia liczy się czas pracy × stawka (przerwy „Wstrzymaj” się nie liczą).' : 'Puste pole ceny = cena z cennika dla wybranego produktu. Pusty termin = wg cennika (dni robocze od daty zamówienia).';
     if(p) setTimeout(()=>$('nStawka').focus(),0);
   };
   $('nSave').onclick=async()=>{
     const p=proto();
     const z={ zam:$('nZam').value, nr:$('nNr').value, kat:$('nKat').value, spec:$('nSpecL').classList.contains('hidden')?'':$('nSpec').value,
-      opis:$('nOpis').value, qty:$('nQty').value, cena:p?'':$('nCena').value, dod:p?'':$('nDod').value, stawka:p?$('nStawka').value:'', termin:$('nTerm').value, prac:$('nPrac').value };
+      opis:$('nOpis').value, qty:$('nQty').value, cena:p||tylkoD()?'':$('nCena').value, dod:p||tylkoD()?'':$('nDod').value, stawka:p?$('nStawka').value:'', termin:$('nTerm').value, prac:$('nPrac').value, dodatki:p?null:nDod };
     $('nMsg').textContent='';
+    if(tylkoD() && !(nDod&&nDod.length)){ $('nMsg').textContent='Wybierz dodatki do wykonania.'; return; }
     if(p && !(Number(String(z.stawka).replace(',','.'))>0)){ $('nMsg').textContent='Wpisz stawkę za godzinę (zł/h).'; return; }
     $('nSave').disabled=true;
     try{ const r=await api('dodajZamowienie', token, z); closeDrawer(); toast('Dodano zamówienie'+(z.nr?' nr '+z.nr:'')); refresh(false); }
@@ -1980,7 +2092,7 @@ function renderWorker(){
       : o.cenaSzt ? `<span class="v num">${zl.format(o.cenaSzt)}</span><span class="sub">za szt. · razem ${zl.format(o.cenaRazem)}</span>` : '<span class="v lp">—</span>';
     r.innerHTML=`
       <div class="c-due">${k('Termin')}<span class="due ${cls}">${o.termin?fmtD(o.termin):'—'}</span><span class="sub">${o.status==='ukończono'&&o.ukonczono?'ukończono '+fmtD(o.ukonczono):(dueSub||'')}</span></div>
-      <div class="art c-art">${k('Artykuł')}<span class="v">${esc(nazwaPelna(o))}${o.trudne?'<span class="tag hard" title="'+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.stawka>0?'<span class="tag hr">godzinowe</span>':''}</span><span class="sub">${o.qtyZam&&o.qtyZam!==qty?'Twoja część: '+num.format(qty)+' z '+num.format(o.qtyZam)+' szt.':num.format(qty)+' szt.'}${wsp.length?' · razem z: '+esc(wsp.map(x=>bezNr(x.prac)).join(', ')):''}${o.komentarz?' · <b style="color:var(--amber)">uwagi klienta</b>':''}</span>
+      <div class="art c-art">${k('Artykuł')}<span class="v">${esc(nazwaPelna(o))}${(o.dodatki||[]).filter(x=>!/z excela/i.test(x.nazwa)).length?'<span class="tag ok" title="'+esc(o.dodatki.map(x=>x.nazwa).join(', '))+'">+ dodatki</span>':''}${o.trudne?'<span class="tag hard" title="'+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.stawka>0?'<span class="tag hr">godzinowe</span>':''}</span><span class="sub">${o.qtyZam&&o.qtyZam!==qty?'Twoja część: '+num.format(qty)+' z '+num.format(o.qtyZam)+' szt.':num.format(qty)+' szt.'}${wsp.length?' · razem z: '+esc(wsp.map(x=>bezNr(x.prac)).join(', ')):''}${o.komentarz?' · <b style="color:var(--amber)">uwagi klienta</b>':''}</span>
         <div class="links"><button class="link" data-det>Szczegóły</button>${o.uwagi?`<button class="link" data-x="opis">${tryb==='opis'?'Ukryj opis':'Pełny opis'}</button>`:''}<button class="link p" data-x="problem">${o.problem?'⚠ Problem zgłoszony':'Zgłoś problem'}</button></div></div>
       <div>${k('Rozmiar')}${v(d.rozmiar||o.specE)}</div><div>${k('Tkanina')}${v(d.tkanina)}</div><div>${k('Kolor')}${v(d.kolor)}</div>
       <div class="c-qty">${k('Wykonano')}
