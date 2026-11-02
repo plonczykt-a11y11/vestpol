@@ -938,7 +938,7 @@ function setView(v){
 }
 function logout(silent){
   if(token && !silent) api('wyloguj', token).catch(()=>{});
-  token=null; me=null; rows=[]; podsum=[]; ss.set('token', null);
+  token=null; me=null; rows=[]; podsum=[]; znakDanych=''; ss.set('token', null);
   clearInterval(timer); closeMenu(); closeDrawer(); closeModal(); mag=null;
   ['vOrders','vAccounts','vProducts','vStock','vWorker','banner'].forEach(id=>$(id).classList.add('hidden'));
   $('orders').innerHTML=''; $('workers').innerHTML=''; $('tasks').innerHTML=''; $('months').innerHTML='';
@@ -962,15 +962,17 @@ const godz = t => t ? new Date(t).toLocaleString('pl-PL',{day:'2-digit',month:'2
 function banner(t){ $('banner').classList.toggle('hidden', !t); $('bannerText').textContent=t||''; }
 
 /* =================== DANE =================== */
-let refreshing=false, jeszczeRaz=false, zmiany=0;
+let refreshing=false, jeszczeRaz=false, zmiany=0, znakDanych='';
 async function refresh(first){
   if(refreshing){ jeszczeRaz=true; return; } refreshing=true; jeszczeRaz=false;
   const nrZmian=zmiany;
   sync('busy','Odświeżanie…');
   try{
     if(me.rola==='kierownik'){
-      const r=await api('daneKierownika', token, first ? '' : $('fMonth').value, $('fBy').value);
+      const r=await api('daneKierownika', token, first ? '' : $('fMonth').value, $('fBy').value, first ? '' : znakDanych);
       if(busy || nrZmian!==zmiany){ jeszczeRaz=true; return; }      // w trakcie pobierania coś zmieniono — te dane są nieaktualne
+      if(r.bezZmian){ sync('', 'Aktualne · '+new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})); return; }   // nic się nie zmieniło — bez przerysowania
+      znakDanych=r.znak||'';
       rows=r.wiersze; workerList=r.pracownicy; info=r.info||{}; problemy=r.problemy||0; if(info.teraz) tOff=info.teraz-Date.now();
       blStatusy=info.blStatusy||{};
       fillFilters(r.miesiace, r.miesiac);
@@ -980,8 +982,10 @@ async function refresh(first){
       blStatusy=info.blStatusy||{};
       $('ordersSub').textContent=num.format(info.liczba||0)+' pozycji w bazie · BaseLinker: '+(bl.token ? (bl.ostatnio ? 'sprawdzono '+godz(bl.ostatnio) : 'podłączony') : 'niepodłączony');
     } else {
-      const r=await api('danePracownika', token);
+      const r=await api('danePracownika', token, first ? '' : znakDanych);
       if(busy || nrZmian!==zmiany){ jeszczeRaz=true; return; }
+      if(r.bezZmian){ sync('', 'Aktualne · '+new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})); return; }
+      znakDanych=r.znak||'';
       rows=r.wiersze; podsum=r.podsumowanie||[]; info=r.info||{}; if(info.teraz) tOff=info.teraz-Date.now();
       if(r.pracownik && me.pracownik!==r.pracownik){ me.pracownik=r.pracownik; $('whoRole').textContent='Pracownik · ID '+idOf(r.pracownik); }
     }
@@ -994,7 +998,7 @@ async function refresh(first){
 /* zmiana z natychmiastowym podglądem; po zapisie odświeżenie (podsumowanie liczy się na serwerze) */
 async function change(o, patch, fn, ...args){
   const old={}; Object.keys(patch).forEach(k=>old[k]=o[k]); Object.assign(o,patch);
-  o._busy=true; busy++; zmiany++; render(); if(drawerOpen===o) openDrawer(o);
+  o._busy=true; busy++; zmiany++; znakDanych=''; render(); if(drawerOpen===o) openDrawer(o);
   try{ const r=await api(fn, token, ...args); if(r && typeof r==='object') Object.assign(o,r); return true; }
   catch(e){ Object.assign(o,old); toast('Nie zapisano: '+e.message, true); return false; }
   finally{ o._busy=false; busy--; render(); if(drawerOpen===o) openDrawer(o); if(!busy) refresh(false); }
@@ -1220,7 +1224,7 @@ async function ustawMagazyn(P, cofnij){
   if(zPostepem.length && !confirm('Pracownicy mają już postęp w '+zPostepem.length+' poz. Oznaczyć jako wzięte z magazynu? Przydział zostanie usunięty (przepracowany czas zostaje zapisany).')) return;
   const stare=P.map(o=>({ o, k:{ prac:o.prac, pracList:o.pracList, przydzialy:o.przydzialy, status:o.status, wykonano:o.wykonano, zMagazynu:o.zMagazynu } }));
   P.forEach(o=>{ Object.assign(o, cofnij ? { zMagazynu:false, status:'', wykonano:0 } : { zMagazynu:true, status:'ukończono', wykonano:Math.max(1,o.qty||1), prac:'', pracList:[], przydzialy:[] }); o._busy=true; });
-  busy++; zmiany++; render(); if(drawerOpen && P.includes(drawerOpen)) openDrawer(drawerOpen);
+  busy++; zmiany++; znakDanych=''; render(); if(drawerOpen && P.includes(drawerOpen)) openDrawer(drawerOpen);
   try{
     const r=await api('zMagazynu', token, P.map(o=>o.lp), !!cofnij);
     P.forEach(o=>{ if(r && r[o.lp]) Object.assign(o, r[o.lp]); });
@@ -1233,7 +1237,7 @@ async function przypiszGrupe(P, w){
   if(zPostepem.length && !confirm((w?'Przypisać całe zamówienie do: '+bezNr(w)+'?':'Usunąć przypisanie wszystkich pozycji?')+' Inne osoby mają już postęp w '+zPostepem.length+' poz. — ich przepracowany czas zostanie zapisany.')) return;
   const stare=P.map(o=>({ o, k:{ prac:o.prac, pracList:o.pracList, przydzialy:o.przydzialy, status:o.status } }));
   P.forEach(o=>{ Object.assign(o, w ? { zMagazynu:false, prac:w, pracList:[w], przydzialy:[{prac:w, ilosc:o.qty||1, wykonano:0, status:'przypisano'}], status:o.status==='ukończono'?o.status:'przypisano' } : { prac:'', pracList:[], przydzialy:[] }); o._busy=true; });
-  busy++; zmiany++; render(); if(drawerOpen && P.includes(drawerOpen)) openDrawer(drawerOpen);
+  busy++; zmiany++; znakDanych=''; render(); if(drawerOpen && P.includes(drawerOpen)) openDrawer(drawerOpen);
   try{
     const r=await api('przypiszZamowienie', token, P.map(o=>o.lp), w);
     P.forEach(o=>{ if(r && r[o.lp]) Object.assign(o, r[o.lp]); });
@@ -1631,7 +1635,7 @@ function renderProducts(){
   l.slice(0,pShown).forEach(p=>{
     const tr=document.createElement('tr'); tr.className='clickable'+(p.aktywny?'':' off');
     if(p.godzinowy){
-      tr.innerHTML=`<td><b style="font-weight:600">${esc(p.kat)}</b></td><td><span class="lp">dowolny</span></td><td class="r nw">stawka zł/h</td><td><div class="pd">${esc(p.uwagi)}</div></td><td class="nw">${zrodloProd(p)}</td><td class="r"></td>`;
+      tr.innerHTML=`<td><b style="font-weight:600">${esc(p.kat)}</b></td><td><span class="lp">dowolny</span></td><td class="r nw">stawka zł/h</td><td><div class="pd">${esc(p.uwagi)}</div></td><td class="nw">${zrodloProd(p)}</td><td class="r"><span class="lp">—</span></td>`;
       tr.onclick=()=>toast('Stawkę godzinową wpisujesz przy dodawaniu zamówienia (produkt „Prototyp”).');
       return tb.appendChild(tr);
     }
@@ -1929,7 +1933,7 @@ function ustawSztuki(o, val){
   render();
   const czeka=timery.get(o.lp);
   if(czeka) clearTimeout(czeka); else busy++;          // jeden zapis po serii kliknięć
-  zmiany++;
+  zmiany++; znakDanych='';
   timery.set(o.lp, setTimeout(async()=>{
     timery.delete(o.lp);
     try{ const r=await api('ustawPostep', token, o.lp, o.wykonano); Object.assign(o,r); if(r && r.teraz) tOff=r.teraz-Date.now(); if(o.status==='ukończono') toast('Zadanie ukończone ✓'); }
