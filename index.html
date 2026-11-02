@@ -530,6 +530,19 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
 
 /* dodatki */
 .dgr{margin-bottom:12px}
+.dwyb{border:1px solid var(--brand-line);background:var(--brand-soft);border-radius:10px;padding:9px 10px;margin-bottom:12px}
+.dwyb .dgh{color:var(--brand)}
+.dchips{display:flex;flex-wrap:wrap;gap:6px}
+.dchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 4px 3px 10px;font-size:12.5px;max-width:100%}
+.dchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dchip button{border:none;background:transparent;width:22px;height:22px;border-radius:50%;font-size:13px;line-height:1;color:var(--muted)}
+.dchip button:hover{background:var(--line);color:var(--ink)}
+.dwl{display:grid;grid-template-columns:minmax(0,1fr) 110px auto;gap:8px;align-items:center}
+.dwl .input{height:34px}
+.dpoz .dx{border:none;background:transparent;width:26px;height:26px;border-radius:6px;color:var(--muted)}
+.dpoz .dx:hover{background:var(--line);color:var(--ink)}
+.dpoz.w{grid-template-columns:minmax(0,1fr) auto auto auto}
+@media (max-width:520px){ .dwl{grid-template-columns:minmax(0,1fr) 92px} .dwl .btn{grid-column:1/-1} .dpoz.w{grid-template-columns:minmax(0,1fr) auto} .dpoz.w .dqty{grid-column:1;justify-self:end} .dpoz.w .dx{grid-column:2} }
 .dgh{font-size:11.5px;font-weight:650;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
 .dpoz{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:9px;margin-bottom:5px;background:var(--surface)}
 .dpoz.on{border-color:var(--brand-line);background:var(--brand-soft)}
@@ -1477,7 +1490,7 @@ function openDrawer(o){
         ${o.real?row('Data realizacji (Excel)', fmtD(o.real)):''}
         <dt>Kto szyje</dt><dd>${kto ? (kto.length ? '<div class="krlist">'+kto.map(w=>'<span>'+nazwaZId(w)+'</span>').join('')+'</div>' : '<span class="lp">nikt z listy</span>') : '<span class="lp">brak danych w cenniku</span>'}</dd>
       </dl>
-      <div class="sect sectH"><span>${o.godzinowe?'Rozliczenie godzinowe':'Cena'}</span>${o.godzinowe?'<button class="btn" id="dStawka">Zmień stawkę</button>':'<button class="btn" id="dDodatki">Dodatki'+((o.dodatki||[]).length?' ('+o.dodatki.length+')':'')+'</button>'}</div>
+      <div class="sect sectH"><span>${o.godzinowe?'Rozliczenie godzinowe':'Cena'}</span>${o.godzinowe?'<button class="btn" id="dStawka">Zmień stawkę</button>':'<button class="btn" id="dDodatki">'+((o.dodatki||[]).filter(x=>!x.inne).length?'Dodatki ('+o.dodatki.filter(x=>!x.inne).length+') — dodaj / zmień':'+ Dodaj dodatki')+'</button>'}</div>
       <div class="pricebox">
         ${o.godzinowe?`<div class="row"><span>Stawka</span><span class="num">${zl.format(o.stawka)} / h</span></div>
           <div class="row"><span>Czas pracy (wszyscy)</span><span class="num">${czasTxt(o.czas)}</span></div>
@@ -1527,6 +1540,7 @@ async function edytujZamowienie(o, fokus){
       <label class="field"><span>Cena za szt. (zł)</span><input class="input" type="number" min="0" step="0.01" id="eCena" value="${esc(pocz.cena)}" placeholder="${o.godzinowe?'—':o.cenaBaza&&o.zrodlo!=='reczna'?'wg cennika: '+num.format(o.cenaBaza):'wg cennika'}"></label>
       ${proto?`<label class="field"><span>Stawka godzinowa (zł/h)</span><input class="input" type="number" min="0" step="0.01" id="eStawka" value="${esc(pocz.stawka)}"></label>`:''}
       <p class="hint full">Pusta cena = z cennika.${proto?' Prototyp rozlicza się godzinowo: czas pracy × stawka.':''}</p>
+      ${proto?'':`<div class="field full"><span>Dodatki (pętelki, troczki, worek, naszywki…)</span><div class="row2" style="align-items:center"><button type="button" class="btn" id="eDod">${(o.dodatki||[]).filter(x=>!x.inne).length?'Dodaj / zmień dodatki':'+ Dodaj dodatki'}</button><span class="hint" style="flex:1;min-width:160px">${esc((o.dodatki||[]).filter(x=>!x.inne).map(x=>x.nazwa).join(', ')||'brak')}</span></div></div>`}
       <label class="field full"><span>Produkt / kategoria</span><input class="input" id="eKat" list="eKatL" value="${esc(pocz.kat)}" placeholder="${esc(o.kat?'rozpoznano: '+o.kat:'rozpoznawany z opisu')}" maxlength="120" autocomplete="off"><datalist id="eKatL">${katy.map(k=>`<option value="${esc(k)}">`).join('')}</datalist></label>
       <label class="field full"><span>Wariant / specyfikacja</span><input class="input" id="eSpec" value="${esc(pocz.spec)}" placeholder="${esc(o.specE?'rozpoznano: '+o.specE:'')}" maxlength="120"></label>
       <label class="field full"><span>Nr zamówienia</span><input class="input" id="eNr" value="${esc(pocz.nr)}" maxlength="80"></label>
@@ -1536,6 +1550,7 @@ async function edytujZamowienie(o, fokus){
     <div class="formMsg" id="eMsg" style="padding:10px 0 0"></div>
     <div class="row2" style="margin-top:12px"><button class="btn primary" id="eSave">Zapisz zmiany</button><button class="btn" id="eCancel">Anuluj</button></div>`;
   $('eCancel').onclick=()=>openDrawer(o);
+  if($('eDod')) $('eDod').onclick=()=>edytujDodatki(o);
   const f=fokus==='termin' ? $('eTermin') : $('eQty'); try{ f.focus(); }catch(e){}
   $('eSave').onclick=async()=>{
     const v={ termin:$('eTermin').value, qty:$('eQty').value, cena:$('eCena').value, stawka:$('eStawka')?$('eStawka').value:pocz.stawka, kat:$('eKat').value.trim(), spec:$('eSpec').value.trim(), opis:$('eOpis').value.trim(), nr:$('eNr').value.trim() };
@@ -1559,64 +1574,111 @@ async function katalogDodatkow(){
   if(!slownikCache) slownikCache=await api('slownik', token);
   return slownikCache.dodatki||[];
 }
-/* wybrane: [{n,q}]; tryb: { zamowienie:true } pokazuje też „Automatycznie z opisu” i „Bez dodatków” */
+/* wybrane: [{n,q}] z cennika albo {n,c,q,w:1} — własny dodatek spoza cennika;
+   tryb: { zamowienie:true } — „Automatycznie z opisu” i „Bez dodatków”; grupa: N — opcja „dla wszystkich pozycji”; zOpisu: true — wybrane odczytano z opisu */
 async function dodatkiDialog(wybrane, onZapisz, tryb){
   tryb=tryb||{};
   let kat; try{ kat=await katalogDodatkow(); }catch(e){ return toast(e.message, true); }
-  if(!kat.length) return toast('W cenniku nie ma dodatków (arkusz Cennik_opcje_final).', true);
   closeMenu(); closeModal();
-  const W=new Map((wybrane||[]).map(x=>[x.n, Math.max(1, x.q||1)]));
+  const klucz=n=>String(n||'').replace(/\s+/g,' ').trim().toLowerCase().replace(/:\s*tak$/,'');
+  const KN=new Map(kat.map(x=>[klucz(x.n), x]));
+  const W=new Map();               // nazwa → { q, c, w }
+  (wybrane||[]).forEach(x=>{ if(!x||!x.n) return; const k=x.w?null:KN.get(klucz(x.n)); const n=k?k.n:String(x.n);
+    const q=Math.max(1, Math.min(999, Math.round(Number(x.q)||1)));
+    if(W.has(n)) W.get(n).q=Math.min(999, W.get(n).q+q); else W.set(n, k ? { q } : { q, c:Number(x.c)||0, w:1 }); });
   const grupy=[...new Set(kat.map(x=>x.g))];
   const root=document.createElement('div'); root.id='modalRoot'; document.body.appendChild(root); modalOpen=true;
   let szukaj='';
-  const suma=()=>kat.reduce((s,x)=>s+(W.has(x.n)?x.c*W.get(x.n):0),0);
-  function lista(){
+  const cenaJ=n=>{ const v=W.get(n); if(v&&v.w) return v.c; const k=KN.get(klucz(n)); return k?k.c:0; };
+  const suma=()=>[...W].reduce((s,[n,v])=>s+cenaJ(n)*v.q,0);
+  const qtyHtml=(on,q)=>`<span class="dqty"><button type="button" data-q="-1" ${on?'':'disabled'} aria-label="Mniej">−</button><input type="number" min="1" max="999" value="${q}" ${on?'':'disabled'} inputmode="numeric" aria-label="Ilość"><button type="button" data-q="1" ${on?'':'disabled'} aria-label="Więcej">+</button></span>`;
+  function wybraneHtml(){
+    if(!W.size) return '';
+    return `<div class="dwyb"><div class="dgh">Dodane do zamówienia (${W.size})</div><div class="dchips">${[...W].map(([n,v])=>`<span class="dchip" title="${esc(n)} — ${zl.format(cenaJ(n))} / szt.${v.w?' (spoza cennika)':''}"><span>${esc(n)}${v.q>1?' × '+v.q:''}${v.w?' <small>· własny</small>':''}</span><button type="button" data-usun="${esc(n)}" aria-label="Usuń ${esc(n)}">✕</button></span>`).join('')}</div>
+      ${tryb.zOpisu?'<p class="hint" style="margin:8px 0 0">Dodatki odczytane z opisu zamówienia są już tutaj — zaznacz poniżej kolejne i zapisz.</p>':''}</div>`;
+  }
+  function wlasneHtml(){
+    const L=[...W].filter(([,v])=>v.w);
+    return `<div class="dgr"><div class="dgh">Własny dodatek (spoza cennika)</div>
+      ${L.map(([n,v])=>`<div class="dpoz on w" data-n="${esc(n)}"><label class="dchk"><input type="checkbox" checked><span>${esc(n)}</span></label><span class="dcena num">${zl.format(v.c)}</span>${qtyHtml(true,v.q)}<button type="button" class="dx" data-usun="${esc(n)}" aria-label="Usuń">✕</button></div>`).join('')}
+      <div class="dwl"><input class="input" id="dwN" maxlength="80" placeholder="Nazwa, np. haft imienia"><input class="input" id="dwC" type="text" inputmode="decimal" maxlength="9" placeholder="Cena zł / szt."><button type="button" class="btn" id="dwAdd">+ Dodaj</button></div></div>`;
+  }
+  function katalogHtml(){
     const q=szukaj.trim().toLowerCase();
     return grupy.map(g=>{
       const el=kat.filter(x=>x.g===g && (!q || x.n.toLowerCase().includes(q)));
       if(!el.length) return '';
-      return `<div class="dgr"><div class="dgh">${esc(g)}</div>${el.map(x=>{ const on=W.has(x.n), etyk=x.n.startsWith(g+': ')?x.n.slice(g.length+2):x.n;
+      return `<div class="dgr"><div class="dgh">${esc(g)}</div>${el.map(x=>{ const v=W.get(x.n), on=!!v, etyk=x.n.startsWith(g+': ')?x.n.slice(g.length+2):x.n;
         return `<div class="dpoz${on?' on':''}" data-n="${esc(x.n)}"><label class="dchk"><input type="checkbox" ${on?'checked':''}><span>${esc(etyk)}</span></label>
-          <span class="dcena num">${zl.format(x.c)}</span>
-          <span class="dqty"><button type="button" data-q="-1" ${on?'':'disabled'} aria-label="Mniej">−</button><input type="number" min="1" max="999" value="${on?W.get(x.n):1}" ${on?'':'disabled'} inputmode="numeric" aria-label="Ilość"><button type="button" data-q="1" ${on?'':'disabled'} aria-label="Więcej">+</button></span></div>`; }).join('')}</div>`;
-    }).join('') || '<p class="hint">Brak dodatków pasujących do wyszukiwania.</p>';
+          <span class="dcena num">${zl.format(x.c)}</span>${qtyHtml(on, on?v.q:1)}</div>`; }).join('')}</div>`;
+    }).join('') || '<p class="hint">Brak dodatków z cennika pasujących do wyszukiwania.</p>';
   }
-  function podsum(){ const n=W.size; root.querySelector('#dSuma').innerHTML = n ? `Wybrane: <b>${n}</b> · razem <b>${zl.format(suma())}</b> za sztukę zamówienia` : 'Nic nie wybrano'; }
+  function podsum(){ const n=W.size; root.querySelector('#dSuma').innerHTML = n ? `Wybrane: <b>${n}</b> · razem <b>${zl.format(suma())}</b> za sztukę zamówienia` : 'Nic nie wybrano'; root.querySelector('#dWyb').innerHTML=wybraneHtml(); podepnijWyb(); }
+  function render(){
+    const sc=root.querySelector('.drawer-b'), y=sc?sc.scrollTop:0;
+    root.querySelector('#dWyb').innerHTML=wybraneHtml();
+    root.querySelector('#dLista').innerHTML=wlasneHtml()+katalogHtml();
+    podsum(); podepnij(); if(sc) sc.scrollTop=y;
+  }
+  function podepnijWyb(){ root.querySelectorAll('#dWyb [data-usun]').forEach(b=>b.onclick=()=>{ W.delete(b.dataset.usun); render(); }); }
   function podepnij(){
-    root.querySelectorAll('.dpoz').forEach(r=>{
+    root.querySelectorAll('#dLista .dpoz').forEach(r=>{
       const n=r.dataset.n, cb=r.querySelector('input[type=checkbox]'), inp=r.querySelector('input[type=number]');
-      const ustaw=v=>{ v=Math.max(1,Math.min(999,Math.round(Number(v)||1))); W.set(n,v); inp.value=v; podsum(); };
-      cb.onchange=()=>{ if(cb.checked){ W.set(n, Math.max(1,Number(inp.value)||1)); } else W.delete(n); r.classList.toggle('on', cb.checked); r.querySelectorAll('.dqty button,.dqty input').forEach(x=>x.disabled=!cb.checked); podsum(); };
-      inp.oninput=()=>{ if(W.has(n)) ustaw(inp.value); };
-      r.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>ustaw((W.get(n)||1)+Number(b.dataset.q)));
+      const ustaw=v=>{ v=Math.max(1,Math.min(999,Math.round(Number(v)||1))); if(W.has(n)) W.get(n).q=v; inp.value=v; podsum(); };
+      cb.onchange=()=>{ if(cb.checked){ W.set(n, { q:Math.max(1,Number(inp.value)||1) }); } else W.delete(n); if(r.classList.contains('w')) return render(); r.classList.toggle('on', cb.checked); r.querySelectorAll('.dqty button,.dqty input').forEach(x=>x.disabled=!cb.checked); podsum(); };
+      inp.oninput=()=>{ if(W.has(n) && inp.value!=='') ustaw(inp.value); };
+      inp.onblur=()=>{ if(W.has(n)) ustaw(inp.value); };
+      r.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>ustaw(((W.get(n)||{}).q||1)+Number(b.dataset.q)));
     });
+    root.querySelectorAll('#dLista [data-usun]').forEach(b=>b.onclick=()=>{ W.delete(b.dataset.usun); render(); });
+    const dodajW=()=>{
+      const n=$('dwN').value.replace(/\s+/g,' ').trim(), c=Number(String($('dwC').value).replace(',','.'));
+      $('dMsg').textContent='';
+      if(!n){ $('dMsg').textContent='Wpisz nazwę dodatku.'; return $('dwN').focus(); }
+      if($('dwC').value==='' || !(c>=0 && c<10000)){ $('dMsg').textContent='Wpisz cenę dodatku za sztukę (zł).'; return $('dwC').focus(); }
+      const k=KN.get(klucz(n));
+      if(k){ const v=W.get(k.n); if(v) v.q=Math.min(999,v.q+1); else W.set(k.n,{q:1}); toast('„'+k.n+'” jest w cenniku — dodano z ceną z cennika'); }
+      else { const v=W.get(n); if(v&&v.w){ v.q=Math.min(999,v.q+1); v.c=Math.round(c*100)/100; } else W.set(n,{ q:1, c:Math.round(c*100)/100, w:1 }); }
+      render(); $('dwN').value=''; $('dwC').value=''; try{ $('dwN').focus(); }catch(e){}
+    };
+    $('dwAdd').onclick=dodajW;
+    $('dwN').onkeydown=$('dwC').onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); dodajW(); } };
   }
   root.innerHTML=`<div class="scrim2"></div><div class="modal" role="dialog" aria-modal="true" style="width:min(620px,calc(100vw - 20px))">
     <div class="drawer-h"><div style="flex:1;min-width:0"><h3>Dodatki</h3><p>${esc(tryb.tytul||'Zaznacz dodatki i ich ilość (ceny z cennika)')}</p></div><button class="btn ghost" id="dClose2" aria-label="Zamknij">✕</button></div>
     <div class="drawer-b">
+      <div id="dWyb"></div>
       <div class="search" style="margin-bottom:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input" type="search" id="dSzukaj" placeholder="Szukaj dodatku, np. naszywka sowa…"></div>
-      <div id="dLista">${lista()}</div>
+      <div id="dLista"></div>
       <div class="przSum" id="dSuma" style="display:block"></div>
+      ${tryb.grupa>1?`<label class="chkrow" style="margin-top:10px"><input type="checkbox" id="dGrupa"><span>Zapisz te dodatki dla wszystkich pozycji tego zamówienia (${tryb.grupa})</span></label>`:''}
       <div class="formMsg" id="dMsg" style="padding:8px 0 0"></div>
       <div class="row2" style="margin-top:10px"><button class="btn primary" id="dSave">Zapisz dodatki</button><button class="btn" id="dCancel">Anuluj</button>
         ${tryb.zamowienie?'<button class="btn ghost" id="dAuto" title="Dodatki odczytane automatycznie z opisu zamówienia">Automatycznie z opisu</button><button class="btn ghost danger" id="dNone">Bez dodatków</button>':''}</div>
     </div></div>`;
-  podsum(); podepnij();
+  render();
   root.querySelector('.scrim2').onclick=closeModal; $('dClose2').onclick=closeModal; $('dCancel').onclick=closeModal;
-  $('dSzukaj').oninput=e=>{ szukaj=e.target.value; $('dLista').innerHTML=lista(); podepnij(); };
-  const zapisz=async lista=>{ $('dSave').disabled=true; try{ await onZapisz(lista); closeModal(); }catch(e){ $('dMsg').textContent=e.message; $('dSave').disabled=false; } };
-  $('dSave').onclick=()=>zapisz([...W].map(([n,q])=>({n,q})));
+  $('dSzukaj').oninput=e=>{ szukaj=e.target.value; render(); };
+  const opc=()=>({ grupa: !!($('dGrupa') && $('dGrupa').checked) });
+  const zapisz=async lista=>{ root.querySelectorAll('.row2 .btn').forEach(b=>b.disabled=true); $('dMsg').textContent=''; try{ await onZapisz(lista, opc()); closeModal(); }catch(e){ $('dMsg').textContent=e.message; root.querySelectorAll('.row2 .btn').forEach(b=>b.disabled=false); } };
+  $('dSave').onclick=()=>zapisz([...W].map(([n,v])=>v.w?{ n, c:v.c, q:v.q, w:1 }:{ n, q:v.q }));
   if($('dAuto')) $('dAuto').onclick=()=>zapisz(null);
   if($('dNone')) $('dNone').onclick=()=>zapisz([]);
 }
-/* dodatki istniejącego zamówienia */
+/* dodatki istniejącego zamówienia — startujemy od obecnych (wybranych albo odczytanych z opisu), można dopisać kolejne */
+function dodatkiObecne(o){
+  if(o.dodR) return { lista:o.dodR, zOpisu:false };
+  const L=(o.dodatki||[]).filter(x=>!x.inne && !x.wybrany).map(x=>x.n ? { n:x.n, q:1 } : { n:String(x.nazwa||'Dodatek'), c:Number(x.cena)||0, q:1, w:1 });
+  return { lista:L, zOpisu:L.length>0 };
+}
 function edytujDodatki(o){
-  dodatkiDialog(o.dodR||[], async lista=>{
-    const r=await api('zapiszDodatki', token, o.lp, lista);
+  const ob=dodatkiObecne(o), grupa=o.grupa ? rows.filter(x=>x.grupa===o.grupa && !x.godzinowe).length : 1;
+  dodatkiDialog(ob.lista, async (lista, opc)=>{
+    const r=await api('zapiszDodatki', token, o.lp, lista, opc&&opc.grupa?{ grupa:true }:{});
     if(r && r.zamowienie) Object.assign(o, r.zamowienie);
-    znakDanych=''; toast(lista===null?'Dodatki: automatycznie z opisu':lista.length?'Zapisano dodatki':'Zamówienie bez dodatków');
+    znakDanych=''; toast((lista===null?'Dodatki: automatycznie z opisu':lista.length?'Zapisano dodatki':'Zamówienie bez dodatków')+(r&&r.zmieniono>1?' ('+r.zmieniono+' pozycje)':''));
     if(drawerOpen===o) openDrawer(o); refresh(false);
-  }, { zamowienie:true, tytul: nazwaPoz(o)+' — dodatki liczone za każdą sztukę zamówienia ('+num.format(o.qty||1)+' szt.)' });
+  }, { zamowienie:true, zOpisu:ob.zOpisu, grupa, tytul: nazwaPoz(o)+' — dodatki liczone za każdą sztukę zamówienia ('+num.format(o.qty||1)+' szt.)' });
 }
 const dodOpis = L => (L||[]).map(x=>x.n.replace(/^[^:]+:\s*/,m=>m)+(x.q>1?' × '+x.q:'')).join(', ');
 /* stawka godzinowa prototypu */
