@@ -343,6 +343,15 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
 .ysum small{display:block;color:var(--muted);font-size:12px}
 .ysum b{font-size:20px;letter-spacing:-.02em}
 .month.zero .month-h{opacity:.6}
+.ytab td.yact{white-space:nowrap;width:1%}
+.ytab td.m-a{white-space:normal;min-width:260px}
+.ytab td.m-s.ynos::after{content:none}
+.ytab td.yact .btn{margin-left:4px}
+.ytab tr.yus td:not(.yact){opacity:.55}
+.ytab tr.yus .m-k b{text-decoration:line-through}
+.ykor{font-size:12px;color:var(--muted);margin-top:3px;white-space:normal}
+.ybtns{padding:10px 18px 14px;display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:700px){ .ytab td.yact{display:block;text-align:left;padding-top:0} }
 .month-h .yid{font-size:12px;color:var(--muted);font-weight:500;margin-right:6px}
 .month{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
 .month.cur{border-color:var(--brand-line);box-shadow:0 0 0 3px var(--brand-soft),var(--shadow)}
@@ -2273,8 +2282,8 @@ function renderMonths(){
     el.innerHTML=`<div class="month-h"><h3>${mlabel(M.miesiac)}${M.miesiac===cm?'<span class="live">bieżący · na żywo</span>':''}</h3>
       <div class="stat"><div><small>Wykonane</small><b class="num">${num.format(M.szt)}</b> <small style="display:inline">szt.</small></div>${M.godz?`<div><small>Praca na godziny</small><b class="num">${esc(czasTxt(M.godz*3600))}</b></div>`:''}<div><small>Kwota</small><b class="num">${zl.format(M.kwota)}</b></div></div>
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
-      ${otwMies.has(M.miesiac)?`<div class="tbl"><table><thead><tr><th>Data</th><th>Artykuł</th><th class="r">Szt. / czas</th><th class="r">Cena / stawka</th><th class="r">Kwota</th></tr></thead><tbody>
-        ${M.pozycje.map(p=>`<tr><td class="num m-d">${fmtD(p.data)}</td><td class="m-a"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.spec?'<br><small class="lp">'+esc(p.spec)+'</small>':''}${p.stawka?'<span class="tag hr">godzinowe</span>':''}</td><td class="r num m-s${p.stawka?' m-h':''}">${p.stawka?esc(czasTxt((p.godz||0)*3600))+(p.szt?' · '+num.format(p.szt)+' szt.':''):num.format(p.szt)}</td><td class="r num m-c">${p.stawka?zl.format(p.stawka)+'/h':p.cenaSzt?zl.format(p.cenaSzt):'—'}</td><td class="r num m-k"><b>${zl.format(p.kwota)}</b></td></tr>`).join('')}
+      ${otwMies.has(M.miesiac)?`<div class="tbl"><table class="ytab"><thead><tr><th>Data</th><th>Artykuł</th><th class="r">Szt. / czas</th><th class="r">Cena / stawka</th><th class="r">Kwota</th></tr></thead><tbody>
+        ${M.pozycje.map(p=>`<tr class="${p.usunieta?'yus':''}"><td class="num m-d">${fmtD(p.data)}</td><td class="m-a"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.spec?'<br><small class="lp">'+esc(p.spec)+'</small>':''}${p.stawka?'<span class="tag hr">godzinowe</span>':''}${p.dodatek?'<span class="tag '+(p.kwota<0?'wbr':'ok')+'">'+(p.kwota<0?'potrącenie':'premia / dopłata')+'</span>':''}${p.usunieta?'<span class="tag wbr">nie liczy się do wypłaty</span>':''}${p.zmieniona?'<span class="tag warn">poprawione przez kierownika</span>':''}${p.korekta&&!p.dodatek&&p.korekta.opis?'<div class="ykor">'+esc(p.korekta.opis)+'</div>':''}</td><td class="r num m-s${p.stawka?' m-h':''}">${p.stawka?esc(czasTxt((p.godz||0)*3600))+(p.szt?' · '+num.format(p.szt)+' szt.':''):num.format(p.szt)}</td><td class="r num m-c">${p.stawka?zl.format(p.stawka)+'/h':p.cenaSzt?zl.format(p.cenaSzt):'—'}</td><td class="r num m-k"><b>${zl.format(p.kwota)}</b></td></tr>`).join('')}
       </tbody></table></div>`:''}`;
     el.querySelector('.month-h').onclick=()=>{ otwMies.has(M.miesiac)?otwMies.delete(M.miesiac):otwMies.add(M.miesiac); renderMonths(); };
     box.appendChild(el);
@@ -2310,12 +2319,62 @@ function renderPay(){
     el.innerHTML=`<div class="month-h"><h3>${idOf(x.prac)?'<span class="yid">'+esc(idOf(x.prac))+'</span>':''}${esc(bezNr(x.prac))}</h3>
       <div class="stat"><div><small>Pozycje</small><b class="num">${num.format(poz.length)}</b></div><div><small>Sztuki</small><b class="num">${num.format(x.szt)}</b></div>${x.godz?`<div><small>Godziny</small><b class="num">${esc(czasTxt(x.godz*3600))}</b></div>`:''}<div><small>Kwota</small><b class="num">${zl.format(x.kwota)}</b></div></div>
       <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
-      ${otw?(poz.length?`<div class="tbl"><table><thead><tr><th>${pay.tryb==='przyp'?'Przypisano':'Wykonano'}</th><th>Artykuł</th><th class="r">Szt. / czas</th><th class="r">Cena / stawka</th><th class="r">Kwota</th></tr></thead><tbody>
-        ${poz.map(p=>`<tr><td class="num m-d">${fmtD(p.data)}</td><td class="m-a"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.stawka?'<span class="tag hr">godzinowe</span>':''}</td><td class="r num m-s${p.stawka?' m-h':''}">${p.stawka?esc(czasTxt((p.godz||0)*3600))+(p.szt?' · '+num.format(p.szt)+' szt.':''):num.format(p.szt)}</td><td class="r num m-c">${p.stawka?zl.format(p.stawka)+'/h':p.cenaSzt?zl.format(p.cenaSzt):'—'}</td><td class="r num m-k"><b>${zl.format(p.kwota)}</b></td></tr>`).join('')}
-      </tbody></table></div>`:'<div class="empty" style="padding:14px 18px">Brak wykonanych prac w tym miesiącu.</div>'):''}`;
+      ${otw?`${poz.length?`<div class="tbl"><table class="ytab"><thead><tr><th>${pay.tryb==='przyp'?'Przypisano':'Wykonano'}</th><th>Artykuł</th><th class="r">Szt. / czas</th><th class="r">Cena / stawka</th><th class="r">Kwota</th><th class="r"></th></tr></thead><tbody>
+        ${poz.map((p,i)=>`<tr class="${p.usunieta?'yus':''}${p.zmieniona?' yzm':''}${p.dodatek?' ydod':''}"><td class="num m-d">${fmtD(p.data)}</td><td class="m-a"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.stawka?'<span class="tag hr">godzinowe</span>':''}${p.dodatek?'<span class="tag '+(p.kwota<0?'wbr':'ok')+'">'+(p.kwota<0?'potrącenie':'premia / dopłata')+'</span>':''}${p.usunieta?'<span class="tag wbr">usunięte z wypłaty</span>':''}${p.zmieniona?'<span class="tag warn">zmienione</span>':''}${p.korekta&&!p.dodatek&&(p.przed||p.korekta.opis)?'<div class="ykor">'+(p.przed?'było: '+num.format(p.przed.szt)+' szt. · '+zl.format(p.przed.kwota):'')+(p.korekta.opis?' · '+esc(p.korekta.opis):'')+(p.korekta.kto?' · '+esc(p.korekta.kto):'')+'</div>':''}${p.dodatek&&p.korekta.kto?'<div class="ykor">dodał(a): '+esc(p.korekta.kto)+'</div>':''}</td>
+          <td class="r num m-s${p.stawka?' m-h':''}${p.dodatek&&!p.szt?' ynos':''}">${p.dodatek?(p.szt?num.format(p.szt):''):p.stawka?esc(czasTxt((p.godz||0)*3600))+(p.szt?' · '+num.format(p.szt)+' szt.':''):num.format(p.szt)}</td><td class="r num m-c">${p.dodatek?'—':p.stawka?zl.format(p.stawka)+'/h':p.cenaSzt?zl.format(p.cenaSzt):'—'}</td><td class="r num m-k"><b>${zl.format(p.kwota)}</b></td>
+          <td class="r yact">${p.usunieta?`<button class="btn sm" data-y="przywroc" data-i="${i}">Przywróć</button>`:p.dodatek?`<button class="btn sm" data-y="edytujD" data-i="${i}">Edytuj</button><button class="btn sm danger" data-y="usunD" data-i="${i}" aria-label="Usuń">Usuń</button>`:`<button class="btn sm" data-y="edytuj" data-i="${i}">Edytuj</button>${p.zmieniona?`<button class="btn sm" data-y="przywroc" data-i="${i}" title="Przywróć wyliczoną kwotę">Cofnij</button>`:''}<button class="btn sm danger" data-y="usun" data-i="${i}">Usuń</button>`}</td></tr>`).join('')}
+      </tbody></table></div>`:'<div class="empty" style="padding:14px 18px">Brak wykonanych prac w tym miesiącu.</div>'}
+      <div class="ybtns"><button class="btn sm" data-y="dodaj">+ Premia / potrącenie</button></div>`:''}`;
+    el.querySelectorAll('[data-y]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); akcjaWyplaty(x, b.dataset.y, poz[Number(b.dataset.i)]); });
     el.querySelector('.month-h').onclick=()=>{ otw?payOtw.delete(x.prac):payOtw.add(x.prac); renderPay(); };
     box.appendChild(el);
   });
+}
+/* zmiany wypłat: usunięcie pozycji, edycja sztuk / ceny / kwoty, premia lub potrącenie */
+async function akcjaWyplaty(x, co, p){
+  const zapisz=async k=>{ const r=await api('zapiszKorekteWyplaty', token, Object.assign({ miesiac:pay.miesiac, prac:x.prac }, k)); pay=r; znakDanych=''; renderPay(); };
+  const cofnij=async id=>{ const r=await api('usunKorekteWyplaty', token, id); pay=r; znakDanych=''; renderPay(); };
+  try{
+    if(co==='usun'){ if(!confirm('Usunąć z wypłaty: „'+p.nazwa+'” ('+zl.format(p.kwota)+')?\nPozycja zostanie na liście jako usunięta — można ją przywrócić.')) return; await zapisz({ lp:p.lp, rodzaj:'usun' }); toast('Usunięto z wypłaty — '+bezNr(x.prac)); }
+    else if(co==='przywroc'){ await cofnij(p.korekta.id); toast('Przywrócono pozycję'); }
+    else if(co==='usunD'){ if(!confirm('Usunąć „'+p.nazwa+'” ('+zl.format(p.kwota)+')?')) return; await cofnij(p.korekta.id); toast('Usunięto'); }
+    else if(co==='edytuj') korektaDialog(x, p, zapisz);
+    else if(co==='edytujD') korektaDialog(x, p, zapisz, true);
+    else if(co==='dodaj') korektaDialog(x, null, zapisz, true);
+  }catch(e){ toast(e.message, true); }
+}
+function korektaDialog(x, p, zapisz, dodatek){
+  closeMenu(); closeModal();
+  const root=document.createElement('div'); root.id='modalRoot'; document.body.appendChild(root); modalOpen=true;
+  const godzinowa = p && p.stawka>0, b0 = p&&p.przed ? p.przed : p;
+  const tyt = dodatek ? (p?'Edytuj premię / potrącenie':'Premia / potrącenie') : 'Edytuj pozycję wypłaty';
+  root.innerHTML=`<div class="scrim2"></div><div class="modal" role="dialog" aria-modal="true" style="width:min(460px,calc(100vw - 20px))">
+    <div class="drawer-h"><div style="flex:1;min-width:0"><h3>${tyt}</h3><p>${esc(bezNr(x.prac))} · ${mlabel(pay.miesiac)}${p&&!dodatek?' · '+esc(p.nazwa):''}</p></div><button class="btn ghost" id="kClose" aria-label="Zamknij">✕</button></div>
+    <div class="drawer-b"><div class="fgrid">
+      ${dodatek?`<label class="field full"><span>Za co (widzi to pracownik)</span><input class="input" id="kOpis" maxlength="300" placeholder="np. premia za listopad, potrącenie za poprawkę" value="${esc(p?p.nazwa:'')}"></label>
+        <label class="field"><span>Kwota (zł) — minus = potrącenie</span><input class="input" id="kKw" inputmode="decimal" placeholder="np. 50 albo -20" value="${p?esc(String(p.kwota).replace('.',',')):''}"></label>`
+      : godzinowa ? `<label class="field full"><span>Kwota (zł)</span><input class="input" id="kKw" inputmode="decimal" value="${esc(String(p.kwota).replace('.',','))}"></label>`
+      : `<label class="field"><span>Sztuki</span><input class="input" id="kSzt" type="number" min="0" step="1" value="${esc(p.szt)}"></label>
+        <label class="field"><span>Cena za szt. (zł)</span><input class="input" id="kCena" inputmode="decimal" value="${esc(String(p.cenaSzt||0).replace('.',','))}"></label>
+        <div class="field full"><span>Kwota</span><b id="kSuma" class="num" style="font-size:18px"></b></div>
+        <label class="field full"><span>Powód (nieobowiązkowo — widzi go pracownik)</span><input class="input" id="kOpis" maxlength="300" placeholder="np. poprawka, zła ilość" value="${esc(p.korekta&&p.korekta.opis||'')}"></label>`}
+    </div>
+    ${!dodatek&&b0?`<p class="hint" style="margin-top:8px">Wyliczone przez aplikację: ${num.format(b0.szt)} szt. × ${zl.format(b0.cenaSzt||0)} = ${zl.format(b0.kwota)}</p>`:''}
+    <div class="formMsg" id="kMsg" style="padding:8px 0 0"></div>
+    <div class="row2" style="margin-top:10px"><button class="btn primary" id="kSave">Zapisz</button><button class="btn" id="kCancel">Anuluj</button></div></div></div>`;
+  root.querySelector('.scrim2').onclick=closeModal; $('kClose').onclick=closeModal; $('kCancel').onclick=closeModal;
+  const lic=v=>Number(String(v).replace(/\s/g,'').replace(',','.'));
+  const suma=()=>{ if($('kSuma')) $('kSuma').textContent=zl.format((lic($('kSzt').value)||0)*(lic($('kCena').value)||0)); };
+  if($('kSzt')){ $('kSzt').oninput=suma; $('kCena').oninput=suma; suma(); }
+  setTimeout(()=>{ const f=$('kOpis')&&dodatek?$('kOpis'):($('kSzt')||$('kKw')); try{ f.focus(); }catch(e){} },0);
+  $('kSave').onclick=async()=>{
+    $('kMsg').textContent=''; let k;
+    if(dodatek){ const kw=lic($('kKw').value); if(!$('kOpis').value.trim()) return $('kMsg').textContent='Wpisz, za co jest ta kwota.'; if(!kw||isNaN(kw)) return $('kMsg').textContent='Wpisz kwotę, np. 50 albo -20.'; k={ rodzaj:'dodaj', id:p?p.korekta.id:'', kwota:kw, opis:$('kOpis').value }; }
+    else if(godzinowa){ const kw=lic($('kKw').value); if(isNaN(kw)||kw<0) return $('kMsg').textContent='Wpisz kwotę.'; k={ rodzaj:'zmien', lp:p.lp, kwota:kw }; }
+    else { const sz=lic($('kSzt').value), c=lic($('kCena').value); if(isNaN(sz)||sz<0) return $('kMsg').textContent='Wpisz liczbę sztuk.'; if(isNaN(c)||c<0) return $('kMsg').textContent='Wpisz cenę.'; k={ rodzaj:'zmien', lp:p.lp, szt:sz, cena:c, opis:$('kOpis').value }; }
+    $('kSave').disabled=true;
+    try{ await zapisz(k); closeModal(); toast('Zapisano zmianę wypłaty — '+bezNr(x.prac)); }catch(e){ $('kMsg').textContent=e.message; $('kSave').disabled=false; }
+  };
 }
 $('yMies').onchange=()=>loadPay($('yMies').value, pay&&pay.tryb!==pay.zapisany?pay.tryb:'');
 $('yTryb').onchange=async()=>{
