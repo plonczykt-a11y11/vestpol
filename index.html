@@ -570,6 +570,7 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
 .boxi svg{width:15px;height:15px}
 /* kanał sprzedaży, nr zamówienia */
 .nrIn{display:none}
+.rozp{font-size:11.5px;color:var(--muted);margin-top:4px;white-space:nowrap}
 .tag.kg{background:var(--brand-soft);color:var(--brand);border-color:var(--brand-line);font-weight:600}
 .tag.wbr{background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red);border-color:color-mix(in srgb,var(--red) 35%,transparent);font-weight:600}
 .wbrV{color:var(--red);font-weight:600}
@@ -1020,6 +1021,9 @@ async function synchronizujTeraz(btn){
 }
 $('excelBtn').onclick=()=>synchronizujTeraz($('excelBtn'));
 const godz = t => t ? new Date(t).toLocaleString('pl-PL',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+/* data i godzina rozpoczęcia, np. „12.11.2026, 14:24” */
+const dataGodz = t => t ? new Date(t).toLocaleString('pl-PL',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+const rozpoczetoO = o => { const L=(o.przydzialy||[]).map(p=>p.pierwszy).filter(Boolean); return o.pierwszy || (L.length ? Math.min(...L) : 0); };
 function banner(t){ $('banner').classList.toggle('hidden', !t); $('bannerText').textContent=t||''; }
 
 /* =================== DANE =================== */
@@ -1374,7 +1378,7 @@ function wierszPozycji(o, cls, t0){
     <td class="col-desc"><div class="desc" title="${esc(o.uwagi)}">${esc(o.uwagi)}</div></td>
     <td class="r num c-qty">${num.format(o.qty)}</td>
     <td class="c-who"><span class="chip ${o.zMagazynu?'mag':L.length?'':'none'} ${L.length>1?'multi':''} ${o._busy?'busy':''}" data-a="w" title="${esc(nok?'Nie każda z tych osób szyje ten produkt wg cennika\n':'')}${esc(ktoTytul(o))}">${ktoHtml(o)}${nok?'<span class="nok">!</span>':''}</span>${nieprz?'<div class="lp" style="font-size:11.5px;margin-top:3px">nieprzydzielone: '+num.format((o.qty||1)-(o.przydzielono||0))+' szt.</div>':''}</td>
-    <td class="c-st">${cls.includes('poz')?'':blPill(o,'blMob')}<span class="chip ${statusCls(o.status)} ${o._busy?'busy':''}" data-a="s"><span class="d"></span>${statusLabel(o.status)}</span>${postepHtml(o)}</td>
+    <td class="c-st">${cls.includes('poz')?'':blPill(o,'blMob')}<span class="chip ${statusCls(o.status)} ${o._busy?'busy':''}" data-a="s"><span class="d"></span>${statusLabel(o.status)}</span>${postepHtml(o)}${rozpoczetoO(o)?'<div class="rozp" title="Pracownik kliknął „Rozpocznij”">rozpoczęto '+dataGodz(rozpoczetoO(o))+'</div>':''}</td>
     <td class="num lp col-zam">${fmtD(o.zam)}</td>
     <td class="r num c-val">${wartoscHtml(o)}</td>`;
   tr.querySelector('[data-a="w"]').onclick=e=>{ e.stopPropagation(); workerMenu(e.currentTarget,o); };
@@ -1490,7 +1494,7 @@ function przydzialyHtml(o){
     const proc=Math.round(100*Math.min(p.wykonano||0,p.ilosc)/Math.max(1,p.ilosc));
     const czas=o.godzinowe && (p.czasZap||p.czas||p.start) ? (p.start?'pracuje teraz · ':'')+'czas: '+(p.start?tmr(p,0,'t'):czasTxt(p.czas)) : (p.start?'pracuje teraz':'');
     return `<div class="przi"><span class="mini-av">${esc(inicjaly(p.prac))}</span><span class="nm">${esc(bezNr(p.prac))}</span><span class="chip ${statusCls(p.status)}"><span class="d"></span>${statusLabel(p.status)}</span>
-      <span class="meta">${num.format(Math.min(p.wykonano||0,p.ilosc))} / ${num.format(p.ilosc)} szt.${czas?' · '+czas:''}${o.godzinowe?' · kwota: '+(p.start?tmr(p,o.stawka,'kw'):zl.format(p.kwota||0)):''}${p.pierwszy?' · rozpoczęto '+godz(p.pierwszy):''}${p.cenaStart!=null&&!o.godzinowe?' · <b>cena przy rozpoczęciu '+zl.format(p.cenaStart)+'</b>'+(Math.abs(p.cenaStart-(o.cenaSzt||0))>=0.01?' (aktualna '+zl.format(o.cenaSzt||0)+')':''):''}${p.ukonczono&&p.status==='ukończono'?' · ukończono '+godz(p.ukonczono):''}${p.excel?' · przypisanie z Excela':''}</span>
+      <span class="meta">${num.format(Math.min(p.wykonano||0,p.ilosc))} / ${num.format(p.ilosc)} szt.${czas?' · '+czas:''}${o.godzinowe?' · kwota: '+(p.start?tmr(p,o.stawka,'kw'):zl.format(p.kwota||0)):''}${p.pierwszy?' · <b>rozpoczęto '+dataGodz(p.pierwszy)+'</b>':(p.status==='przypisano'?' · jeszcze nie rozpoczęto':'')}${p.ukonczono&&p.status==='ukończono'?' · ukończono '+godz(p.ukonczono):''}${p.excel?' · przypisanie z Excela':''}</span>
       <div class="pbar2"><i class="${proc>=100?'full':proc>0?'':'zero'}" style="width:${proc}%"></i></div>
       ${p.problem?`<div class="pr">⚠ ${esc(p.problem)}</div>`:''}</div>`;
   }).join('')+'</div>';
@@ -2138,8 +2142,7 @@ function szczegolyZadania(o){
         <span class="chip">${o.qtyZam&&o.qtyZam!==qty?'Twoja część: '+num.format(qty)+' z '+num.format(o.qtyZam)+' szt.':'Ilość: '+num.format(qty)+' szt.'}</span>
         <span class="chip ${statusCls(o.status)}"><span class="d"></span>${statusLabel(o.status)} · ${num.format(Math.min(wyk,qty))}/${num.format(qty)}</span>
         ${o.stawka>0&&(o.czasZap||o.start)?`<span class="chip">Czas pracy: ${o.start?tmr(o,0,'t'):czasTxt(o.czasZap)}</span>`:''}
-        ${!(o.stawka>0)&&o.cenaSzt?`<span class="chip">Cena: ${zl.format(o.cenaSzt)} / szt.${o.cenaStart!=null?' · ustalona przy rozpoczęciu':''}</span>`:''}
-        ${o.pierwszy?`<span class="chip">Rozpoczęto: ${godz(o.pierwszy)}</span>`:''}
+        ${o.pierwszy?`<span class="chip">Rozpoczęto: ${dataGodz(o.pierwszy)}</span>`:''}
       </div>
       <div class="stbtns" style="margin-bottom:18px">${przyciskiZadania(o)}</div>
       ${o.stawka>0?`<div class="pricebox"><div class="row"><span>Praca na godziny — stawka</span><span class="num">${zl.format(o.stawka)} / h</span></div><div class="row tot"><span>Naliczono</span><span class="num">${o.start?tmr(o,o.stawka,'kw'):zl.format(kwotaGodz(o,o.stawka))}</span></div><div class="note">Czas liczy się od „Rozpocznij” do „Wstrzymaj” lub „Ukończ”.</div></div>`:''}
@@ -2223,7 +2226,7 @@ function renderWorker(){
     const r=document.createElement('div'); r.className='trow '+(cls?'r-'+cls:'')+(o.status==='ukończono'?' done':'');
     const cena = o.stawka>0
       ? `<span class="v num">${zl.format(o.stawka)}/h</span><span class="sub">naliczono ${o.start?tmr(o,o.stawka,'kw'):zl.format(kwotaGodz(o,o.stawka))}</span>`
-      : o.cenaSzt ? `<span class="v num">${zl.format(o.cenaSzt)}</span><span class="sub">za szt. · razem ${zl.format(o.cenaRazem)}</span>${o.cenaStart!=null?'<span class="sub">ustalona przy rozpoczęciu'+(o.pierwszy?' '+godz(o.pierwszy):'')+'</span>':''}` : '<span class="v lp">—</span>';
+      : o.cenaSzt ? `<span class="v num">${zl.format(o.cenaSzt)}</span><span class="sub">za szt. · razem ${zl.format(o.cenaRazem)}</span>` : '<span class="v lp">—</span>';
     r.innerHTML=`
       <div class="c-due">${k('Termin')}<span class="due ${cls}">${o.termin?fmtD(o.termin):'—'}</span><span class="sub">${o.status==='ukończono'&&o.ukonczono?'ukończono '+fmtD(o.ukonczono):(dueSub||'')}</span></div>
       <div class="art c-art">${k('Artykuł')}<span class="v">${esc(nazwaPelna(o))}${(o.dodatki||[]).filter(x=>!/z excela/i.test(x.nazwa)).length?'<span class="tag ok" title="'+esc(o.dodatki.map(x=>x.nazwa).join(', '))+'">+ dodatki</span>':''}${o.trudne?'<span class="tag hard" title="'+esc(o.trudne.join(', '))+'">trudne</span>':''}${o.stawka>0?'<span class="tag hr">godzinowe</span>':''}</span><span class="sub">${o.qtyZam&&o.qtyZam!==qty?'Twoja część: '+num.format(qty)+' z '+num.format(o.qtyZam)+' szt.':num.format(qty)+' szt.'}${d.waga?' · <b>waga '+esc(d.waga)+'</b>':wagaBrak(o)?' · <b class="wbrV">waga do uzupełnienia</b>':''}${wsp.length?' · razem z: '+esc(wsp.map(x=>bezNr(x.prac)).join(', ')):''}${o.komentarz?' · <b style="color:var(--amber)">uwagi klienta</b>':''}</span>
@@ -2234,7 +2237,7 @@ function renderWorker(){
         <div class="pbar"><i class="${wyk>=qty?'full':''}" style="width:${100*Math.min(wyk,qty)/qty}%"></i></div></div>
       <div>${k('Wypełnienie')}${v(d.wypelnienie)}</div><div>${k('Waga')}${d.waga?`<span class="v"><b>${esc(d.waga)}</b></span>`:wagaBrak(o)?`<span class="v wbrV">do uzupełnienia</span><span class="sub">${o.wagaCiala?'waga ciała: '+esc(o.wagaCiala)+' · ':''}zapytaj kierownika</span>`:v('')}</div>
       <div>${k('Cena')}${cena}</div>
-      <div class="c-st">${k('Status')}<div class="sthead"><span class="chip ${statusCls(o.status)}"><span class="d"></span>${statusLabel(o.status)}</span>${!(o.stawka>0)?'':o.status==='w trakcie'?tmr(o,0,'t'):(o.czasZap&&o.status!=='przypisano'?'<span class="lp" style="font-size:12px">'+czasTxt(o.czasZap)+'</span>':'')}</div><div class="stbtns">${przyciskiZadania(o)}</div></div>
+      <div class="c-st">${k('Status')}<div class="sthead"><span class="chip ${statusCls(o.status)}"><span class="d"></span>${statusLabel(o.status)}</span>${!(o.stawka>0)?'':o.status==='w trakcie'?tmr(o,0,'t'):(o.czasZap&&o.status!=='przypisano'?'<span class="lp" style="font-size:12px">'+czasTxt(o.czasZap)+'</span>':'')}</div><div class="stbtns">${przyciskiZadania(o)}</div>${o.pierwszy?'<span class="sub">rozpoczęto '+dataGodz(o.pierwszy)+'</span>':''}</div>
       ${tryb==='opis'?`<div class="full"><p>${esc(o.uwagi)}</p></div>`:''}
       ${tryb==='problem'?`<div class="full"><div class="probForm">
           <label class="field"><span>Opisz problem przy tym zadaniu (nieobowiązkowe) — zobaczy go kierownik</span>
