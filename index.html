@@ -137,6 +137,7 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.45}
 .nav button:hover{background:var(--hover);color:var(--ink)}
 .nav button.on{background:var(--grey-soft);color:var(--ink)}
 .spacer{flex:1}
+@media (min-width:900px) and (max-width:1600px){ .brand .app{display:none} #refreshBtn .lbl,[data-install] .lbl{display:none} .nav button{padding:7px 10px} }
 .actions{display:flex;align-items:center;gap:10px}
 .sync{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);white-space:nowrap}
 .sync .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft);flex:none}
@@ -336,6 +337,13 @@ td.col-desc{white-space:normal;min-width:220px;width:40%;max-width:620px}
 
 /* podsumowanie miesięczne */
 .months{display:grid;gap:14px}
+.ytryb{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.ytryb b{color:var(--ink)}
+.ysum{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:baseline;margin:0 0 12px;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.ysum small{display:block;color:var(--muted);font-size:12px}
+.ysum b{font-size:20px;letter-spacing:-.02em}
+.month.zero .month-h{opacity:.6}
+.month-h .yid{font-size:12px;color:var(--muted);font-weight:500;margin-right:6px}
 .month{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
 .month.cur{border-color:var(--brand-line);box-shadow:0 0 0 3px var(--brand-soft),var(--shadow)}
 .month-h{display:flex;align-items:center;gap:16px;padding:16px 18px;cursor:pointer;flex-wrap:wrap}
@@ -721,7 +729,7 @@ tr.grp-h.open .gchev{transform:rotate(90deg)}
       </div>
       <div class="cols">
         <div class="panel">
-          <div class="panel-h"><h3>Pracownicy</h3><span id="wMonth"></span></div>
+          <div class="panel-h"><h3>Pracownicy</h3><span id="wMonth"></span><button class="btn ghost sm" id="toPay" style="margin-left:8px">Wypłaty →</button></div>
           <div class="scroll wl"><ul class="wlist" id="workers"></ul></div>
         </div>
         <div class="panel">
@@ -742,6 +750,7 @@ tr.grp-h.open .gchev{transform:rotate(90deg)}
         <label class="field grow"><span>Szukaj</span><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input" type="search" id="pSearch" placeholder="Nazwa produktu, rozmiar, kolor…"></div></label>
         <label class="field"><span>Pokaż</span><select class="input" id="pZrodlo"><option value="all">Wszystkie</option><option value="cennik">Z cennika (bez zmian)</option><option value="zmieniony">Zmienione w aplikacji</option><option value="nowy">Dodane w aplikacji</option><option value="wbudowany">Prototyp (stawka godzinowa)</option><option value="ukryte">Ukryte w formularzu</option></select></label>
       </div>
+      <div class="hardbox hidden" id="pKorekty" style="margin-bottom:14px"></div>
       <div class="panel">
         <div class="panel-h"><h3>Lista produktów</h3><span id="pCount"></span></div>
         <div style="overflow-x:auto"><table class="ptable"><thead><tr><th>Produkt</th><th>Wariant / specyfikacja</th><th class="r">Cena</th><th>Dane produktu</th><th>Źródło</th><th></th></tr></thead><tbody id="pTable"></tbody></table></div>
@@ -750,6 +759,19 @@ tr.grp-h.open .gchev{transform:rotate(90deg)}
     </section>
 
     <!-- KIEROWNIK: MAGAZYN BASELINKERA -->
+    <section id="vPay" class="hidden">
+      <div class="pageHead"><div><h2>Wypłaty pracowników</h2><p id="yInfo">Kwoty za wykonane sztuki (akord) i pracę na godziny (prototypy)</p></div></div>
+      <div class="filters">
+        <label class="field"><span>Miesiąc</span><select class="input" id="yMies"></select></label>
+        <label class="field"><span>Sposób liczenia wypłat</span><select class="input" id="yTryb"><option value="wyk">Sztuki wykonane w tym miesiącu</option><option value="przyp">Zamówienia przypisane w tym miesiącu</option></select></label>
+        <label class="field"><span>Sortuj</span><select class="input" id="ySort"><option value="kw">Kwota — od najwyższej</option><option value="kw0">Kwota — od najniższej</option><option value="szt">Sztuki — najwięcej</option><option value="nazwa">Imię A–Z</option><option value="id">Numer pracownika</option></select></label>
+        <label class="field grow"><span>Szukaj</span><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input class="input" type="search" id="ySzukaj" placeholder="Imię, numer, produkt…"></div></label>
+      </div>
+      <div class="ytryb" id="yTrybOpis"></div>
+      <div class="ysum" id="ySum"></div>
+      <label class="chkrow" style="margin:0 0 12px"><input type="checkbox" id="yZero"><span>Pokaż też osoby bez wypłaty w tym miesiącu</span></label>
+      <div class="months" id="yList"></div>
+    </section>
     <section id="vStock" class="hidden">
       <div class="pageHead"><div><h2>Magazyn BaseLinkera</h2><p id="sSub">Produkty i stany magazynowe z BaseLinkera (tylko odczyt, odświeżane co 15 minut)</p></div>
         <button class="btn primary" id="sRefresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-2.64-6.36M21 4v5h-5"/></svg><span>Odśwież z BaseLinkera</span></button></div>
@@ -789,6 +811,9 @@ tr.grp-h.open .gchev{transform:rotate(90deg)}
               <div class="field"><span>Które statusy oznaczają zamówienie do uszycia?</span><div class="chkl" id="blStatusy"></div>
                 <p class="hint">Pobierane są zamówienia w zaznaczonych statusach (gdy nic nie zaznaczysz — wszystkie). Zamówienie, które później trafi do zaznaczonego statusu, też zostanie pobrane. Statusy, uwagi klienta i uwagi wewnętrzne są aktualizowane przy każdej synchronizacji; zamówienie w statusie „Zrealizowane” liczy się w aplikacji jako ukończone.</p></div>
               <div class="row2"><button class="btn primary" id="blSave">Zapisz ustawienia</button><button class="btn" id="blSyncNow">Synchronizuj teraz</button></div>
+              <div class="field" style="margin-top:16px"><span>Pobierz jedno zamówienie z BaseLinkera (gdy nie weszło samo)</span>
+                <div class="row2" style="align-items:center"><input class="input" id="blNr" inputmode="numeric" maxlength="60" placeholder="np. 866172634 albo nr w sklepie" style="flex:1;min-width:180px"><button class="btn" id="blPobierz">Pobierz zamówienie</button></div>
+                <p class="hint" id="blPobInfo" style="margin-top:6px">Pobiera zamówienie bez względu na gwiazdkę, status i datę — i podpowiada, dlaczego nie weszło automatycznie.</p></div>
             </div>
           </div>
         </div>
@@ -949,7 +974,7 @@ function start(profil){
   $('appName').textContent = 'Plan produkcji'; $('appName').classList.toggle('hidden', me.rola==='kierownik');
   const nav=$('nav'); nav.innerHTML='';
   if(me.rola==='kierownik'){
-    [['orders','Zamówienia'],['products','Produkty'],['stock','Magazyn'],['accounts','Konta i ustawienia']].forEach(([v,t])=>{ const b=document.createElement('button'); b.textContent=t; b.dataset.v=v; b.onclick=()=>setView(v); nav.appendChild(b); });
+    [['orders','Zamówienia'],['products','Produkty'],['stock','Magazyn'],['pay','Wypłaty'],['accounts','Ustawienia']].forEach(([v,t])=>{ const b=document.createElement('button'); b.textContent=t; b.dataset.v=v; b.onclick=()=>setView(v); nav.appendChild(b); });
     setView('orders');
   } else {
     $('wHello').textContent='Plan produkcji — '+me.imie;
@@ -964,17 +989,19 @@ function setView(v){
   $('vAccounts').classList.toggle('hidden', v!=='accounts');
   $('vProducts').classList.toggle('hidden', v!=='products');
   $('vStock').classList.toggle('hidden', v!=='stock');
+  $('vPay').classList.toggle('hidden', v!=='pay');
   $('vWorker').classList.toggle('hidden', v!=='worker');
   [...$('nav').children].forEach(b=>b.classList.toggle('on', b.dataset.v===v));
   if(v==='accounts'){ loadAccounts(); loadSettings(); }
   if(v==='products') loadProducts();
   if(v==='stock') loadStock(false);
+  if(v==='pay') loadPay();
 }
 function logout(silent){
   if(token && !silent) api('wyloguj', token).catch(()=>{});
   token=null; me=null; rows=[]; podsum=[]; znakDanych=''; ss.set('token', null);
   clearInterval(timer); closeMenu(); closeDrawer(); closeModal(); mag=null;
-  ['vOrders','vAccounts','vProducts','vStock','vWorker','banner'].forEach(id=>$(id).classList.add('hidden'));
+  ['vOrders','vAccounts','vProducts','vStock','vPay','vWorker','banner'].forEach(id=>$(id).classList.add('hidden'));
   $('orders').innerHTML=''; $('workers').innerHTML=''; $('tasks').innerHTML=''; $('months').innerHTML='';
   $('app').classList.add('hidden'); $('loginScreen').classList.remove('hidden');
   pinBuf=''; drawDots(); otwMies.clear(); otwMiesInit=false;
@@ -986,7 +1013,7 @@ async function synchronizujTeraz(btn){
   btn.disabled=true; sync('busy','Synchronizacja z BaseLinkerem…');
   try{
     const r=await api('synchronizuj', token);
-    toast(r.zajete ? 'Trwa inna operacja — spróbuj synchronizacji za chwilę.' : r.pominieto ? 'BaseLinker nie jest podłączony — wpisz token w „Konta i ustawienia”.' : 'BaseLinker: '+r.wynik+(r.duplikaty?' · pominięto '+r.duplikaty+' już wpisanych':''));
+    toast(r.zajete ? 'Synchronizacja już trwa — nowe zamówienia pojawią się za chwilę.' : r.pominieto ? 'BaseLinker nie jest podłączony — wpisz token w „Ustawienia”.' : 'BaseLinker: '+r.wynik+(r.duplikaty?' · pominięto '+r.duplikaty+' już wpisanych':''));
     await refresh(false); if(view==='accounts') loadSettings();
   }catch(e){ toast(e.message); sync('err','Błąd synchronizacji'); }
   finally{ btn.disabled=false; }
@@ -1011,7 +1038,7 @@ async function refresh(first){
       blStatusy=info.blStatusy||{};
       fillFilters(r.miesiace, r.miesiac);
       const bl=info.bl||{};
-      banner(!bl.token ? 'BaseLinker nie jest jeszcze podłączony — wpisz token API w zakładce „Konta i ustawienia”, a nowe zamówienia będą pobierane same co 5 minut.'
+      banner(!bl.token ? 'BaseLinker nie jest jeszcze podłączony — wpisz token API w zakładce „Ustawienia”, a nowe zamówienia będą pobierane same co 5 minut.'
         : bl.blad ? 'Ostatnia synchronizacja z BaseLinkerem nie udała się: '+bl.blad : '');
       blStatusy=info.blStatusy||{};
       $('ordersSub').textContent=num.format(info.liczba||0)+' pozycji w bazie · BaseLinker: '+(bl.token ? (bl.ostatnio ? 'sprawdzono '+godz(bl.ostatnio) : 'podłączony') : 'niepodłączony');
@@ -1020,7 +1047,7 @@ async function refresh(first){
       if(busy || nrZmian!==zmiany){ jeszczeRaz=true; return; }
       if(r.bezZmian){ sync('', 'Aktualne · '+new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})); return; }
       znakDanych=r.znak||'';
-      rows=r.wiersze; podsum=r.podsumowanie||[]; info=r.info||{}; if(info.teraz) tOff=info.teraz-Date.now();
+      rows=r.wiersze; podsum=r.podsumowanie||[]; trybW=r.trybWyplat||'wyk'; info=r.info||{}; if(info.teraz) tOff=info.teraz-Date.now();
       if(r.pracownik && me.pracownik!==r.pracownik){ me.pracownik=r.pracownik; $('whoRole').textContent='Pracownik · ID '+idOf(r.pracownik); }
     }
     render();
@@ -1522,7 +1549,7 @@ function openDrawer(o){
         ${(o.dodatki||[]).length?`<div class="note" style="margin:0 0 4px">${(o.dodatki||[]).some(x=>x.wybrany)?'Dodatki wybrane w aplikacji':'Dodatki odczytane z opisu zamówienia'}</div>`:''}
         <div class="row"><span>Cena za sztukę</span><span class="num">${o.cenaSzt?zl.format(o.cenaSzt):'—'}</span></div>
         <div class="row tot"><span>Razem (${num.format(o.qty||0)} szt.)</span><span class="num">${o.cenaRazem?zl.format(o.cenaRazem):'—'}</span></div>`}
-        <div class="note">${zrodlo}${o.uwagaRozmiar?' Uwaga: '+esc(o.uwagaRozmiar)+'.':''}</div>
+        <div class="note">${zrodlo}${o.uwagaRozmiar?' Uwaga: '+esc(o.uwagaRozmiar)+'.':''}${o.uwagaCennik?' Uwaga: '+esc(o.uwagaCennik)+'.':''}</div>
       </div>
       <div class="sect">Pełny opis</div>
       <p class="raw">${esc(o.uwagi)||'—'}</p>
@@ -1830,6 +1857,9 @@ function renderProducts(){
   const q=$('pSearch').value.trim().toLowerCase(), z=$('pZrodlo').value;
   const l=prod.lista.filter(p=>(z==='all'||(z==='ukryte'?!p.aktywny:p.zrodlo===z)) && (!q || [p.kat,p.war,p.rozmiar,p.tkanina,p.kolor,p.wypelnienie,p.waga,p.uwagi].join(' ').toLowerCase().includes(q)));
   $('pCount').textContent=num.format(l.length)+' poz.';
+  const kor=((info&&info.cennik)||{}).korekty||[];
+  $('pKorekty').classList.toggle('hidden', !kor.length);
+  $('pKorekty').innerHTML = kor.length ? '<b>Błędy w pliku cennika poprawione przez aplikację ('+kor.length+')</b> — kołdry CLASSIC / VELVET przypisane w cenniku do złej kategorii. Aplikacja liczy je wg kategorii z nazwy produktu. Popraw je w pliku cennika (arkusz „Przypisania_krawc_czas_cennik”, kolumna kategorii), żeby ceny w pliku też się zgadzały:<ul style="margin:6px 0 0 18px">'+kor.map(k=>'<li>'+esc(k.n)+' (ID '+esc(k.pid)+'): „'+esc(k.z)+'” → <b>„'+esc(k.na)+'”</b></li>').join('')+'</ul>' : '';
   const tb=$('pTable'); tb.innerHTML='';
   if(!l.length) tb.innerHTML='<tr><td colspan="6" class="empty">Brak produktów dla tych filtrów</td></tr>';
   l.slice(0,pShown).forEach(p=>{
@@ -1902,7 +1932,7 @@ $('sMore').onclick=()=>{ sShown+=200; renderStock(); };
 function renderStock(){
   if(!mag) return;
   const err=$('sErr');
-  if(mag.brakTokenu){ err.classList.remove('hidden'); err.lastElementChild.textContent='BaseLinker nie jest podłączony — wpisz token API w zakładce „Konta i ustawienia”.'; }
+  if(mag.brakTokenu){ err.classList.remove('hidden'); err.lastElementChild.textContent='BaseLinker nie jest podłączony — wpisz token API w zakładce „Ustawienia”.'; }
   else if(mag.blad){ err.classList.remove('hidden'); err.lastElementChild.textContent='Ostatnie pobranie magazynu nie udało się: '+mag.blad+(mag.kiedy?' (pokazuję stan z '+godz(mag.kiedy)+')':''); }
   else err.classList.add('hidden');
   $('sSub').textContent='Produkty i stany magazynowe z BaseLinkera (tylko odczyt) · '+(mag.kiedy?'pobrano '+godz(mag.kiedy):'jeszcze nie pobrano')+' · odświeżane co 15 minut';
@@ -1974,6 +2004,18 @@ $('blSave').onclick=async()=>{
   const r=await akcjaUst($('blSave'),'zapiszUstawienia',{od:$('blOd').value, statusy, gwiazdka:$('blGw').checked, wTrakcie:$('blWT').checked}); if(r){ ust=r; renderSettings(); toast('Zapisano ustawienia BaseLinkera'); }
 };
 $('blSyncNow').onclick=()=>synchronizujTeraz($('blSyncNow'));
+$('blPobierz').onclick=async()=>{
+  const n=$('blNr').value.trim(); if(!n) return toast('Wpisz numer zamówienia.');
+  const b=$('blPobierz'); b.disabled=true; $('blPobInfo').textContent='Szukam w BaseLinkerze…';
+  try{
+    const r=await api('pobierzZamowienieBL', token, n);
+    const pow=r.powody&&r.powody.length?' Automatycznie nie weszło, bo zamówienie '+r.powody.join(', ')+'.':'';
+    const t = r.dodano ? 'Dodano zamówienie '+r.blId+(r.nr&&r.nr!==r.blId?' ('+r.nr+')':'')+' — '+r.dodano+' poz.'+pow : 'Zamówienie '+r.blId+' już jest w aplikacji'+(r.juz&&r.juz.length?' (LP '+r.juz.join(', ')+')':'')+'.';
+    $('blPobInfo').textContent=t; toast(t); $('blNr').value=''; znakDanych='';
+  }catch(e){ $('blPobInfo').textContent=e.message; toast(e.message, true); }
+  b.disabled=false;
+};
+$('blNr').onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); $('blPobierz').click(); } };
 $('arSave').onclick=async()=>{
   sync('busy','Zapisywanie archiwum…');
   const r=await akcjaUst($('arSave'),'zapiszArchiwum'); sync('', 'Aktualne');
@@ -2220,7 +2262,7 @@ function renderMonths(){
   const box=$('months'), cm=todayStr().slice(0,7);
   if(!podsum.length){ box.innerHTML='<div class="panel empty">Nie ma jeszcze wykonanych prac.</div>'; return; }
   if(!otwMiesInit){ otwMies.add(podsum[0].miesiac); otwMiesInit=true; }
-  box.innerHTML='';
+  box.innerHTML='<p class="hint" style="margin:0 0 4px">'+(trybW==='przyp'?'Wypłata liczona wg miesiąca przypisania zamówienia — wszystkie sztuki wykonane przy zamówieniach przypisanych w danym miesiącu.':'Wypłata liczona wg dnia wykonania — każda sztuka liczy się w miesiącu, w którym ją zrobiłaś / zrobiłeś.')+'</p>';
   podsum.forEach(M=>{
     const el=document.createElement('section'); el.className='month'+(M.miesiac===cm?' cur':'')+(otwMies.has(M.miesiac)?' open':'');
     el.innerHTML=`<div class="month-h"><h3>${mlabel(M.miesiac)}${M.miesiac===cm?'<span class="live">bieżący · na żywo</span>':''}</h3>
@@ -2233,6 +2275,51 @@ function renderMonths(){
     box.appendChild(el);
   });
 }
+
+/* ---------- WYPŁATY ---------- */
+let pay=null, payOtw=new Set(), trybW='wyk';
+const TRYB_OPIS={ wyk:'<b>Sztuki wykonane w tym miesiącu</b> — liczy się data wykonania każdej sztuki. Przykład: zamówienie na 2 szt. przypisane 31 stycznia — 1 szt. zrobiona 31 stycznia idzie do stycznia, druga zrobiona 1 lutego — do lutego.',
+  przyp:'<b>Zamówienia przypisane w tym miesiącu</b> — liczą się zamówienia przypisane pracownikowi w danym miesiącu, ze wszystkimi sztukami, które przy nich wykonał (także później). Przykład: przypisane 31 stycznia, sztuki zrobione 31 stycznia i 1 lutego — obie idą do stycznia.' };
+async function loadPay(mies, tryb){
+  $('yList').innerHTML='<div class="panel empty">Wczytywanie…</div>';
+  try{ pay=await api('wyplaty', token, mies||($('yMies').value||''), tryb||''); }catch(e){ $('yList').innerHTML='<div class="panel empty">'+esc(e.message)+'</div>'; return; }
+  $('yMies').innerHTML=pay.miesiace.map(m=>`<option value="${m}">${mlabel(m)}</option>`).join(''); $('yMies').value=pay.miesiac;
+  $('yTryb').value=pay.tryb;
+  renderPay();
+}
+function renderPay(){
+  if(!pay) return;
+  $('yTrybOpis').innerHTML=TRYB_OPIS[pay.tryb]+(pay.tryb!==pay.zapisany?' <br><span style="color:var(--amber)">Podgląd — pracownicy widzą wypłaty liczone sposobem „'+(pay.zapisany==='przyp'?'przypisane w miesiącu':'wykonane w miesiącu')+'”.</span>':' Pracownicy widzą swoje podsumowanie liczone tak samo.');
+  const q=$('ySzukaj').value.trim().toLowerCase(), zero=$('yZero').checked, srt=$('ySort').value;
+  let L=pay.lista.filter(x=>(zero||x.kwota||x.szt||x.godz) && (!q || (x.prac+' '+x.pozycje.map(p=>p.nazwa).join(' ')).toLowerCase().includes(q)));
+  const nm=x=>bezNr(x.prac).toLowerCase(), id=x=>Number(idOf(x.prac))||9999;
+  const S={ kw:(a,b)=>b.kwota-a.kwota||nm(a).localeCompare(nm(b)), kw0:(a,b)=>a.kwota-b.kwota||nm(a).localeCompare(nm(b)), szt:(a,b)=>b.szt-a.szt||b.kwota-a.kwota, nazwa:(a,b)=>nm(a).localeCompare(nm(b),'pl'), id:(a,b)=>id(a)-id(b) };
+  L.sort(S[srt]||S.kw);
+  const sum=L.reduce((s,x)=>({k:s.k+x.kwota,s:s.s+x.szt,g:s.g+(x.godz||0)}),{k:0,s:0,g:0});
+  $('ySum').innerHTML=`<div><small>Razem do wypłaty</small><b class="num">${zl.format(sum.k)}</b></div><div><small>Sztuki</small><b class="num">${num.format(sum.s)}</b></div>${sum.g?`<div><small>Praca na godziny</small><b class="num">${esc(czasTxt(sum.g*3600))}</b></div>`:''}<div><small>Osoby</small><b class="num">${num.format(L.length)}</b></div><div style="margin-left:auto;align-self:center"><span class="lp">${mlabel(pay.miesiac)}</span></div>`;
+  const box=$('yList'); box.innerHTML='';
+  if(!L.length){ box.innerHTML='<div class="panel empty">'+(q?'Brak wyników dla „'+esc(q)+'”.':'Nikt nie ma wypłaty w tym miesiącu.')+'</div>'; return; }
+  L.forEach(x=>{
+    const otw=payOtw.has(x.prac), el=document.createElement('section'); el.className='month'+(otw?' open':'')+(x.kwota||x.szt?'':' zero');
+    const poz=x.pozycje.slice().sort((a,b)=>(b.data||'').localeCompare(a.data||'')||b.lp-a.lp);
+    el.innerHTML=`<div class="month-h"><h3>${idOf(x.prac)?'<span class="yid">'+esc(idOf(x.prac))+'</span>':''}${esc(bezNr(x.prac))}</h3>
+      <div class="stat"><div><small>Pozycje</small><b class="num">${num.format(poz.length)}</b></div><div><small>Sztuki</small><b class="num">${num.format(x.szt)}</b></div>${x.godz?`<div><small>Godziny</small><b class="num">${esc(czasTxt(x.godz*3600))}</b></div>`:''}<div><small>Kwota</small><b class="num">${zl.format(x.kwota)}</b></div></div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      ${otw?(poz.length?`<div class="tbl"><table><thead><tr><th>${pay.tryb==='przyp'?'Przypisano':'Wykonano'}</th><th>Artykuł</th><th class="r">Szt. / czas</th><th class="r">Cena / stawka</th><th class="r">Kwota</th></tr></thead><tbody>
+        ${poz.map(p=>`<tr><td class="num m-d">${fmtD(p.data)}</td><td class="m-a"><b style="font-weight:500">${esc(p.nazwa)}</b>${p.stawka?'<span class="tag hr">godzinowe</span>':''}</td><td class="r num m-s${p.stawka?' m-h':''}">${p.stawka?esc(czasTxt((p.godz||0)*3600))+(p.szt?' · '+num.format(p.szt)+' szt.':''):num.format(p.szt)}</td><td class="r num m-c">${p.stawka?zl.format(p.stawka)+'/h':p.cenaSzt?zl.format(p.cenaSzt):'—'}</td><td class="r num m-k"><b>${zl.format(p.kwota)}</b></td></tr>`).join('')}
+      </tbody></table></div>`:'<div class="empty" style="padding:14px 18px">Brak wykonanych prac w tym miesiącu.</div>'):''}`;
+    el.querySelector('.month-h').onclick=()=>{ otw?payOtw.delete(x.prac):payOtw.add(x.prac); renderPay(); };
+    box.appendChild(el);
+  });
+}
+$('yMies').onchange=()=>loadPay($('yMies').value, pay&&pay.tryb!==pay.zapisany?pay.tryb:'');
+$('yTryb').onchange=async()=>{
+  const t=$('yTryb').value;
+  try{ await api('zapiszTrybWyplat', token, t); toast('Zapisano sposób liczenia wypłat — pracownicy widzą podsumowanie liczone tak samo'); znakDanych=''; }catch(e){ return toast(e.message, true); }
+  loadPay($('yMies').value, t);
+};
+['ySort','yZero'].forEach(id=>$(id).onchange=renderPay); $('ySzukaj').oninput=renderPay;
+$('toPay').onclick=()=>{ setView('pay'); };
 
 function render(){ if(!me) return; if(me.rola==='kierownik'){ if(view==='orders') renderOrders(); } else renderWorker(); }
 
