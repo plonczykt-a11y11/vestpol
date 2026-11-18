@@ -1594,7 +1594,7 @@ async function edytujZamowienie(o, fokus){
   const katy=(slownikCache.kategorie||[]).map(k=>k[0]);
   const cenaPocz = o.cenaR ? o.cenaR : (o.zrodloZam==='Ręcznie' && o.cenaX ? o.cenaX : '');
   const proto=String(o.prod||'').toLowerCase()==='prototyp';
-  const pocz={ termin:o.terminR||'', qty:String(o.qty||1), cena:String(cenaPocz||''), stawka:o.stawka?String(o.stawka):'', kat:o.prod||'', spec:o.spec||'', opis:o.uwagi||'', nr:o.nr||'' };
+  const pocz={ termin:o.terminR||'', qty:String(o.qty||1), cena:String(cenaPocz||''), stawka:o.stawka?String(o.stawka):'', dod:o.dod?String(o.dod):'', kat:o.prod||'', spec:o.spec||'', opis:o.uwagi||'', nr:o.nr||'' };
   $('dBody').innerHTML=`<div class="sect">Edycja zamówienia${nrZam(o)?' nr '+esc(nrPelny(o)):''} · ${esc(nazwaPoz(o))}</div>
     <div class="fgrid">
       <label class="field"><span>Termin</span><input class="input" type="date" id="eTermin" value="${esc(pocz.termin)}"></label>
@@ -1603,7 +1603,8 @@ async function edytujZamowienie(o, fokus){
       <p class="hint full">Pusty termin = wg cennika${o.terminC?' ('+fmtD(o.terminC)+')':''}.${o.przydzielono?' Przydzielono pracownikom '+num.format(o.przydzielono)+' szt. — ilość nie może być mniejsza.':''}</p>
       <label class="field"><span>Cena za szt. (zł)</span><input class="input" type="number" min="0" step="0.01" id="eCena" value="${esc(pocz.cena)}" placeholder="${o.godzinowe?'—':o.cenaBaza&&o.zrodlo!=='reczna'?'wg cennika: '+num.format(o.cenaBaza):'wg cennika'}"></label>
       ${proto?`<label class="field"><span>Stawka godzinowa (zł/h)</span><input class="input" type="number" min="0" step="0.01" id="eStawka" value="${esc(pocz.stawka)}"></label>`:''}
-      <p class="hint full">Pusta cena = z cennika.${proto?' Prototyp rozlicza się godzinowo: czas pracy × stawka.':''}</p>
+      ${proto?'':`<label class="field"><span>Inne dopłaty za szt. (zł)</span><input class="input" type="number" min="0" step="0.01" id="eDopl" value="${esc(pocz.dod)}" placeholder="0"></label>`}
+      <p class="hint full">Pusta cena = z cennika.${proto?' Prototyp rozlicza się godzinowo: czas pracy × stawka.':' Inne dopłaty doliczają się do ceny każdej sztuki.'}</p>
       ${proto?'':`<div class="field full"><span>Dodatki (pętelki, troczki, worek, naszywki…)</span><div class="row2" style="align-items:center"><button type="button" class="btn" id="eDod">${(o.dodatki||[]).filter(x=>!x.inne).length?'Dodaj / zmień dodatki':'+ Dodaj dodatki'}</button><span class="hint" style="flex:1;min-width:160px">${esc((o.dodatki||[]).filter(x=>!x.inne).map(x=>x.nazwa).join(', ')||'brak')}</span></div></div>`}
       <label class="field full"><span>Produkt / kategoria</span><input class="input" id="eKat" list="eKatL" value="${esc(pocz.kat)}" placeholder="${esc(o.kat?'rozpoznano: '+o.kat:'rozpoznawany z opisu')}" maxlength="120" autocomplete="off"><datalist id="eKatL">${katy.map(k=>`<option value="${esc(k)}">`).join('')}</datalist></label>
       <label class="field full"><span>Wariant / specyfikacja</span><input class="input" id="eSpec" value="${esc(pocz.spec)}" placeholder="${esc(o.specE?'rozpoznano: '+o.specE:'')}" maxlength="120"></label>
@@ -1617,7 +1618,7 @@ async function edytujZamowienie(o, fokus){
   if($('eDod')) $('eDod').onclick=()=>edytujDodatki(o);
   const f=fokus==='termin' ? $('eTermin') : $('eQty'); try{ f.focus(); }catch(e){}
   $('eSave').onclick=async()=>{
-    const v={ termin:$('eTermin').value, qty:$('eQty').value, cena:$('eCena').value, stawka:$('eStawka')?$('eStawka').value:pocz.stawka, kat:$('eKat').value.trim(), spec:$('eSpec').value.trim(), opis:$('eOpis').value.trim(), nr:$('eNr').value.trim() };
+    const v={ termin:$('eTermin').value, qty:$('eQty').value, cena:$('eCena').value, stawka:$('eStawka')?$('eStawka').value:pocz.stawka, dod:$('eDopl')?$('eDopl').value:pocz.dod, kat:$('eKat').value.trim(), spec:$('eSpec').value.trim(), opis:$('eOpis').value.trim(), nr:$('eNr').value.trim() };
     const z={}; Object.keys(v).forEach(k=>{ if(String(v[k])!==String(pocz[k])) z[k]=v[k]; });
     if($('eTerGr') && $('eTerGr').checked){ z.termin=v.termin; z.terminGrupa=true; }
     if(!Object.keys(z).length) return openDrawer(o);
